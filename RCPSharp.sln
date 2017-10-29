@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RCPSharp", "RCPSharp\RCPSharp.csproj", "{C45515EA-1AFD-4F13-9319-C98B6BD20756}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RCPSharp", "RCPSharp.csproj", "{642C1ECC-23BB-4B57-B9DA-228096B16847}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C45515EA-1AFD-4F13-9319-C98B6BD20756}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C45515EA-1AFD-4F13-9319-C98B6BD20756}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C45515EA-1AFD-4F13-9319-C98B6BD20756}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C45515EA-1AFD-4F13-9319-C98B6BD20756}.Release|Any CPU.Build.0 = Release|Any CPU
+		{642C1ECC-23BB-4B57-B9DA-228096B16847}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{642C1ECC-23BB-4B57-B9DA-228096B16847}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{642C1ECC-23BB-4B57-B9DA-228096B16847}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{642C1ECC-23BB-4B57-B9DA-228096B16847}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7158F983-B28E-4E8B-A4CD-466F31721E6F}
+		SolutionGuid = {8A7A1790-F84C-4C59-8651-0E4232300510}
 	EndGlobalSection
 EndGlobal
