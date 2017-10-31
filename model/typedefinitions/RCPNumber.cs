@@ -17,15 +17,15 @@ namespace RCP.Model
         public RCPNumber(RcpTypes.Datatype datatype)
         : base(datatype) { }
 
-        public static void Parse(RCPNumber<T> number, RcpTypes.NumberProperty property, KaitaiStream input)
+        public static void Parse(RCPNumber<T> number, RcpTypes.NumberOptions property, KaitaiStream input)
         {
             switch (property)
             {
-                case RcpTypes.NumberProperty.Scale:
+                case RcpTypes.NumberOptions.Scale:
                     number.Scale = (RcpTypes.NumberScale)input.ReadU1();
                     break;
 
-                case RcpTypes.NumberProperty.Unit:
+                case RcpTypes.NumberOptions.Unit:
                     number.Unit = new RcpTypes.TinyString(input).Data;
                     break;
 
@@ -41,37 +41,37 @@ namespace RCP.Model
         {
             if (!Default.Equals(TypesDefault()))
             {
-                writer.Write((byte)RcpTypes.NumberProperty.Default);
+                writer.Write((byte)RcpTypes.NumberOptions.Default);
                 WriteValue(writer, Default);
             }
 
             if (!Minimum.Equals(TypesDefault()))
             {
-                writer.Write((byte)RcpTypes.NumberProperty.Minimum);
+                writer.Write((byte)RcpTypes.NumberOptions.Minimum);
                 WriteValue(writer, Minimum);
             }
 
             if (!Maximum.Equals(TypesDefault()))
             {
-                writer.Write((byte)RcpTypes.NumberProperty.Maximum);
+                writer.Write((byte)RcpTypes.NumberOptions.Maximum);
                 WriteValue(writer, Maximum);
             }
 
             if (!MultipleOf.Equals(TypesDefault()))
             {
-                writer.Write((byte)RcpTypes.NumberProperty.Multipleof);
+                writer.Write((byte)RcpTypes.NumberOptions.Multipleof);
                 WriteValue(writer, MultipleOf);
             }
 
             if (Scale != null)
             {
-                writer.Write((byte)RcpTypes.NumberProperty.Scale);
+                writer.Write((byte)RcpTypes.NumberOptions.Scale);
                 writer.Write((byte)Scale);
             }
         	
         	if (!string.IsNullOrWhiteSpace(Unit))
             {
-                writer.Write((byte)RcpTypes.NumberProperty.Unit);
+                writer.Write((byte)RcpTypes.NumberOptions.Unit);
                 writer.Write(Unit);
             }
         }

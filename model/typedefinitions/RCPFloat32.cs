@@ -31,22 +31,22 @@ namespace RCP.Model
                 if (code == 0)
                     break;
 
-                var property = (RcpTypes.NumberProperty)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.NumberProperty), property)) 
+                var property = (RcpTypes.NumberOptions)code;
+				if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), property)) 
                 	throw new RCPDataErrorException();
 
                 switch (property)
                 {
-                    case RcpTypes.NumberProperty.Default:
+                    case RcpTypes.NumberOptions.Default:
                         floatDefinition.Default = input.ReadF4be();
                         break;
-                    case RcpTypes.NumberProperty.Minimum:
+                    case RcpTypes.NumberOptions.Minimum:
                         floatDefinition.Minimum = input.ReadF4be();
                         break;
-                    case RcpTypes.NumberProperty.Maximum:
+                    case RcpTypes.NumberOptions.Maximum:
                         floatDefinition.Maximum = input.ReadF4be();
                         break;
-                    case RcpTypes.NumberProperty.Multipleof:
+                    case RcpTypes.NumberOptions.Multipleof:
                         floatDefinition.MultipleOf = input.ReadF4be();
                         break;
                 }

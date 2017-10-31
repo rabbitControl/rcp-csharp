@@ -25,13 +25,13 @@ namespace RCP.Model
                 if (code == 0)
                     break;
 
-                var property = (RcpTypes.StringProperty)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.StringProperty), property)) 
+                var property = (RcpTypes.StringOptions)code;
+				if (!Enum.IsDefined(typeof(RcpTypes.StringOptions), property)) 
                 	throw new RCPDataErrorException();
 
                 switch (property)
                 {
-                    case RcpTypes.StringProperty.Default:
+                    case RcpTypes.StringOptions.Default:
                         stringDefinition.Default = new RcpTypes.LongString(input).Data;
                         break;
                 }
@@ -49,7 +49,7 @@ namespace RCP.Model
         {
         	if (!String.IsNullOrWhiteSpace(Default))
         	{
-        		writer.Write((byte)RcpTypes.StringProperty.Default);
+        		writer.Write((byte)RcpTypes.StringOptions.Default);
         		RcpTypes.LongString.Write(Default, writer);
         	}
         }

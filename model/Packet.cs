@@ -34,13 +34,13 @@ namespace RCP.Model
                 if (code == 0) // terminator
                     break;
 
-                var property = (RcpTypes.Packet)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.Packet), property)) 
+                var property = (RcpTypes.PacketOptions)code;
+				if (!Enum.IsDefined(typeof(RcpTypes.PacketOptions), property)) 
                 	throw new RCPDataErrorException();
 
                 switch (property)
                 {
-                    case RcpTypes.Packet.Data:
+                    case RcpTypes.PacketOptions.Data:
                         switch (command)
                         {
 //	                        case RcpTypes.Command.Initialize:
@@ -60,11 +60,11 @@ namespace RCP.Model
 
                         break;
 
-                    case RcpTypes.Packet.Id:
+                    case RcpTypes.PacketOptions.Id:
                         packet.Id = input.ReadU4be();
                         break;
 
-                    case RcpTypes.Packet.Timestamp:
+                    case RcpTypes.PacketOptions.Timestamp:
                         packet.Timestamp = input.ReadU8be();
                         break;
                     
@@ -87,7 +87,7 @@ namespace RCP.Model
             //data
         	if (Data != null)
         	{
-            	writer.Write((byte)RcpTypes.Packet.Data);
+            	writer.Write((byte)RcpTypes.PacketOptions.Data);
             	Data.Write(writer);
         	}
 

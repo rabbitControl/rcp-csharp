@@ -42,16 +42,16 @@ namespace RCP.Model
                 if (code == 0) // terminator
                     break;
 
-            	var property = (RcpTypes.Parameter)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.Parameter), property)) 
+            	var property = (RcpTypes.ParameterOptions)code;
+				if (!Enum.IsDefined(typeof(RcpTypes.ParameterOptions), property)) 
                 	throw new RCPDataErrorException();
             	
-            	if (typedefinition == null)
-	            	MessageBox.Show(property.ToString() + " : ");
+//            	if (typedefinition == null)
+//	            	MessageBox.Show(property.ToString() + " : ");
             	
                 switch (property)
                 {
-                    case RcpTypes.Parameter.Value:
+                    case RcpTypes.ParameterOptions.Value:
                       	switch ((RcpTypes.Datatype)typedefinition.Datatype) 
                 		{
 ////                            case RcpTypes.Datatype.Boolean:
@@ -74,22 +74,22 @@ namespace RCP.Model
 
                         break;
 
-                    case RcpTypes.Parameter.Label:
+                    case RcpTypes.ParameterOptions.Label:
                         parameter.Label = new RcpTypes.TinyString(input).Data;
                         break;
 
-                    case RcpTypes.Parameter.Description:
+                    case RcpTypes.ParameterOptions.Description:
                         parameter.Description = new RcpTypes.ShortString(input).Data;
                         break;
 
-                    case RcpTypes.Parameter.Order:
+                    case RcpTypes.ParameterOptions.Order:
                         parameter.Order = input.ReadS4be();
                         break;
 
-                    case RcpTypes.Parameter.Widget:
+                    case RcpTypes.ParameterOptions.Widget:
                         throw new RCPUnsupportedFeatureException();
 
-                    case RcpTypes.Parameter.Userdata:
+                    case RcpTypes.ParameterOptions.Userdata:
                         parameter.UserData = new RcpTypes.Userdata(input).Data;
                         break;
 
@@ -110,31 +110,31 @@ namespace RCP.Model
             //optional
             if (Value != null)
         	{
-        		writer.Write((byte)RcpTypes.Parameter.Value);
+        		writer.Write((byte)RcpTypes.ParameterOptions.Value);
         		TypeDefinition.WriteValue(writer, Value);
         	}
 
             if (!string.IsNullOrWhiteSpace(Label))
             {
-                writer.Write((byte)RcpTypes.Parameter.Label);
+                writer.Write((byte)RcpTypes.ParameterOptions.Label);
                 RcpTypes.TinyString.Write(Label, writer);
             }
 
             if (!string.IsNullOrWhiteSpace(Description))
             {
-                writer.Write((byte)RcpTypes.Parameter.Description);
+                writer.Write((byte)RcpTypes.ParameterOptions.Description);
                 RcpTypes.ShortString.Write(Description, writer);
             }
 
             if (Order != null)
             {
-                writer.Write((byte)RcpTypes.Parameter.Order);
+                writer.Write((byte)RcpTypes.ParameterOptions.Order);
                 writer.Write((int)Order, ByteOrder.BigEndian);
             }
 
             if (Parent != null)
             {
-                writer.Write((byte)RcpTypes.Parameter.Parent);
+                writer.Write((byte)RcpTypes.ParameterOptions.Parent);
                 writer.Write((uint)Parent, ByteOrder.BigEndian);
             }
 

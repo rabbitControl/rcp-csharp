@@ -13,12 +13,28 @@ namespace RCP.Model
             return new RcpTypes(new KaitaiStream(fileName));
         }
 
-        public enum StringProperty
+        public enum EnumOptions
+        {
+            Default = 48,
+            Entries = 49,
+        }
+
+        public enum WidgetOptions
+        {
+            Type = 80,
+            Enabled = 81,
+            Visible = 82,
+            LabelVisible = 83,
+            ValueVisible = 84,
+            LabelPosition = 85,
+        }
+
+        public enum ColorOptions
         {
             Default = 48,
         }
 
-        public enum Parameter
+        public enum ParameterOptions
         {
             Value = 32,
             Label = 33,
@@ -29,33 +45,27 @@ namespace RCP.Model
             Userdata = 38,
         }
 
-        public enum DynamicArrayProperty
+        public enum VectorOptions
+        {
+            Default = 48,
+            Minimum = 49,
+            Maximum = 50,
+            Multipleof = 51,
+            Scale = 52,
+            Unit = 53,
+        }
+
+        public enum CompoundOptions
         {
             Default = 48,
         }
 
-        public enum BooleanProperty
+        public enum BooleanOptions
         {
             Default = 48,
         }
 
-        public enum EnumProperty
-        {
-            Default = 48,
-            Entries = 49,
-        }
-
-        public enum Widget
-        {
-            Type = 80,
-            Enabled = 81,
-            Visible = 82,
-            LabelVisible = 83,
-            ValueVisible = 84,
-            LabelPosition = 85,
-        }
-
-        public enum WidgetType
+        public enum Widgettype
         {
             Textbox = 16,
             Numberbox = 17,
@@ -69,11 +79,6 @@ namespace RCP.Model
             Treeview = 25,
             Dropdown = 26,
             Xyfield = 31,
-        }
-
-        public enum CompoundProperty
-        {
-            Default = 48,
         }
 
         public enum Command
@@ -94,7 +99,7 @@ namespace RCP.Model
             Exp2 = 2,
         }
 
-        public enum FixedArrayProperty
+        public enum DynamicArrayOptions
         {
             Default = 48,
         }
@@ -108,26 +113,9 @@ namespace RCP.Model
             Center = 4,
         }
 
-        public enum VectorProperty
+        public enum StringOptions
         {
             Default = 48,
-            Minimum = 49,
-            Maximum = 50,
-            Multipleof = 51,
-            Scale = 52,
-            Unit = 53,
-        }
-
-        public enum ColorProperty
-        {
-            Default = 48,
-        }
-
-        public enum Metadata
-        {
-            Version = 26,
-            Capabilities = 27,
-            Commands = 28,
         }
 
         public enum Datatype
@@ -176,14 +164,7 @@ namespace RCP.Model
             Compound = 58,
         }
 
-        public enum Packet
-        {
-            Id = 16,
-            Timestamp = 17,
-            Data = 18,
-        }
-
-        public enum NumberProperty
+        public enum NumberOptions
         {
             Default = 48,
             Minimum = 49,
@@ -191,6 +172,25 @@ namespace RCP.Model
             Multipleof = 51,
             Scale = 52,
             Unit = 53,
+        }
+
+        public enum MetadataOptions
+        {
+            Version = 26,
+            Capabilities = 27,
+            Commands = 28,
+        }
+
+        public enum PacketOptions
+        {
+            Id = 16,
+            Timestamp = 17,
+            Data = 18,
+        }
+
+        public enum FixedArrayOptions
+        {
+            Default = 48,
         }
 
         public RcpTypes(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
