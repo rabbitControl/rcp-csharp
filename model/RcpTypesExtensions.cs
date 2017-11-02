@@ -5,12 +5,6 @@ using System.Text;
 
 namespace RCP.Model
 {
-    public interface IParameter
-    {
-    	uint Id { get; set; }
-        void Write(BinaryWriter writer);
-    }
-
     public partial class RcpTypes
     {
         public partial class TinyString

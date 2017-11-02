@@ -1,29 +1,22 @@
 using Kaitai;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace RCP.Model
 {
-    public class RCPFloat32 : RCPNumber<float>
+    public class Float32Definition : NumberDefinition<float>
     {
-        public RCPFloat32()
+        public Float32Definition()
         : base(RcpTypes.Datatype.Float32) { }
 
-    	protected override float TypesDefault()
-    	{
-    		return 0f;
-    	}
-    	
     	public override void WriteValue(BinaryWriter writer, float value)
         {
             writer.Write(value, ByteOrder.BigEndian);
         }
     	
-        public static new RCPFloat32 Parse(KaitaiStream input)
+        public static new Float32Definition Parse(KaitaiStream input)
         {
-            var floatDefinition = new RCPFloat32();
+            var definition = new Float32Definition();
 
             while (true)
             {
@@ -31,28 +24,28 @@ namespace RCP.Model
                 if (code == 0)
                     break;
 
-                var property = (RcpTypes.NumberOptions)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), property)) 
+                var option = (RcpTypes.NumberOptions)code;
+				if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option)) 
                 	throw new RCPDataErrorException();
 
-                switch (property)
+                switch (option)
                 {
                     case RcpTypes.NumberOptions.Default:
-                        floatDefinition.Default = input.ReadF4be();
+                        definition.Default = input.ReadF4be();
                         break;
                     case RcpTypes.NumberOptions.Minimum:
-                        floatDefinition.Minimum = input.ReadF4be();
+                        definition.Minimum = input.ReadF4be();
                         break;
                     case RcpTypes.NumberOptions.Maximum:
-                        floatDefinition.Maximum = input.ReadF4be();
+                        definition.Maximum = input.ReadF4be();
                         break;
                     case RcpTypes.NumberOptions.Multipleof:
-                        floatDefinition.MultipleOf = input.ReadF4be();
+                        definition.MultipleOf = input.ReadF4be();
                         break;
                 }
             }
 
-            return floatDefinition;
+            return definition;
         }
     }
 }

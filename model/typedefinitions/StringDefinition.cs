@@ -1,23 +1,21 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Kaitai;
 
 namespace RCP.Model
 {
-    public class RCPString : TypeDefinition<string>
+    public class StringDefinition : DefaultDefinition<string>, IStringDefinition
     {
-        public string Format { get; set; }
-        public string Filemask { get; set; }
-        public string MaxChars { get; set; }
+        //public string Format { get; set; }
+        //public string Filemask { get; set; }
+        //public string MaxChars { get; set; }
 
-        public RCPString()
+        public StringDefinition()
         : base(RcpTypes.Datatype.String){ }
     	
-    	public static new RCPString Parse(KaitaiStream input)
+    	public static new StringDefinition Parse(KaitaiStream input)
         {
-            var stringDefinition = new RCPString();
+            var stringDefinition = new StringDefinition();
 
             while (true)
             {
@@ -25,11 +23,11 @@ namespace RCP.Model
                 if (code == 0)
                     break;
 
-                var property = (RcpTypes.StringOptions)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.StringOptions), property)) 
+                var option = (RcpTypes.StringOptions)code;
+				if (!Enum.IsDefined(typeof(RcpTypes.StringOptions), option)) 
                 	throw new RCPDataErrorException();
 
-                switch (property)
+                switch (option)
                 {
                     case RcpTypes.StringOptions.Default:
                         stringDefinition.Default = new RcpTypes.LongString(input).Data;

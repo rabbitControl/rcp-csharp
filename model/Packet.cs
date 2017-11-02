@@ -6,12 +6,12 @@ using System.Text;
 
 namespace RCP.Model
 {
-    public class Packet : IParameter
+    public class Packet : IWriteable
     {
         public RcpTypes.Command Command { get; set; }
         public uint Id { get; set; }
         public ulong Timestamp { get; set; }
-        public dynamic Data { get; set; }
+        public IParameter Data { get; set; }
 
         public Packet(RcpTypes.Command command)
         {
@@ -34,11 +34,11 @@ namespace RCP.Model
                 if (code == 0) // terminator
                     break;
 
-                var property = (RcpTypes.PacketOptions)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.PacketOptions), property)) 
+                var option = (RcpTypes.PacketOptions)code;
+				if (!Enum.IsDefined(typeof(RcpTypes.PacketOptions), option)) 
                 	throw new RCPDataErrorException();
 
-                switch (property)
+                switch (option)
                 {
                     case RcpTypes.PacketOptions.Data:
                         switch (command)
@@ -51,7 +51,7 @@ namespace RCP.Model
                             case RcpTypes.Command.Remove:
                             case RcpTypes.Command.Update:
                                 // expect parameter
-                                packet.Data = Parameter<dynamic>.Parse(input);
+                                packet.Data = Parameter.Parse(input);
                                 break;
 
                             case RcpTypes.Command.Version:

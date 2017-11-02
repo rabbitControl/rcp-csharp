@@ -10,7 +10,7 @@ namespace RCP
 	{
 		public ILogger Logger { get; set; }
 		
-		protected Packet Pack(RcpTypes.Command command, dynamic parameter)
+		protected Packet Pack(RcpTypes.Command command, IParameter parameter)
 		{
 			var packet = new Packet(command);
 			packet.Data = parameter;

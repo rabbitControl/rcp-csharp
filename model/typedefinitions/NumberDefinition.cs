@@ -1,25 +1,23 @@
 using Kaitai;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace RCP.Model
 {
-    public abstract class RCPNumber<T> : TypeDefinition<T>
+    public abstract class NumberDefinition<T> : DefaultDefinition<T>, INumberDefinition<T> where T: struct
     {
-        public T Minimum { get; set; }
-        public T Maximum { get; set; }
-        public T MultipleOf { get; set; }
+        public Nullable<T> Minimum { get; set; }
+        public Nullable<T> Maximum { get; set; }
+        public Nullable<T> MultipleOf { get; set; }
         public RcpTypes.NumberScale? Scale { get; set; }
         public string Unit { get; set; }
 
-        public RCPNumber(RcpTypes.Datatype datatype)
+        public NumberDefinition(RcpTypes.Datatype datatype)
         : base(datatype) { }
 
-        public static void Parse(RCPNumber<T> number, RcpTypes.NumberOptions property, KaitaiStream input)
+        public static void Parse(NumberDefinition<T> number, RcpTypes.NumberOptions option, KaitaiStream input)
         {
-            switch (property)
+            switch (option)
             {
                 case RcpTypes.NumberOptions.Scale:
                     number.Scale = (RcpTypes.NumberScale)input.ReadU1();
@@ -35,32 +33,26 @@ namespace RCP.Model
             }
         }
 
-    	protected abstract T TypesDefault();
-
         protected override void WriteProperties(BinaryWriter writer)
         {
-            if (!Default.Equals(TypesDefault()))
-            {
-                writer.Write((byte)RcpTypes.NumberOptions.Default);
-                WriteValue(writer, Default);
-            }
+            base.WriteProperties(writer);
 
-            if (!Minimum.Equals(TypesDefault()))
+            if (Minimum != null)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Minimum);
-                WriteValue(writer, Minimum);
+                WriteValue(writer, (T)Minimum);
             }
 
-            if (!Maximum.Equals(TypesDefault()))
+            if (Maximum != null)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Maximum);
-                WriteValue(writer, Maximum);
+                WriteValue(writer, (T)Maximum);
             }
 
-            if (!MultipleOf.Equals(TypesDefault()))
+            if (MultipleOf != null)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Multipleof);
-                WriteValue(writer, MultipleOf);
+                WriteValue(writer, (T)MultipleOf);
             }
 
             if (Scale != null)
