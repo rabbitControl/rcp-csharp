@@ -45,6 +45,10 @@ namespace RCP.Model
         void WriteValue(BinaryWriter writer, T value);
     }
 
+    public interface IBooleanDefinition : IDefaultDefinition<bool>
+    {
+    }
+
     public interface IStringDefinition : IDefaultDefinition<string>
     {
     }

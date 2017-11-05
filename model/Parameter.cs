@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 
 namespace RCP.Model
 {
@@ -73,7 +74,9 @@ namespace RCP.Model
             uint id = input.ReadU4be();
             // get mandatory type
             var typedefinition = RCP.Model.TypeDefinition.Parse(input);
-
+//			if (typedefinition != null)
+//	        	MessageBox.Show(typedefinition.ToString() + " : ");
+        	
             Parameter parameter = null;  
 
             // get options from the stream
@@ -83,35 +86,44 @@ namespace RCP.Model
                 if (code == 0) // terminator
                     break;
 
-                var property = (RcpTypes.ParameterOptions)code;
-                if (!Enum.IsDefined(typeof(RcpTypes.ParameterOptions), property))
+                var option = (RcpTypes.ParameterOptions)code;
+                if (!Enum.IsDefined(typeof(RcpTypes.ParameterOptions), option))
                     throw new RCPDataErrorException();
 
-                //            	if (typedefinition == null)
-                //	            	MessageBox.Show(property.ToString() + " : ");
-
-                switch (property)
+                switch (option)
                 {
                     case RcpTypes.ParameterOptions.Value:
                         switch ((RcpTypes.Datatype)typedefinition.Datatype)
                         {
-                            ////                            case RcpTypes.Datatype.Boolean:
-                            ////                                ((RCPParameter<Boolean>)parameter).setValue(_io.readS1() > 0);
-                            ////                                break;
-                            ////                            case INT32:
-                            ////                                ((RCPParameter<Integer>)parameter).setValue(_io.readS4be());
-                            ////                                break;
-                            case RcpTypes.Datatype.Float32:
-                                var numberParameter = new NumberParameter<float>(id, typedefinition as INumberDefinition<float>);
-                                numberParameter.Value = input.ReadF4be();
-                                parameter = numberParameter;
+                            case RcpTypes.Datatype.Boolean:
+                        	{
+                                var param = new BooleanParameter(id, typedefinition as IBooleanDefinition);
+                                param.Value = input.ReadByte() > 0;
+                                parameter = param;
                                 break;
+                        	}
+                        	
+                        	case RcpTypes.Datatype.Int32:
+                        	{
+                                var param = new NumberParameter<int>(id, typedefinition as INumberDefinition<int>);
+                                param.Value = input.ReadS4be();
+                                parameter = param;
+                                break;
+                        	}
+                        	
+                        	case RcpTypes.Datatype.Float32:
+                        	{
+                                var param = new NumberParameter<float>(id, typedefinition as INumberDefinition<float>);
+                                param.Value = input.ReadF4be();
+                                parameter = param;
+                                break;
+                        	}
                             ////                            case TINY_STRING:
                             ////                                break;
                             ////                            case SHORT_STRING:
                             ////                                break;
                             case RcpTypes.Datatype.String:
-                                var stringParameter = new StringParameter(id, typedefinition as IStringDefinition);
+                                var stringParameter = new StringParameter(id);
                                 stringParameter.Value = new RcpTypes.LongString(input).Data;
                                 parameter = stringParameter;
                                 break;

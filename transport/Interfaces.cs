@@ -4,13 +4,13 @@ namespace RCP
 {
 	public interface IServerTransporter: IDisposable
 	{
-		void Send(byte[] packet);
-		Action<byte[]> Received {get; set;}
+		void Send(byte[] bytes);
+		Action<byte[], IServerTransporter> Received {get; set;}
 	}
 	
 	public interface IClientTransporter: IDisposable
 	{
-		void Send(byte[] packet);
+		void Send(byte[] bytes);
 		Action<byte[]> Received {get; set;}
 	}
 }

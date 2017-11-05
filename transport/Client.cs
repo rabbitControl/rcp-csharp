@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using VVVV.Core.Logging;
 
@@ -10,8 +11,8 @@ namespace RCP
 {
     public class Client: Base
 	{
-		public Dictionary<uint, dynamic> FParams = new Dictionary<uint, dynamic>();
-		public Dictionary<uint, dynamic> Params
+		public Dictionary<uint, IParameter> FParams = new Dictionary<uint, IParameter>();
+		public Dictionary<uint, IParameter> Params
 		{
 			get { return FParams; }
 		}
@@ -19,7 +20,7 @@ namespace RCP
 		{
 			get 
 			{ 
-				foreach (var param in FParams.Values)
+				foreach (dynamic param in FParams.Values.OrderBy(p => p.Order))
 				{
 					yield return param.Id + ", "
 						+ param.TypeDefinition.Datatype.ToString() + ", "
@@ -103,6 +104,8 @@ namespace RCP
 					ParameterRemoved(packet.Data.Id);
 				break;
 			}
+			
+			
 		}
 		
 		void SendPacket(Packet packet)

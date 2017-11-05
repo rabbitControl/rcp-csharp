@@ -10,6 +10,7 @@ using System.ComponentModel.Composition;
 using System.Windows.Forms;
 
 using VVVV.Core.Logging;
+using RCP.Model;
 #endregion usings
 
 namespace RCP
@@ -53,11 +54,10 @@ namespace RCP
 		
 		public void Send(byte[] bytes)
 		{
-			//send to all clients
-			FUDPSender.Send(bytes, bytes.Length);
+            FUDPSender.Send(bytes, bytes.Length);
 		}
 		
-		public Action<byte[]> Received {get; set;}
+		public Action<byte[], IServerTransporter> Received {get; set;}
 		
 		private void ListenToUDP()
 		{
@@ -69,7 +69,9 @@ namespace RCP
 					var bytes = FUDPReceiver.Receive(ref ipEndPoint);
 					
 					if (bytes.Length > 0 && Received != null)
-						Received(bytes);
+					{
+						Received(bytes, this);
+					}
 				}
 				catch (Exception)
 				{

@@ -6,23 +6,24 @@ using System.Text;
 
 namespace RCP.Model
 {
-    public class StringParameter : ValueParameter<string>
+    public class BooleanParameter : ValueParameter<bool>
     {
-        public new IStringDefinition TypeDefinition 
+        public new IBooleanDefinition TypeDefinition 
     	{ 
     		get 
     		{
-    			return base.TypeDefinition as IStringDefinition;
+    			return base.TypeDefinition as IBooleanDefinition;
     		}
    		}
 
-        public StringParameter(uint id): 
-            base (id, new StringDefinition())
+        public BooleanParameter(uint id): 
+            base (id, new BooleanDefinition())
         { }
 
-        public StringParameter(uint id, IStringDefinition definition):
+        public BooleanParameter(uint id, IBooleanDefinition definition):
             base(id, definition)
         { }
+
 
         //protected override void WriteValue(BinaryWriter writer)
         //{

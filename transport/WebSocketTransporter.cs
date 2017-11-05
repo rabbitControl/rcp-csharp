@@ -37,14 +37,14 @@ namespace RCP
                     socket.OnMessage = message =>
                     {
                         if (message.Length > 0 && Received != null)
-                            Received(Encoding.UTF8.GetBytes(message));
+                            Received(Encoding.UTF8.GetBytes(message), this);
                         //FAllSockets.ToList().ForEach(s => s.Send("Echo: " + message));
                     };
 
                     socket.OnBinary = bytes =>
                     {
                         if (bytes.Length > 0 && Received != null)
-                            Received(bytes);
+                            Received(bytes, this);
                     };
                 });
         }
@@ -65,7 +65,7 @@ namespace RCP
             FAllSockets.ToList().ForEach(s => s.Send(bytes));
         }
 
-        public Action<byte[]> Received {get; set;}
+        public Action<byte[], IServerTransporter> Received {get; set;}
 
         private void ListenToUDP()
         {

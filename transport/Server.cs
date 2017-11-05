@@ -9,38 +9,29 @@ using Kaitai;
 
 namespace RCP
 {
-    public class Server: Base 
+    public class RabbitServer: Base 
 	{
-		private IServerTransporter FTransporter;
-		public IServerTransporter Transporter
-		{ 
-			get { return FTransporter; }
-			
-			set 
-			{
-				if (FTransporter != null)
-					FTransporter.Dispose();
-				
-				FTransporter = value;	
-				FTransporter.Received = ReceiveCB;
-			}
-		}
+		private List<IServerTransporter> FTransporters = new List<IServerTransporter>();
+		Dictionary<uint, IParameter> FParams = new Dictionary<uint, IParameter>();
 		
 		public Action<IParameter> ParameterUpdated;
-		
-		Dictionary<uint, IParameter> FParams = new Dictionary<uint, IParameter>();
 		
 		public uint[] IDs 
 		{
 			get { return FParams.Keys.ToArray(); } 
 		}
 		
+		public IParameter GetParameter(uint id)
+		{
+			return FParams[id];
+		}
+		
 		public override void Dispose()
 		{
-			//remove all values?
+			foreach (var transporter in FTransporters)
+				transporter.Dispose();
 			
-			if (FTransporter != null)
-				FTransporter.Dispose();
+			FTransporters.Clear();
 		}
 		
 		public bool AddParameter(IParameter parameter)
@@ -52,8 +43,8 @@ namespace RCP
 				result = true;
 			}
 			
-			//dispatch to all clients via transporter
-			SendPacket(Pack(RcpTypes.Command.Add, parameter));			
+			//dispatch to all clients
+			SendToMultiple(Pack(RcpTypes.Command.Add, parameter));			
 			Logger.Log(LogType.Debug, "Server sent: Add Id: " + parameter.Id);
 			
 			return result;
@@ -70,8 +61,8 @@ namespace RCP
 			FParams.Add(parameter.Id, parameter);
 			result = true;
 			Logger.Log(LogType.Debug, "Server sending..");
-			//dispatch to all clients via transporter
-			SendPacket(Pack(RcpTypes.Command.Update, parameter));
+			//dispatch to all clients
+			SendToMultiple(Pack(RcpTypes.Command.Update, parameter));
 			Logger.Log(LogType.Debug, "Server sent: Update");
 			
 			return result;
@@ -82,15 +73,30 @@ namespace RCP
 			var param = FParams[id];
 			var result = FParams.Remove(id);
 			
-			//dispatch to all clients via transporter
-			SendPacket(Pack(RcpTypes.Command.Remove, param));
+			//dispatch to all clients
+			SendToMultiple(Pack(RcpTypes.Command.Remove, param));
 			Logger.Log(LogType.Debug, "Server sent: Remove Id: " + id);
 			
 			return result;
 		}
 		
 		#region Transporter
-		void ReceiveCB(byte[] bytes)
+		public void AddTransporter(IServerTransporter transporter)
+		{
+			if (!FTransporters.Contains(transporter))
+			{
+				transporter.Received = ReceiveFromClientCB;
+				FTransporters.Add(transporter);
+			}
+		}
+		
+		public void RemoveTransporter(IServerTransporter transporter)
+		{
+			if (FTransporters.Contains(transporter))
+				FTransporters.Remove(transporter);
+		}
+		
+		void ReceiveFromClientCB(byte[] bytes, IServerTransporter client)
 		{
 			Logger.Log(LogType.Debug, "Server received packet from Client:");
 			var packet = Packet.Parse(new KaitaiStream(bytes));
@@ -101,24 +107,39 @@ namespace RCP
 				case RcpTypes.Command.Update:
 					if (ParameterUpdated != null)
 						ParameterUpdated(packet.Data);
+					SendToMultiple(packet, client);
 					break;
 				
 				case RcpTypes.Command.Initialize:
 					//client requests all parameters
 					foreach (var param in FParams.Values)
-						SendPacket(Pack(RcpTypes.Command.Add, param));
+						SendToOne(Pack(RcpTypes.Command.Add, param), client);
 					break;
 			}
 		}
 		
-		void SendPacket(Packet packet)
+		void SendToMultiple(Packet packet, IServerTransporter except = null)
 		{
 			using (var stream = new MemoryStream())
-			using (var writer = new BinaryWriter(stream))
-			{
-				packet.Write(writer);
-				Transporter.Send(stream.ToArray());
-			}
+            using (var writer = new BinaryWriter(stream))
+            {
+                packet.Write(writer);
+                var bytes = stream.ToArray();
+            	foreach (var transporter in FTransporters)
+            		if (transporter != except)
+						transporter.Send(bytes);
+            }
+		}
+		
+		void SendToOne(Packet packet, IServerTransporter target)
+		{
+			using (var stream = new MemoryStream())
+            using (var writer = new BinaryWriter(stream))
+            {
+                packet.Write(writer);
+                var bytes = stream.ToArray();
+            	target.Send(bytes);
+            }
 		}
 		#endregion
 	}
