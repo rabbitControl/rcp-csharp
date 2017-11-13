@@ -7,45 +7,42 @@ namespace RCP.Model
     public class Float32Definition : NumberDefinition<float>
     {
         public Float32Definition()
-        : base(RcpTypes.Datatype.Float32) { }
+        : base(RcpTypes.Datatype.Float32)
+        { }
 
-    	public override void WriteValue(BinaryWriter writer, float value)
+        public override float ReadValue(KaitaiStream input)
+        {
+            return input.ReadF4be();
+        }
+
+        public override void WriteValue(BinaryWriter writer, float value)
         {
             writer.Write(value, ByteOrder.BigEndian);
         }
     	
-        public static new Float32Definition Parse(KaitaiStream input)
+        protected override bool HandleOption(KaitaiStream input, byte code)
         {
-            var definition = new Float32Definition();
+            var option = (RcpTypes.NumberOptions)code;
+            if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option))
+                throw new RCPDataErrorException();
 
-            while (true)
+            switch (option)
             {
-                var code = input.ReadU1();
-                if (code == 0)
-                    break;
-
-                var option = (RcpTypes.NumberOptions)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option)) 
-                	throw new RCPDataErrorException();
-
-                switch (option)
-                {
-                    case RcpTypes.NumberOptions.Default:
-                        definition.Default = input.ReadF4be();
-                        break;
-                    case RcpTypes.NumberOptions.Minimum:
-                        definition.Minimum = input.ReadF4be();
-                        break;
-                    case RcpTypes.NumberOptions.Maximum:
-                        definition.Maximum = input.ReadF4be();
-                        break;
-                    case RcpTypes.NumberOptions.Multipleof:
-                        definition.MultipleOf = input.ReadF4be();
-                        break;
-                }
+                case RcpTypes.NumberOptions.Default:
+                    Default = ReadValue(input);
+                    return true;
+                case RcpTypes.NumberOptions.Minimum:
+                    Minimum = ReadValue(input);
+                    return true;
+                case RcpTypes.NumberOptions.Maximum:
+                    Maximum = ReadValue(input);
+                    return true;
+                case RcpTypes.NumberOptions.Multipleof:
+                    MultipleOf = ReadValue(input);
+                    return true;
             }
 
-            return definition;
+            return false;
         }
     }
 }

@@ -3,12 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.ComponentModel.Composition;
-using System.Windows.Forms;
 
 using Fleck;
-using VVVV.Core.Logging;
+//using VVVV.Core.Logging;
 #endregion usings
 
 namespace RCP

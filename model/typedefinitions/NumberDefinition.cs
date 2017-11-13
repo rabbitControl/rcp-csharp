@@ -13,29 +13,12 @@ namespace RCP.Model
         public string Unit { get; set; }
 
         public NumberDefinition(RcpTypes.Datatype datatype)
-        : base(datatype) { }
+        : base(datatype)
+        { }
 
-        public static void Parse(NumberDefinition<T> number, RcpTypes.NumberOptions option, KaitaiStream input)
+        protected override void WriteOptions(BinaryWriter writer)
         {
-            switch (option)
-            {
-                case RcpTypes.NumberOptions.Scale:
-                    number.Scale = (RcpTypes.NumberScale)input.ReadU1();
-                    break;
-
-                case RcpTypes.NumberOptions.Unit:
-                    number.Unit = new RcpTypes.TinyString(input).Data;
-                    break;
-
-                    //            	default:
-                    //                	// not a number data id!!
-                    //                	throw new RCPDataErrorException();
-            }
-        }
-
-        protected override void WriteProperties(BinaryWriter writer)
-        {
-            base.WriteProperties(writer);
+            base.WriteOptions(writer);
 
             if (Minimum != null)
             {
@@ -66,6 +49,30 @@ namespace RCP.Model
                 writer.Write((byte)RcpTypes.NumberOptions.Unit);
                 writer.Write(Unit);
             }
+        }
+
+        protected override bool HandleOption(KaitaiStream input, byte code)
+        {
+            var option = (RcpTypes.NumberOptions)code;
+            if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option))
+                throw new RCPDataErrorException();
+
+            switch (option)
+            {
+                case RcpTypes.NumberOptions.Scale:
+                    Scale = (RcpTypes.NumberScale)input.ReadU1();
+                    return true;
+
+                case RcpTypes.NumberOptions.Unit:
+                    Unit = new RcpTypes.TinyString(input).Data;
+                    return true;
+
+                    //            	default:
+                    //                	// not a number data id!!
+                    //                	throw new RCPDataErrorException();
+            }
+
+            return false;
         }
     }
 }

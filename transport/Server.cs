@@ -3,7 +3,7 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 
-using VVVV.Core.Logging;
+//using VVVV.Core.Logging;
 using RCP.Model;
 using Kaitai;
 
@@ -45,14 +45,14 @@ namespace RCP
 			
 			//dispatch to all clients
 			SendToMultiple(Pack(RcpTypes.Command.Add, parameter));			
-			Logger.Log(LogType.Debug, "Server sent: Add Id: " + parameter.Id);
+			//Logger.Log(LogType.Debug, "Server sent: Add Id: " + parameter.Id);
 			
 			return result;
 		}
 		
 		public bool UpdateParameter(IParameter parameter)
 		{
-			Logger.Log(LogType.Debug, "Server Update: " + parameter.Id);
+			//Logger.Log(LogType.Debug, "Server Update: " + parameter.Id);
 			
 			var result = false;
 			if (FParams.ContainsKey(parameter.Id))
@@ -60,10 +60,10 @@ namespace RCP
 			
 			FParams.Add(parameter.Id, parameter);
 			result = true;
-			Logger.Log(LogType.Debug, "Server sending..");
+			//Logger.Log(LogType.Debug, "Server sending..");
 			//dispatch to all clients
 			SendToMultiple(Pack(RcpTypes.Command.Update, parameter));
-			Logger.Log(LogType.Debug, "Server sent: Update");
+			//Logger.Log(LogType.Debug, "Server sent: Update");
 			
 			return result;
 		}
@@ -75,7 +75,7 @@ namespace RCP
 			
 			//dispatch to all clients
 			SendToMultiple(Pack(RcpTypes.Command.Remove, param));
-			Logger.Log(LogType.Debug, "Server sent: Remove Id: " + id);
+			//Logger.Log(LogType.Debug, "Server sent: Remove Id: " + id);
 			
 			return result;
 		}
@@ -98,9 +98,9 @@ namespace RCP
 		
 		void ReceiveFromClientCB(byte[] bytes, IServerTransporter client)
 		{
-			Logger.Log(LogType.Debug, "Server received packet from Client:");
+			//Logger.Log(LogType.Debug, "Server received packet from Client:");
 			var packet = Packet.Parse(new KaitaiStream(bytes));
-			Logger.Log(LogType.Debug, packet.Command.ToString());
+			//Logger.Log(LogType.Debug, packet.Command.ToString());
 			
 			switch (packet.Command)
 			{

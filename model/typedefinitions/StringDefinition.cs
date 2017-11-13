@@ -11,45 +11,42 @@ namespace RCP.Model
         //public string MaxChars { get; set; }
 
         public StringDefinition()
-        : base(RcpTypes.Datatype.String){ }
-    	
-    	public static new StringDefinition Parse(KaitaiStream input)
+        : base(RcpTypes.Datatype.String)
+        { }
+
+        public override string ReadValue(KaitaiStream input)
         {
-            var stringDefinition = new StringDefinition();
-
-            while (true)
-            {
-                var code = input.ReadU1();
-                if (code == 0)
-                    break;
-
-                var option = (RcpTypes.StringOptions)code;
-				if (!Enum.IsDefined(typeof(RcpTypes.StringOptions), option)) 
-                	throw new RCPDataErrorException();
-
-                switch (option)
-                {
-                    case RcpTypes.StringOptions.Default:
-                        stringDefinition.Default = new RcpTypes.LongString(input).Data;
-                        break;
-                }
-            }
-
-            return stringDefinition;
+            return new RcpTypes.LongString(input).Data;
         }
 
-    	public override void WriteValue(BinaryWriter writer, string value)
+        public override void WriteValue(BinaryWriter writer, string value)
         {
             RcpTypes.LongString.Write(value, writer);
         }
     	
-        protected override void WriteProperties(BinaryWriter writer)
+        protected override void WriteOptions(BinaryWriter writer)
         {
         	if (!String.IsNullOrWhiteSpace(Default))
         	{
         		writer.Write((byte)RcpTypes.StringOptions.Default);
         		RcpTypes.LongString.Write(Default, writer);
         	}
+        }
+    	
+        protected override bool HandleOption(KaitaiStream input, byte code)
+        {
+            var option = (RcpTypes.StringOptions)code;
+            if (!Enum.IsDefined(typeof(RcpTypes.StringOptions), option))
+                throw new RCPDataErrorException();
+
+            switch (option)
+            {
+                case RcpTypes.StringOptions.Default:
+                    Default = ReadValue(input);
+                    return true;
+            }
+
+            return false;
         }
     }
 }

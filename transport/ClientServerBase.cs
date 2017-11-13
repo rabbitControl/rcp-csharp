@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.Serialization;
-using VVVV.Core.Logging;
+//using VVVV.Core.Logging;
 
 using RCP.Model;
 
@@ -8,7 +8,7 @@ namespace RCP
 {
     public abstract class Base: IDisposable
 	{
-		public ILogger Logger { get; set; }
+		//public ILogger Logger { get; set; }
 		
 		protected Packet Pack(RcpTypes.Command command, IParameter parameter)
 		{
@@ -35,7 +35,7 @@ namespace RCP
 		
 		public virtual void Dispose()
 		{
-			Logger = null;
+			//Logger = null;
 		}
 	}
 }

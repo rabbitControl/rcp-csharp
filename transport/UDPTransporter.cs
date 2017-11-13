@@ -6,11 +6,10 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.ComponentModel.Composition;
-using System.Windows.Forms;
 
-using VVVV.Core.Logging;
+//using VVVV.Core.Logging;
 using RCP.Model;
+using System.Windows.Forms;
 #endregion usings
 
 namespace RCP
@@ -137,9 +136,9 @@ namespace RCP
 					if (bytes.Length > 0 && Received != null)
 						Received(bytes);
 				}
-				catch (Exception)
+				catch (Exception e)
 				{
-//					MessageBox.Show(e.Message);
+					MessageBox.Show(e.Message);
 				}
 			}
 		}

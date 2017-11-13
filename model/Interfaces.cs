@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -37,12 +38,19 @@ namespace RCP.Model
     public interface ITypeDefinition: IWriteable
     {
         RcpTypes.Datatype Datatype { get; }
+        void ParseOptions(Kaitai.KaitaiStream input);
     }
 
     public interface IDefaultDefinition<T>: ITypeDefinition
     {
         T Default { get; set; }
+        T ReadValue(Kaitai.KaitaiStream input);
         void WriteValue(BinaryWriter writer, T value);
+    }
+
+    public interface IArrayDefinition<T> : IDefaultDefinition<T>
+    {
+        new List<T> ReadValue(Kaitai.KaitaiStream input);
     }
 
     public interface IBooleanDefinition : IDefaultDefinition<bool>
@@ -50,6 +58,10 @@ namespace RCP.Model
     }
 
     public interface IStringDefinition : IDefaultDefinition<string>
+    {
+    }
+
+    public interface IRGBADefinition : IDefaultDefinition<Color>
     {
     }
 

@@ -21,16 +21,6 @@ namespace RCP.Model
 //        }
 //    }
 //
-//    public class RCPArray : TypeDefinition
-//    {
-//        public TypeDefinition Subtype { get; set; }
-//
-//        public RCPArray(TypeDefinition subtype)
-//        : base("array")
-//        {
-//        	Subtype = subtype;
-//        }
-//    }
 	
     public class Widget
     {

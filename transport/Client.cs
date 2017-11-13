@@ -2,14 +2,14 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using VVVV.Core.Logging;
+//using VVVV.Core.Logging;
 
 using RCP.Model;
 using Kaitai;
 
 namespace RCP
 {
-    public class Client: Base
+    public class RabbitClient: Base
 	{
 		public Dictionary<uint, IParameter> FParams = new Dictionary<uint, IParameter>();
 		public Dictionary<uint, IParameter> Params
@@ -60,7 +60,7 @@ namespace RCP
 		public void Initialize()
 		{
 			FParams.Clear();
-			SendPacket(Pack(RcpTypes.Command.Initialize));
+            SendPacket(Pack(RcpTypes.Command.Initialize));
 //			Logger.Log(LogType.Debug, "Client sent Init");
 		}
 		
@@ -76,9 +76,9 @@ namespace RCP
 		
 		void ReceiveCB(byte[] bytes)
 		{
-			Logger.Log(LogType.Debug, "Client received: " + bytes.Length + "bytes");
+			//Logger.Log(LogType.Debug, "Client received: " + bytes.Length + "bytes");
 			var packet = Packet.Parse(new KaitaiStream(bytes));
-			Logger.Log(LogType.Debug, packet.Command.ToString());
+			//Logger.Log(LogType.Debug, packet.Command.ToString());
 			
 			switch (packet.Command)
 			{

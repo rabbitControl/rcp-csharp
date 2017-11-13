@@ -72,18 +72,43 @@ namespace RCP.Model
         {
             // get mandatory id
             uint id = input.ReadU4be();
-            // get mandatory type
-            var typedefinition = RCP.Model.TypeDefinition.Parse(input);
-//			if (typedefinition != null)
-//	        	MessageBox.Show(typedefinition.ToString() + " : ");
-        	
-            Parameter parameter = null;  
 
+            var datatype = (RcpTypes.Datatype)input.ReadU1();
+            if (!Enum.IsDefined(typeof(RcpTypes.Datatype), datatype))
+                throw new RCPDataErrorException();
+
+            Parameter parameter = null;
+
+            switch (datatype)
+            {
+                case RcpTypes.Datatype.FixedArray:
+                    {
+                        dynamic arrayDefinition = ArrayDefinition<dynamic>.Parse(input);
+                        parameter = (Parameter)ParameterFactory.CreateArrayParameter(id, arrayDefinition.Subtype.Datatype, arrayDefinition.Length);
+                        break;
+                    }
+
+                default:
+                    {
+                        parameter = (Parameter)ParameterFactory.CreateParameter(id, datatype);
+                        parameter.TypeDefinition.ParseOptions(input);
+                        break;
+                    }
+            }
+
+            parameter.ParseOptions(input);
+            return parameter;
+        }
+
+        protected abstract bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option);
+
+        private void ParseOptions(KaitaiStream input)
+        {
             // get options from the stream
             while (true)
             {
                 var code = input.ReadU1();
-                if (code == 0) // terminator
+                if (code == 0)
                     break;
 
                 var option = (RcpTypes.ParameterOptions)code;
@@ -92,70 +117,34 @@ namespace RCP.Model
 
                 switch (option)
                 {
-                    case RcpTypes.ParameterOptions.Value:
-                        switch ((RcpTypes.Datatype)typedefinition.Datatype)
-                        {
-                            case RcpTypes.Datatype.Boolean:
-                        	{
-                                var param = new BooleanParameter(id, typedefinition as IBooleanDefinition);
-                                param.Value = input.ReadByte() > 0;
-                                parameter = param;
-                                break;
-                        	}
-                        	
-                        	case RcpTypes.Datatype.Int32:
-                        	{
-                                var param = new NumberParameter<int>(id, typedefinition as INumberDefinition<int>);
-                                param.Value = input.ReadS4be();
-                                parameter = param;
-                                break;
-                        	}
-                        	
-                        	case RcpTypes.Datatype.Float32:
-                        	{
-                                var param = new NumberParameter<float>(id, typedefinition as INumberDefinition<float>);
-                                param.Value = input.ReadF4be();
-                                parameter = param;
-                                break;
-                        	}
-                            ////                            case TINY_STRING:
-                            ////                                break;
-                            ////                            case SHORT_STRING:
-                            ////                                break;
-                            case RcpTypes.Datatype.String:
-                                var stringParameter = new StringParameter(id);
-                                stringParameter.Value = new RcpTypes.LongString(input).Data;
-                                parameter = stringParameter;
-                                break;
-                        }
-
-                        break;
-
                     case RcpTypes.ParameterOptions.Label:
-                        parameter.Label = new RcpTypes.TinyString(input).Data;
+                        Label = new RcpTypes.TinyString(input).Data;
                         break;
 
                     case RcpTypes.ParameterOptions.Description:
-                        parameter.Description = new RcpTypes.ShortString(input).Data;
+                        Description = new RcpTypes.ShortString(input).Data;
                         break;
 
                     case RcpTypes.ParameterOptions.Order:
-                        parameter.Order = input.ReadS4be();
+                        Order = input.ReadS4be();
                         break;
 
                     case RcpTypes.ParameterOptions.Widget:
                         throw new RCPUnsupportedFeatureException();
 
                     case RcpTypes.ParameterOptions.Userdata:
-                        parameter.Userdata = new RcpTypes.Userdata(input).Data;
+                        Userdata = new RcpTypes.Userdata(input).Data;
                         break;
 
+                    case RcpTypes.ParameterOptions.Value:
                     default:
+                        if (!HandleOption(input, option))
+                        {
+                            throw new RCPDataErrorException();
+                        }
                         break;
                 }
             }
-
-            return parameter;
         }
     }
 
