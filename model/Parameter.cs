@@ -97,7 +97,10 @@ namespace RCP.Model
             return parameter;
         }
 
-        protected abstract bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option);
+        protected virtual bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        {
+            return false;
+        }
 
         private void ParseOptions(KaitaiStream input)
         {

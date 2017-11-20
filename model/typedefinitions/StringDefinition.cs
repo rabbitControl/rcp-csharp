@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Kaitai;
 
@@ -22,31 +21,6 @@ namespace RCP.Model
         public override void WriteValue(BinaryWriter writer, string value)
         {
             RcpTypes.LongString.Write(value, writer);
-        }
-    	
-        protected override void WriteOptions(BinaryWriter writer)
-        {
-        	if (!String.IsNullOrWhiteSpace(Default))
-        	{
-        		writer.Write((byte)RcpTypes.StringOptions.Default);
-        		RcpTypes.LongString.Write(Default, writer);
-        	}
-        }
-    	
-        protected override bool HandleOption(KaitaiStream input, byte code)
-        {
-            var option = (RcpTypes.StringOptions)code;
-            if (!Enum.IsDefined(typeof(RcpTypes.StringOptions), option))
-                throw new RCPDataErrorException();
-
-            switch (option)
-            {
-                case RcpTypes.StringOptions.Default:
-                    Default = ReadValue(input);
-                    return true;
-            }
-
-            return false;
         }
     }
 }

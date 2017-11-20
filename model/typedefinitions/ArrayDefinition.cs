@@ -46,15 +46,23 @@ namespace RCP.Model
                 case RcpTypes.Datatype.Boolean:
                     return new ArrayDefinition<Boolean>(subtypeDefinition, length);
 
-                //case INT8:
-                //    return new ArrayDefinition<Byte>((DefaultDefinition<Byte>)_sub_type, length);
                 case RcpTypes.Datatype.Int32:
                     return new ArrayDefinition<int>(subtypeDefinition, length);
+                        
                 case RcpTypes.Datatype.Float32:
                     return new ArrayDefinition<float>(subtypeDefinition, length);
 
                 case RcpTypes.Datatype.String:
                     return new ArrayDefinition<String>(subtypeDefinition, length);
+
+                case RcpTypes.Datatype.Rgba:
+                    return new ArrayDefinition<Color>(subtypeDefinition, length);
+
+                case RcpTypes.Datatype.Vector2f32:
+                    return new ArrayDefinition<Vector2>(subtypeDefinition, length);
+
+                case RcpTypes.Datatype.Vector3f32:
+                    return new ArrayDefinition<Vector3>(subtypeDefinition, length);
 
                 //case RcpTypes.Datatype.FixedArray:
                 //    return new ArrayDefinition<ArrayDefinition<?>>(
@@ -83,22 +91,6 @@ namespace RCP.Model
                 Subtype.WriteValue(writer, v);
         }
 
-        protected override void WriteOptions(BinaryWriter writer)
-        {
-            base.WriteOptions(writer);
-
-            Subtype.Write(writer);
-
-            //writer.Write((byte)RcpTypes.FixedArrayOptions.Length);
-            //writer.Write(Length);
-
-            //if (Default != null)
-            //{
-            //    writer.Write((byte)RcpTypes.NumberOptions.Minimum);
-            //    WriteValue(writer, (T)Minimum);
-            //}
-        }
-
         public override void Write(BinaryWriter writer)
         {
             writer.Write((byte)Datatype);
@@ -118,22 +110,6 @@ namespace RCP.Model
 
             //terminate
             writer.Write((byte)0);
-        }
-
-        protected override bool HandleOption(KaitaiStream input, byte code)
-        {
-            var option = (RcpTypes.FixedArrayOptions)code;
-            if (!Enum.IsDefined(typeof(RcpTypes.FixedArrayOptions), option))
-                throw new RCPDataErrorException();
-
-            switch (option)
-            {
-                case RcpTypes.FixedArrayOptions.Default:
-                    Default = ReadValue(input);
-                    return true;
-            }
-
-            return false;
         }
     }
 }

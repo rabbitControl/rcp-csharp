@@ -1,6 +1,6 @@
-using Kaitai;
 using System;
 using System.IO;
+using Kaitai;
 
 namespace RCP.Model
 {
@@ -53,12 +53,32 @@ namespace RCP.Model
 
         protected override bool HandleOption(KaitaiStream input, byte code)
         {
+            var result = base.HandleOption(input, code);
+            if (result)
+                return result;
+
             var option = (RcpTypes.NumberOptions)code;
             if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option))
                 throw new RCPDataErrorException();
 
             switch (option)
             {
+                case RcpTypes.NumberOptions.Default:
+                    Default = ReadValue(input);
+                    return true;
+
+                case RcpTypes.NumberOptions.Minimum:
+                    Minimum = ReadValue(input);
+                    return true;
+
+                case RcpTypes.NumberOptions.Maximum:
+                    Maximum = ReadValue(input);
+                    return true;
+
+                case RcpTypes.NumberOptions.Multipleof:
+                    MultipleOf = ReadValue(input);
+                    return true;
+
                 case RcpTypes.NumberOptions.Scale:
                     Scale = (RcpTypes.NumberScale)input.ReadU1();
                     return true;

@@ -24,7 +24,13 @@ namespace RCP.Model
             writer.Write((byte)0);
         }
 
-        protected abstract void WriteOptions(BinaryWriter writer);
+        protected virtual void WriteOptions(BinaryWriter writer)
+        { }
+
+        protected virtual bool HandleOption(KaitaiStream input, byte option)
+        {
+            return false;
+        }
 
         public void ParseOptions(KaitaiStream input)
         {
@@ -41,8 +47,6 @@ namespace RCP.Model
                 }
             }
         }
-
-        protected abstract bool HandleOption(KaitaiStream input, byte option);
     }
 
     public abstract class DefaultDefinition<T>: TypeDefinition, IDefaultDefinition<T>
@@ -52,8 +56,8 @@ namespace RCP.Model
         public DefaultDefinition(RcpTypes.Datatype datatype) : base(datatype)
         { }
 
-        public abstract T ReadValue(KaitaiStream input);
         public abstract void WriteValue(BinaryWriter writer, T value);
+        public abstract T ReadValue(KaitaiStream input);
 
         protected override void WriteOptions(BinaryWriter writer)
         {
@@ -62,6 +66,20 @@ namespace RCP.Model
                 writer.Write((byte)RcpTypes.NumberOptions.Default);
                 WriteValue(writer, Default);
             }
+        }
+
+        protected override bool HandleOption(KaitaiStream input, byte code)
+        {
+            var option = (RcpTypes.NumberOptions)code;
+
+            switch (option)
+            {
+                case RcpTypes.NumberOptions.Default:
+                    Default = ReadValue(input);
+                    return true;
+            }
+
+            return false;
         }
 
         public static ITypeDefinition Parse(KaitaiStream input)
@@ -85,6 +103,8 @@ namespace RCP.Model
                 //				case RcpTypes.Datatype.Float64: definition = RCPFloat64.Parse(input) as TypeDefinition<T>; break;
                 case RcpTypes.Datatype.String: definition = new StringDefinition(); break;
                 case RcpTypes.Datatype.Rgba: definition = new RGBADefinition(); break;
+                case RcpTypes.Datatype.Vector2f32: definition = new Vector2f32Definition(); break;
+                case RcpTypes.Datatype.Vector3f32: definition = new Vector3f32Definition(); break;
             }
 
             if (definition != null)

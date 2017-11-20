@@ -24,7 +24,7 @@ namespace RCP
 				{
 					yield return param.Id + ", "
 						+ param.TypeDefinition.Datatype.ToString() + ", "
-						+ param.Value.ToString() + ", "
+						+ (param.Value != null ? param.Value.ToString() : "null") + ", "
 						+ param.Label + ", "
 						+ param.Description + ", "
 						+ param.Order + ", "
