@@ -1,8 +1,6 @@
-using Kaitai;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using Kaitai;
 
 namespace RCP.Model
 {

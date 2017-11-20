@@ -1,10 +1,6 @@
-using Kaitai;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Windows.Forms;
 using RCP.Model;
+using System.Drawing;
+using System.Numerics;
 
 namespace RCP
 {

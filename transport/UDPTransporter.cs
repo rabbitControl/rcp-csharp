@@ -1,16 +1,10 @@
-#region usings
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
 //using VVVV.Core.Logging;
-using RCP.Model;
 using System.Windows.Forms;
-#endregion usings
 
 namespace RCP
 {
