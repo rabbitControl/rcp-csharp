@@ -21,7 +21,7 @@ namespace RCP.Model
             // get command
             var command = (RcpTypes.Command)input.ReadU1();
             if (!Enum.IsDefined(typeof(RcpTypes.Command), command)) 
-                throw new RCPDataErrorException();
+                throw new RCPDataErrorException("Packed parsing: Unknown command: " + command.ToString());
 
             var packet = new Packet(command);
 
@@ -34,7 +34,7 @@ namespace RCP.Model
 
                 var option = (RcpTypes.PacketOptions)code;
 				if (!Enum.IsDefined(typeof(RcpTypes.PacketOptions), option)) 
-                	throw new RCPDataErrorException();
+                	throw new RCPDataErrorException("Packet parsing: Unknown option: " + option.ToString());
 
                 switch (option)
                 {
@@ -67,7 +67,7 @@ namespace RCP.Model
                         break;
                     
                 	default:
-                        throw new RCPDataErrorException();
+                        throw new RCPUnsupportedFeatureException();
                 }
             }
 

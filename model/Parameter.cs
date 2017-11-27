@@ -72,7 +72,7 @@ namespace RCP.Model
 
             var datatype = (RcpTypes.Datatype)input.ReadU1();
             if (!Enum.IsDefined(typeof(RcpTypes.Datatype), datatype))
-                throw new RCPDataErrorException();
+                throw new RCPDataErrorException("Parameter parsing: Unknown datatype!");
 
             Parameter parameter = null;
 
@@ -113,7 +113,7 @@ namespace RCP.Model
 
                 var option = (RcpTypes.ParameterOptions)code;
                 if (!Enum.IsDefined(typeof(RcpTypes.ParameterOptions), option))
-                    throw new RCPDataErrorException();
+                    throw new RCPDataErrorException("Parameter parsing: Unknown option: " + option.ToString());
 
                 switch (option)
                 {
@@ -140,7 +140,7 @@ namespace RCP.Model
                     default:
                         if (!HandleOption(input, option))
                         {
-                            throw new RCPDataErrorException();
+                            throw new RCPUnsupportedFeatureException();
                         }
                         break;
                 }

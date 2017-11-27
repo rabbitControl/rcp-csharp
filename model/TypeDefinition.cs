@@ -43,7 +43,7 @@ namespace RCP.Model
                 // handle option in specific implementation
                 if (!HandleOption(input, code))
                 {
-                    throw new RCPDataErrorException();
+                    throw new RCPUnsupportedFeatureException();
                 }
             }
         }
@@ -88,7 +88,7 @@ namespace RCP.Model
 
             var datatype = (RcpTypes.Datatype)code;
             if (!Enum.IsDefined(typeof(RcpTypes.Datatype), datatype))
-                throw new RCPDataErrorException();
+                throw new RCPDataErrorException("TypeDefinition parsing: Unknown datatype: " + datatype.ToString());
 
             //        	if (datatype != null)
             //	            MessageBox.Show(datatype.ToString() + " : ");
@@ -113,7 +113,7 @@ namespace RCP.Model
                 return definition;
             }
 
-            throw new RCPDataErrorException();
+            throw new RCPDataErrorException("TypeDefinition parsing failed!");
         }
     }
 }

@@ -59,7 +59,7 @@ namespace RCP.Model
 
             var option = (RcpTypes.NumberOptions)code;
             if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option))
-                throw new RCPDataErrorException();
+                throw new RCPDataErrorException("NumberDefinition parsing: Unknown option: " + option.ToString());
 
             switch (option)
             {
