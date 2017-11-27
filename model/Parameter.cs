@@ -57,7 +57,13 @@ namespace RCP.Model
             }
 
             //widget
-            //userdata
+        	
+            if (Userdata != null)
+            {
+                writer.Write((byte)RcpTypes.ParameterOptions.Userdata);
+            	writer.Write(Userdata.Length, ByteOrder.BigEndian);
+                writer.Write(Userdata);
+            }
 
             //terminate
             writer.Write((byte)0);
