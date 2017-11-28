@@ -13,6 +13,9 @@ namespace RCP
                 case RcpTypes.Datatype.Boolean:
                     return new BooleanParameter(id);
 
+                case RcpTypes.Datatype.Enum:
+                    return new EnumParameter(id);
+
                 case RcpTypes.Datatype.Int32:
                     return new NumberParameter<int>(id, new Integer32Definition());
 
@@ -44,6 +47,9 @@ namespace RCP
                 case RcpTypes.Datatype.Boolean:
                     return new BooleanParameter(id, typeDefinition as IBooleanDefinition);
 
+                case RcpTypes.Datatype.Enum:
+                    return new EnumParameter(id, typeDefinition as IEnumDefinition);
+
                 case RcpTypes.Datatype.Int32:
                     return new NumberParameter<int>(id, typeDefinition as INumberDefinition<int>);
 
@@ -74,6 +80,9 @@ namespace RCP
             {
                 case RcpTypes.Datatype.Boolean:
                     return new ArrayParameter<bool>(id, new ArrayDefinition<bool>(new BooleanDefinition(), length));
+
+                case RcpTypes.Datatype.Enum:
+                    return new ArrayParameter<ushort>(id, new ArrayDefinition<ushort>(new EnumDefinition(), length));
 
                 case RcpTypes.Datatype.Int32:
                     return new ArrayParameter<int>(id, new ArrayDefinition<int>(new Integer32Definition(), length));

@@ -96,6 +96,7 @@ namespace RCP.Model
             switch (datatype)
             {
                 case RcpTypes.Datatype.Boolean: definition = new BooleanDefinition(); break;
+                case RcpTypes.Datatype.Enum: definition = new EnumDefinition(); break;
                 case RcpTypes.Datatype.Int32: definition = new Integer32Definition(); break;
                 //				case RcpTypes.Datatype.Uint64: definition = RCPUInt64.Parse(input) as TypeDefinition<T>; break;
                 //				case RcpTypes.Datatype.Int64: definition = RCPInt64.Parse(input) as TypeDefinition<T>; break;

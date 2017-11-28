@@ -3,20 +3,6 @@ using System.Linq;
 
 namespace RCP.Model
 {
-	
-//    public class RCPEnum : TypeDefinition
-//    {
-//        public uint Default { get; set; }
-//        public string[] Entries { get; set; }
-//
-//        public RCPEnum(string[] entries)
-//        : base("enum")
-//        {
-//            Entries = entries;
-//        }
-//    }
-//
-	
     public class Widget
     {
         public string Type { get; set; }

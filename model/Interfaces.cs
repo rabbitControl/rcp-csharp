@@ -55,6 +55,11 @@ namespace RCP.Model
     {
     }
 
+    public interface IEnumDefinition : IDefaultDefinition<ushort>
+    {
+    	string[] Entries { get; set; }
+    }
+
     public interface IStringDefinition : IDefaultDefinition<string>
     {
     }

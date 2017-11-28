@@ -45,6 +45,9 @@ namespace RCP.Model
             {
                 case RcpTypes.Datatype.Boolean:
                     return new ArrayDefinition<Boolean>(subtypeDefinition, length);
+            	
+            	case RcpTypes.Datatype.Enum:
+                    return new ArrayDefinition<ushort>(subtypeDefinition, length);
 
                 case RcpTypes.Datatype.Int32:
                     return new ArrayDefinition<int>(subtypeDefinition, length);
