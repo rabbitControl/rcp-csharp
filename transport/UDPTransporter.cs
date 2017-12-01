@@ -15,10 +15,10 @@ namespace RCP
 		private Thread FThread;
 		private bool FListening;
 		
-		public UDPServerTransporter(string remoteHost, int remotePort, int localPort)
+		public UDPServerTransporter(string remoteHost, int sendingPort, int listeningPort)
 		{
-			FUDPSender = new UdpClient(remoteHost, remotePort);
-			FUDPReceiver = new UdpClient(localPort);
+			FUDPSender = new UdpClient(remoteHost, sendingPort);
+			FUDPReceiver = new UdpClient(listeningPort);
 			FListening = true;
 			FThread = new Thread(new ThreadStart(ListenToUDP));
 			FThread.Start();
@@ -45,12 +45,17 @@ namespace RCP
 			}	
 		}
 		
-		public void Send(byte[] bytes)
+		public void SendToAll(byte[] bytes, string except)
 		{
             FUDPSender.Send(bytes, bytes.Length);
 		}
-		
-		public Action<byte[], IServerTransporter> Received {get; set;}
+
+        public void SendToOne(byte[] bytes, string client)
+        {
+            FUDPSender.Send(bytes, bytes.Length);
+        }
+
+        public Action<byte[], IServerTransporter, string> Received {get; set;}
 		
 		private void ListenToUDP()
 		{
@@ -63,7 +68,7 @@ namespace RCP
 					
 					if (bytes.Length > 0 && Received != null)
 					{
-						Received(bytes, this);
+						Received(bytes, this, "udp");
 					}
 				}
 				catch (Exception)

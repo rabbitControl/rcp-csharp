@@ -6,6 +6,7 @@ using System.Collections.Generic;
 //using VVVV.Core.Logging;
 using RCP.Model;
 using Kaitai;
+using System.Windows.Forms;
 
 namespace RCP
 {
@@ -96,29 +97,34 @@ namespace RCP
 				FTransporters.Remove(transporter);
 		}
 		
-		void ReceiveFromClientCB(byte[] bytes, IServerTransporter client)
+		void ReceiveFromClientCB(byte[] bytes, IServerTransporter senderTransporter, string senderClient)
 		{
-			//Logger.Log(LogType.Debug, "Server received packet from Client:");
-			var packet = Packet.Parse(new KaitaiStream(bytes));
-			//Logger.Log(LogType.Debug, packet.Command.ToString());
-			
-			switch (packet.Command)
-			{
-				case RcpTypes.Command.Update:
-					if (ParameterUpdated != null)
-						ParameterUpdated(packet.Data);
-					SendToMultiple(packet, client);
-					break;
+			try
+            {
+			    var packet = Packet.Parse(new KaitaiStream(bytes));
+				//MessageBox.Show(packet.Command.ToString());
+		        switch (packet.Command)
+		        {
+			        case RcpTypes.Command.Update:
+				        if (ParameterUpdated != null)
+					        ParameterUpdated(packet.Data);
+				        SendToMultiple(packet, senderClient);
+				        break;
 				
-				case RcpTypes.Command.Initialize:
-					//client requests all parameters
-					foreach (var param in FParams.Values)
-						SendToOne(Pack(RcpTypes.Command.Add, param), client);
-					break;
-			}
-		}
+			        case RcpTypes.Command.Initialize:
+				        //client requests all parameters
+				        foreach (var param in FParams.Values)
+					        SendToOne(Pack(RcpTypes.Command.Add, param), senderTransporter, senderClient);
+				        break;
+		        }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        }
 		
-		void SendToMultiple(Packet packet, IServerTransporter except = null)
+		void SendToMultiple(Packet packet, string except = null)
 		{
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
@@ -126,19 +132,18 @@ namespace RCP
                 packet.Write(writer);
                 var bytes = stream.ToArray();
             	foreach (var transporter in FTransporters)
-            		if (transporter != except)
-						transporter.Send(bytes);
+					transporter.SendToAll(bytes, except);
             }
 		}
 		
-		void SendToOne(Packet packet, IServerTransporter target)
+		void SendToOne(Packet packet, IServerTransporter target, string client)
 		{
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
             {
                 packet.Write(writer);
                 var bytes = stream.ToArray();
-            	target.Send(bytes);
+            	target.SendToOne(bytes, client);
             }
 		}
 		#endregion

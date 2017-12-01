@@ -11,8 +11,10 @@ namespace RCP
     public class WebsocketServerTransporter: IServerTransporter
     {
         private WebSocketServer FServer;
-        private List<IWebSocketConnection> FAllSockets = new List<IWebSocketConnection>();
+        private Dictionary<string, IWebSocketConnection> FSockets = new Dictionary<string, IWebSocketConnection>();
 
+    	public Action<byte[], IServerTransporter, string> Received {get; set;}
+    	
         public WebsocketServerTransporter(string remoteHost, int port)
         {
             FServer = new WebSocketServer("ws://" + remoteHost + ":" + port.ToString());
@@ -20,26 +22,26 @@ namespace RCP
                     socket.OnOpen = () =>
                     {
                         Console.WriteLine("Open!");
-                        FAllSockets.Add(socket);
+                        FSockets.Add(socket.ConnectionInfo.Origin, socket);
                     };
 
                     socket.OnClose = () =>
                     {
                         Console.WriteLine("Close!");
-                        FAllSockets.Remove(socket);
+                        FSockets.Remove(socket.ConnectionInfo.Origin);
                     };
 
                     socket.OnMessage = message =>
                     {
-                        if (message.Length > 0 && Received != null)
-                            Received(Encoding.UTF8.GetBytes(message), this);
-                        //FAllSockets.ToList().ForEach(s => s.Send("Echo: " + message));
+//                        if (message.Length > 0 && Received != null)
+//                            Received(Encoding.UTF8.GetBytes(message), this);
+                        //FSockets.ToList().ForEach(s => s.Send("Echo: " + message));
                     };
 
                     socket.OnBinary = bytes =>
                     {
                         if (bytes.Length > 0 && Received != null)
-                            Received(bytes, this);
+                            Received(bytes, this, socket.ConnectionInfo.Origin);
                     };
                 });
         }
@@ -48,37 +50,23 @@ namespace RCP
         {
             if (FServer != null)
             {
-//				FAllSockets.ToList().ForEach(s => s.Dispose());
-                    FAllSockets.Clear();
+//				FSockets.ToList().ForEach(s => s.Dispose());
+                    FSockets.Clear();
                     FServer.Dispose();
             }
         }
 
-        public void Send(byte[] bytes)
+        public void SendToAll(byte[] bytes, string except)
         {
-            //send to all clients
-            FAllSockets.ToList().ForEach(s => s.Send(bytes));
+            FSockets.Keys.ToList().ForEach(k => {
+            	if (k != except)
+            		FSockets[k].Send(bytes);
+            });
         }
 
-        public Action<byte[], IServerTransporter> Received {get; set;}
-
-        private void ListenToUDP()
+        public void SendToOne(byte[] bytes, string client)
         {
-//			while(FListening)
-//			{
-//				try
-//				{
-//					IPEndPoint ipEndPoint = null;
-//					var bytes = FUDPReceiver.Receive(ref ipEndPoint);
-//
-//					if (bytes.Length > 0 && Received != null)
-//						Received(bytes);
-//				}
-//				catch (Exception e)
-//				{
-//					//MessageBox.Show(e.Message);
-//				}
-//			}
+            FSockets[client].Send(bytes);
         }
     }
 }
