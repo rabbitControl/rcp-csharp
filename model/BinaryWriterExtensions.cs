@@ -7,6 +7,12 @@ using System.Runtime.InteropServices;
 
 namespace System.IO
 {
+    public enum ByteOrder
+    {
+        LittleEndian,
+        BigEndian
+    }
+
     public static partial class SystemIOExtensions
     {
         public static void WriteValue(this BinaryWriter writer, byte[] value, ByteOrder byteOrder)

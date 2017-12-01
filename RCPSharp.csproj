@@ -55,7 +55,6 @@
     <Compile Include="kaitai\KaitaiStream.cs" />
     <Compile Include="kaitai\KaitaiStruct.cs" />
     <Compile Include="model\BinaryWriterExtensions.cs" />
-    <Compile Include="model\ByteOrder.cs" />
     <Compile Include="model\Exceptions.cs" />
     <Compile Include="model\generated\RcpTypes.cs" />
     <Compile Include="model\Interfaces.cs" />
