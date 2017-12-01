@@ -24,11 +24,12 @@ namespace RCPSharpDemo
             InitializeComponent();
 
             Carrot = new RabbitClient();
-            Carrot.Transporter = new UDPClientTransporter("127.0.0.1", 10001, 10000);
+            Carrot.Transporter = new UDPClientTransporter("127.0.0.1", 9001, 9000);
 
             Carrot.ParameterAdded = (p) =>
             {
                 //create UI matching p
+                MessageBox.Show((Carrot.Params[p] as NumberParameter<float>).Value.ToString());
             };
 
             Carrot.ParameterRemoved = (p) =>
@@ -39,6 +40,7 @@ namespace RCPSharpDemo
             //listen for any parameter changes
             Carrot.ParameterUpdated = (p) =>
             {
+                MessageBox.Show((Carrot.Params[p] as NumberParameter<float>).Value.ToString());
                 //var uip = UIParams[p.Id];
                 //uip.Label = p.Label;
                 //...
@@ -82,34 +84,43 @@ namespace RCPSharpDemo
 
 
             Rabbit = new RabbitServer();
-            Rabbit.AddTransporter(new UDPServerTransporter("127.0.0.1", 10000, 10001));
+            Rabbit.AddTransporter(new UDPServerTransporter("127.0.0.1", 9000, 9001));
+            Rabbit.AddTransporter(new WebsocketServerTransporter("127.0.0.1", 10000));
 
             uint id = 123;
-            var param = (NumberParameter <float>)ParameterFactory.CreateParameter(id, RcpTypes.Datatype.Float32);
+            var param = (NumberParameter<float>)ParameterFactory.CreateParameter(id, RcpTypes.Datatype.Float32);
             //param now is of type NumberParameter<float>
             //holds param.TypeDefinition of type NumberDefinition<float>
             param.Label = "My Float";
             param.Value = 0.5f;
             param.TypeDefinition.Minimum = -1.0f;
             param.TypeDefinition.Maximum = 1.0f;
+            param.TypeDefinition.MultipleOf = 0.01f;
+
+            //uint id = 1234;
+            //var param = (BooleanParameter)ParameterFactory.CreateParameter(id, RcpTypes.Datatype.Boolean);
+            ////param now is of type NumberParameter<float>
+            ////holds param.TypeDefinition of type NumberDefinition<float>
+            //param.Label = "My Bool";
+            //param.Value = false;
 
             //expose parameter
             Rabbit.AddParameter(param); //sends add to all clients
 
-            var arrayParam = (ArrayParameter<float>)ParameterFactory.CreateArrayParameter(234, RcpTypes.Datatype.Float32, 3);
-            arrayParam.Label = "my array";
+            //var arrayParam = (ArrayParameter<float>)ParameterFactory.CreateArrayParameter(234, RcpTypes.Datatype.Float32, 3);
+            //arrayParam.Label = "my array";
 
-            var floats = new float[3] { 3.2f, 4.5f, 6.8f };
-            arrayParam.Value = floats.ToList();
+            //var floats = new float[3] { 3.2f, 4.5f, 6.8f };
+            //arrayParam.Value = floats.ToList();
 
-            //using (var stream = new MemoryStream())
-            //using (var writer = new BinaryWriter(stream))
-            //{
-            //    arrayParam.Write(writer);
-            //    var bytes = stream.ToArray();
-            //}
+            ////using (var stream = new MemoryStream())
+            ////using (var writer = new BinaryWriter(stream))
+            ////{
+            ////    arrayParam.Write(writer);
+            ////    var bytes = stream.ToArray();
+            ////}
 
-            Rabbit.AddParameter(arrayParam);
+            //Rabbit.AddParameter(arrayParam);
 
             ////update value
             //param.Value = 0.2f; //sends an update to all clients
