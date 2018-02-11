@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class ArrayParameter<T> : ValueParameter<List<T>>
     {
@@ -11,7 +13,7 @@ namespace RCP.Model
         //}
         ArrayDefinition<T> FTypeDefinition;
 
-        public ArrayParameter(uint id, ArrayDefinition<T> typeDefinition): base (id, typeDefinition)
+        public ArrayParameter(int id, ArrayDefinition<T> typeDefinition): base (id, typeDefinition)
         {
             FTypeDefinition = typeDefinition;
         }

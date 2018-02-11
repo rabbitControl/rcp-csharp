@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace RCP.Model
+namespace RCP.Exceptions
 {
     public class RCPDataErrorException: Exception
     {

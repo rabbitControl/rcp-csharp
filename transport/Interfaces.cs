@@ -4,9 +4,9 @@ namespace RCP
 {
 	public interface IServerTransporter: IDisposable
 	{
-		void SendToAll(byte[] bytes, string exceptClient);
-        void SendToOne(byte[] bytes, string client);
-        Action<byte[], IServerTransporter, string> Received {get; set;}
+		void SendToAll(byte[] bytes, object exceptId);
+        void SendToOne(byte[] bytes, object id);
+        Action<byte[], object> Received {get; set;}
 	}
 	
 	public interface IClientTransporter: IDisposable

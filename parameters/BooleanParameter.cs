@@ -1,19 +1,21 @@
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
-    public class EnumParameter : ValueParameter<ushort>
+    public class BooleanParameter : ValueParameter<bool>
     {
-        public new IEnumDefinition TypeDefinition
+        public new IBooleanDefinition TypeDefinition
         {
-            get { return base.TypeDefinition as IEnumDefinition; }
+            get { return base.TypeDefinition as IBooleanDefinition; }
         }
 
-        public EnumParameter(uint id): 
-            base (id, new EnumDefinition())
+        public BooleanParameter(int id): 
+            base (id, new BooleanDefinition())
         { }
 
-        public EnumParameter(uint id, IEnumDefinition definition):
+        public BooleanParameter(int id, IBooleanDefinition definition):
             base(id, definition)
         { }
 

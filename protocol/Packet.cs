@@ -2,7 +2,10 @@ using System;
 using System.IO;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Exceptions;
+using RCP.Parameter;
+
+namespace RCP.Protocol
 {
     public class Packet : IWriteable
     {
@@ -49,17 +52,13 @@ namespace RCP.Model
                             case RcpTypes.Command.Remove:
                             case RcpTypes.Command.Update:
                                 // expect parameter
-                                packet.Data = Parameter.Parse(input);
+                                packet.Data = RCP.Parameter.Parameter.Parse(input);
                                 break;
 
                             case RcpTypes.Command.Version:
                                 throw new RCPUnsupportedFeatureException();
                         }
 
-                        break;
-
-                    case RcpTypes.PacketOptions.Id:
-                        packet.Id = input.ReadU4be();
                         break;
 
                     case RcpTypes.PacketOptions.Timestamp:

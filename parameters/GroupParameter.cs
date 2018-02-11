@@ -1,11 +1,13 @@
 using Kaitai;
 using System.IO;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class GroupParameter : Parameter
     {
-        public GroupParameter(uint id): 
+        public GroupParameter(int id): 
             base (id, new GroupDefinition())
         { }
 

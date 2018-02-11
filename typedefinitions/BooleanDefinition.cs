@@ -1,7 +1,9 @@
 using System.IO;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class BooleanDefinition : DefaultDefinition<bool>, IBooleanDefinition
     {

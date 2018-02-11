@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP
 {
     public interface IRCPServer
     {
@@ -18,12 +20,12 @@ namespace RCP.Model
 
     public interface IParameter: IWriteable
     {
-        uint Id { get; }
+        int Id { get; }
         ITypeDefinition TypeDefinition { get; }
         string Label { get; set; }
         string Description { get; set; }
         int? Order { get; set; }
-        uint? Parent { get; set; }
+        int? Parent { get; set; }
         //IWidget Widget { get; set; }
         byte[] Userdata { get; set; }
     }

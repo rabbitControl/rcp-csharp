@@ -1,6 +1,8 @@
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class StringParameter : ValueParameter<string>
     {
@@ -9,11 +11,11 @@ namespace RCP.Model
             get { return base.TypeDefinition as IStringDefinition; }
         }
 
-        public StringParameter(uint id): 
+        public StringParameter(int id): 
             base (id, new StringDefinition())
         { }
 
-        public StringParameter(uint id, IStringDefinition definition):
+        public StringParameter(int id, IStringDefinition definition):
             base(id, definition)
         { }
 

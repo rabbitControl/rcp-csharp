@@ -2,22 +2,25 @@ using System;
 using System.IO;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Exceptions;
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public abstract class Parameter: IParameter, IWriteable
     {
-        public uint Id { get; private set; }
+        public int Id { get; private set; }
         public ITypeDefinition TypeDefinition { get; private set; }
 
         public string Label { get; set; }
         public string Description { get; set; }
         public int? Order { get; set; }
 
-        public uint? Parent { get; set; }
+        public int? Parent { get; set; }
         //public Widget Widget { get; set; }
         public byte[] Userdata { get; set; }
 
-        public Parameter(uint id, ITypeDefinition typeDefinition)
+        public Parameter(int id, ITypeDefinition typeDefinition)
         {
             Id = id;
             TypeDefinition = typeDefinition;
@@ -74,7 +77,7 @@ namespace RCP.Model
         public static Parameter Parse(KaitaiStream input)
         {
             // get mandatory id
-            uint id = input.ReadU4be();
+            int id = input.ReadS4be();
 
             var datatype = (RcpTypes.Datatype)input.ReadU1();
             if (!Enum.IsDefined(typeof(RcpTypes.Datatype), datatype))
@@ -158,7 +161,7 @@ namespace RCP.Model
     {
         public T Value { get; set; }
 
-        public ValueParameter(uint id, IDefaultDefinition<T> typeDefinition): base (id, typeDefinition)
+        public ValueParameter(int id, IDefaultDefinition<T> typeDefinition): base (id, typeDefinition)
         { }
 
         protected override void WriteValue(BinaryWriter writer)

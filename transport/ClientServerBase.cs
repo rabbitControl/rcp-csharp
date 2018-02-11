@@ -1,8 +1,6 @@
 using System;
-using System.Runtime.Serialization;
-//using VVVV.Core.Logging;
 
-using RCP.Model;
+using RCP.Protocol;
 
 namespace RCP
 {

@@ -1,39 +1,44 @@
 using System;
-using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 
-//using VVVV.Core.Logging;
-using RCP.Model;
+using RCP.Protocol;
 using Kaitai;
 using System.Windows.Forms;
 
 namespace RCP
 {
-    public class RabbitServer: Base 
+    public class RCPServer: Base 
 	{
-		private List<IServerTransporter> FTransporters = new List<IServerTransporter>();
-		Dictionary<uint, IParameter> FParams = new Dictionary<uint, IParameter>();
-		
-		public Action<IParameter> ParameterUpdated;
-		
-		public uint[] IDs 
-		{
-			get { return FParams.Keys.ToArray(); } 
-		}
-		
-		public IParameter GetParameter(uint id)
-		{
-			return FParams[id];
-		}
-		
+		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
+		Dictionary<int, IParameter> FParams = new Dictionary<int, IParameter>();
+
+        public RCPServer()
+        { }
+
+        public RCPServer(IServerTransporter transporter)
+        {
+            AddTransporter(transporter);
+        }
+
 		public override void Dispose()
 		{
-			foreach (var transporter in FTransporters)
-				transporter.Dispose();
+            foreach (var transporter in FTransporters)
+            {
+                transporter.Received = null;
+                transporter.Dispose();
+            }
 			
 			FTransporters.Clear();
+
+            base.Dispose();
 		}
+		
+		public Action<IParameter> ParameterUpdated;
+
+        public Action<IParameter> ParameterValueUpdated;
+
+        public Action<Exception> ErrorLog;
 		
 		public bool AddParameter(IParameter parameter)
 		{
@@ -69,7 +74,7 @@ namespace RCP
 			return result;
 		}
 		
-		public bool RemoveParameter(uint id)
+		public bool RemoveParameter(int id)
 		{
 			var param = FParams[id];
 			var result = FParams.Remove(id);
@@ -80,24 +85,37 @@ namespace RCP
 			
 			return result;
 		}
+
+        public IParameter GetParameter(int id)
+		{
+			return FParams[id];
+		}
 		
 		#region Transporter
-		public void AddTransporter(IServerTransporter transporter)
+		public bool AddTransporter(IServerTransporter transporter)
 		{
 			if (!FTransporters.Contains(transporter))
 			{
 				transporter.Received = ReceiveFromClientCB;
 				FTransporters.Add(transporter);
+                return true;
 			}
+            
+            return false;
 		}
 		
-		public void RemoveTransporter(IServerTransporter transporter)
+		public bool RemoveTransporter(IServerTransporter transporter)
 		{
 			if (FTransporters.Contains(transporter))
+            {
 				FTransporters.Remove(transporter);
+                return true;
+            }
+
+            return false;
 		}
 		
-		void ReceiveFromClientCB(byte[] bytes, IServerTransporter senderTransporter, string senderClient)
+		void ReceiveFromClientCB(byte[] bytes, object senderId)
 		{
 			try
             {
@@ -108,13 +126,13 @@ namespace RCP
 			        case RcpTypes.Command.Update:
 				        if (ParameterUpdated != null)
 					        ParameterUpdated(packet.Data);
-				        SendToMultiple(packet, senderClient);
+				        SendToMultiple(packet, senderId);
 				        break;
 				
 			        case RcpTypes.Command.Initialize:
 				        //client requests all parameters
 				        foreach (var param in FParams.Values)
-					        SendToOne(Pack(RcpTypes.Command.Add, param), senderTransporter, senderClient);
+					        SendToOne(Pack(RcpTypes.Command.Add, param), senderId);
 				        break;
 		        }
             }
@@ -124,7 +142,7 @@ namespace RCP
             }
         }
 		
-		void SendToMultiple(Packet packet, string except = null)
+		void SendToMultiple(Packet packet, object exceptClientId = null)
 		{
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
@@ -132,18 +150,19 @@ namespace RCP
                 packet.Write(writer);
                 var bytes = stream.ToArray();
             	foreach (var transporter in FTransporters)
-					transporter.SendToAll(bytes, except);
+					transporter.SendToAll(bytes, exceptClientId);
             }
 		}
 		
-		void SendToOne(Packet packet, IServerTransporter target, string client)
+		void SendToOne(Packet packet, object clientId)
 		{
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
             {
                 packet.Write(writer);
                 var bytes = stream.ToArray();
-            	target.SendToOne(bytes, client);
+                foreach (var transporter in FTransporters)
+                    transporter.SendToOne(bytes, clientId);
             }
 		}
 		#endregion

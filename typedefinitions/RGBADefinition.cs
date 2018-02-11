@@ -2,7 +2,9 @@ using System.IO;
 using System.Drawing;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class RGBADefinition : DefaultDefinition<Color>, IRGBADefinition
     {

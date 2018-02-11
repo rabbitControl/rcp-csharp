@@ -1,7 +1,9 @@
 using Kaitai;
 using System.IO;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class Float32Definition : NumberDefinition<float>
     {

@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class NumberParameter<T> : ValueParameter<T> where T : struct
     {
@@ -12,7 +14,7 @@ namespace RCP.Model
             get { return base.TypeDefinition as INumberDefinition<T>;}
         }
 
-        public NumberParameter(uint id, INumberDefinition<T> definition): 
+        public NumberParameter(int id, INumberDefinition<T> definition): 
             base (id, definition)
         { }
 

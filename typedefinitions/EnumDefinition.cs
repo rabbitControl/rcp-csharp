@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+using RCP.Exceptions;
+
+namespace RCP.Parameter
 {
     public class EnumDefinition : DefaultDefinition<ushort>, IEnumDefinition
     {

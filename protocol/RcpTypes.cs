@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Kaitai;
 
-namespace RCP.Model
+namespace RCP.Protocol
 {
     public partial class RcpTypes : KaitaiStruct
     {
@@ -113,6 +113,15 @@ namespace RCP.Model
             Center = 4,
         }
 
+        public enum Status
+        {
+            NoTransporter = 16,
+            NotConnected = 17,
+            Connected = 18,
+            VersionMissmatch = 19,
+            Ok = 20,
+        }
+
         public enum StringOptions
         {
             Default = 48,
@@ -131,37 +140,24 @@ namespace RCP.Model
             Uint64 = 24,
             Float32 = 25,
             Float64 = 26,
-            Vector2i8 = 27,
-            Vector2i16 = 28,
-            Vector2i32 = 29,
-            Vector2i64 = 30,
-            Vector2f32 = 31,
-            Vector2f64 = 32,
-            Vector3i8 = 33,
-            Vector3i16 = 34,
-            Vector3i32 = 35,
-            Vector3i64 = 36,
-            Vector3f32 = 37,
-            Vector3f64 = 38,
-            Vector4i8 = 39,
-            Vector4i16 = 40,
-            Vector4i32 = 41,
-            Vector4i64 = 42,
-            Vector4f32 = 43,
-            Vector4f64 = 44,
-            TinyString = 45,
-            ShortString = 46,
-            String = 47,
-            Rgb = 48,
-            Rgba = 49,
-            Enum = 50,
-            FixedArray = 51,
-            DynamicArray = 52,
-            Image = 54,
-            Bang = 55,
-            Time = 56,
-            Group = 57,
-            Compound = 58,
+            Vector2i32 = 27,
+            Vector2f32 = 28,
+            Vector3i32 = 29,
+            Vector3f32 = 30,
+            Vector4i32 = 31,
+            Vector4f32 = 32,
+            String = 33,
+            Rgb = 34,
+            Rgba = 35,
+            Enum = 36,
+            FixedArray = 37,
+            DynamicArray = 38,
+            Bang = 39,
+            Group = 40,
+            Compound = 41,
+            Uri = 42,
+            Ipv4 = 43,
+            Ipv6 = 44,
         }
 
         public enum NumberOptions
@@ -183,7 +179,6 @@ namespace RCP.Model
 
         public enum PacketOptions
         {
-            Id = 16,
             Timestamp = 17,
             Data = 18,
         }

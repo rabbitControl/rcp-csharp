@@ -5,7 +5,9 @@ using System.IO;
 using System.Numerics;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class ArrayDefinition<T> : DefaultDefinition<List<T>>
     {

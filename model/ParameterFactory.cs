@@ -2,11 +2,15 @@ using RCP.Model;
 using System.Drawing;
 using System.Numerics;
 
+using RCP.Protocol;
+using RCP.Exceptions;
+using RCP.Parameter;
+
 namespace RCP
 {
     public static class ParameterFactory
     {
-        public static IParameter CreateParameter(uint id, RcpTypes.Datatype datatype)
+        public static IParameter CreateParameter(int id, RcpTypes.Datatype datatype)
         {
             switch (datatype)
             {
@@ -40,7 +44,7 @@ namespace RCP
             }
         }
     	
-    	public static IParameter CreateParameter(uint id, ITypeDefinition typeDefinition)
+    	public static IParameter CreateParameter(int id, ITypeDefinition typeDefinition)
         {
             switch (typeDefinition.Datatype)
             {
@@ -74,7 +78,7 @@ namespace RCP
             }
         }
 
-        public static IParameter CreateArrayParameter(uint id, RcpTypes.Datatype datatype, uint length)
+        public static IParameter CreateArrayParameter(int id, RcpTypes.Datatype datatype, uint length)
         {
             switch (datatype)
             {
@@ -106,7 +110,7 @@ namespace RCP
             }
         }
     	
-    	public static IParameter CreateArrayParameter<T>(uint id, ArrayDefinition<T> definition)
+    	public static IParameter CreateArrayParameter<T>(int id, ArrayDefinition<T> definition)
         {
             return new ArrayParameter<T>(id, definition);
         }

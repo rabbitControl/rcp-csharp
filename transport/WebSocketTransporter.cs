@@ -6,14 +6,14 @@ using System.Text;
 using Fleck;
 //using VVVV.Core.Logging;
 
-namespace RCP
+namespace RCP.Transporter
 {
     public class WebsocketServerTransporter: IServerTransporter
     {
         private WebSocketServer FServer;
         private Dictionary<string, IWebSocketConnection> FSockets = new Dictionary<string, IWebSocketConnection>();
 
-    	public Action<byte[], IServerTransporter, string> Received {get; set;}
+    	public Action<byte[], object> Received {get; set;}
     	
         public WebsocketServerTransporter(string remoteHost, int port)
         {
@@ -41,7 +41,7 @@ namespace RCP
                     socket.OnBinary = bytes =>
                     {
                         if (bytes.Length > 0 && Received != null)
-                            Received(bytes, this, socket.ConnectionInfo.Origin);
+                            Received(bytes, socket.ConnectionInfo.Origin);
                     };
                 });
         }
@@ -56,17 +56,20 @@ namespace RCP
             }
         }
 
-        public void SendToAll(byte[] bytes, string except)
+        public void SendToAll(byte[] bytes, object exceptId)
         {
             FSockets.Keys.ToList().ForEach(k => {
-            	if (k != except)
+            	if (k != (exceptId as string))
             		FSockets[k].Send(bytes);
             });
         }
 
-        public void SendToOne(byte[] bytes, string client)
+        public void SendToOne(byte[] bytes, object id)
         {
-            FSockets[client].Send(bytes);
+            var key = id as string;
+            IWebSocketConnection socket;
+            if (key != null && FSockets.TryGetValue(key, out socket))
+                socket.Send(bytes);
         }
     }
 }

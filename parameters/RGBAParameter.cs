@@ -3,7 +3,9 @@ using System.Drawing;
 using System.IO;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+
+namespace RCP.Parameter
 {
     public class RGBAParameter : ValueParameter<Color>
     {
@@ -13,11 +15,11 @@ namespace RCP.Model
             get { return base.TypeDefinition as IRGBADefinition;}
         }
 
-		public RGBAParameter(uint id): 
+		public RGBAParameter(int id): 
             base (id, new RGBADefinition())
         { }
 
-        public RGBAParameter(uint id, IRGBADefinition definition):
+        public RGBAParameter(int id, IRGBADefinition definition):
             base(id, definition)
         { }
 

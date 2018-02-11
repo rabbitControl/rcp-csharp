@@ -2,7 +2,10 @@ using System;
 using System.IO;
 using Kaitai;
 
-namespace RCP.Model
+using RCP.Protocol;
+using RCP.Exceptions;
+
+namespace RCP.Parameter
 {
     public abstract class TypeDefinition : ITypeDefinition
     {
