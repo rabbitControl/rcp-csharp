@@ -103,10 +103,10 @@
     <Compile Include="typedefinitions\Vector3Definition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="protocol\RcpTypes.cs" />
-    <Compile Include="transport\RCPClient.cs" />
+    <Compile Include="RCPClient.cs" />
     <Compile Include="transport\ClientServerBase.cs" />
     <Compile Include="transport\Interfaces.cs" />
-    <Compile Include="transport\RCPServer.cs" />
+    <Compile Include="RCPServer.cs" />
     <Compile Include="transport\UDPTransporter.cs" />
     <Compile Include="transport\WebSocketTransporter.cs" />
   </ItemGroup>
