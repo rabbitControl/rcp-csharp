@@ -9,45 +9,85 @@ using System.Windows.Forms;
 
 namespace RCP.Transporter
 {
-	public class UDPServerTransporter: IServerTransporter
-	{
-		private UdpClient FUDPSender;
-		private bool FListening;
+    public abstract class UDPTransporter
+    {
+        protected UdpClient FUDPSender;
+        private bool FListening;
+        private bool FUpdatePort;
+        private int FListeningPort;
 
-        public Action<byte[], Object> Received { get; set; }
+        public UDPTransporter(string remoteHost, int remotePort, int listeningPort)
+        {
+            SetRemoteHostAndPort(remoteHost, remotePort);
 
-        public UDPServerTransporter(string remoteHost, int sendingPort, int listeningPort)
-		{
-			FUDPSender = new UdpClient(remoteHost, sendingPort);
-			FListening = true;
+            FListeningPort = listeningPort;
+            FListening = true;
 
             Task.Run(() =>
             {
-                using (var udpClient = new UdpClient(listeningPort))
+                while (FListening)
                 {
-                    while (FListening)
+                    using (var udpClient = new UdpClient(FListeningPort))
                     {
-                        //IPEndPoint object will allow us to read datagrams sent from any source.
-                        var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                        var bytes = udpClient.Receive(ref remoteEndPoint);
+                        FUpdatePort = false;
 
-                        if (bytes.Length > 0 && Received != null)
-                            Received(bytes, this);
+                        while (!FUpdatePort)
+                        {
+                            //IPEndPoint object will allow us to read datagrams sent from any source.
+                            var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                            var bytes = udpClient.Receive(ref remoteEndPoint);
+
+                            if (bytes.Length > 0)
+                                OnReceived(bytes);
+                        }
                     }
                 }
             });
         }
-		
-		public void Dispose()
-		{
-			FListening = false;
 
-			if (FUDPSender != null)
-			{
-				FUDPSender.Close();
-				FUDPSender.Dispose();
-			}	
-		}
+        protected abstract void OnReceived(byte[] bytes);
+
+        public void Dispose()
+        {
+            FListening = false;
+
+            if (FUDPSender != null)
+            {
+                FUDPSender.Close();
+                FUDPSender.Dispose();
+            }
+        }
+
+        public void SetRemoteHostAndPort(string host, int port)
+        {
+            if (FUDPSender != null)
+            {
+                FUDPSender.Close();
+                FUDPSender.Dispose();
+            }
+
+            FUDPSender = new UdpClient(host, port);
+        }
+
+        public void SetListeningPort(int port)
+        {
+            FListeningPort = port;
+            FUpdatePort = true;
+        }
+    }
+
+    public class UDPServerTransporter: UDPTransporter, IServerTransporter
+	{
+        public Action<byte[], Object> Received { get; set; }
+
+        public UDPServerTransporter(string remoteHost, int remotePort, int listeningPort):
+            base(remoteHost, remotePort, listeningPort)
+		{ }
+
+        protected override void OnReceived(byte[] bytes)
+        {
+            Received?.Invoke(bytes, this);
+        }
 		
 		public void SendToAll(byte[] bytes, object exceptId)
 		{
@@ -61,45 +101,18 @@ namespace RCP.Transporter
         }
 	}
 	
-	public class UDPClientTransporter: IClientTransporter
+	public class UDPClientTransporter: UDPTransporter, IClientTransporter
 	{
-		private UdpClient FUDPSender;
-		private bool FListening;
-		
 		public Action<byte[]> Received {get; set;}
-		
-		public UDPClientTransporter(string remoteHost, int remotePort, int localPort)
-		{
-			FUDPSender = new UdpClient(remoteHost, remotePort);
-			FListening = true;
 
-            Task.Run(() =>
-            {
-                using (var udpClient = new UdpClient(localPort))
-                {
-                    while (FListening)
-                    {
-                        //IPEndPoint object will allow us to read datagrams sent from any source.
-                        var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                        var bytes = udpClient.Receive(ref remoteEndPoint);
+        protected override void OnReceived(byte[] bytes)
+        {
+            Received?.Invoke(bytes);
+        }
 
-                        if (bytes.Length > 0 && Received != null)
-                            Received(bytes);
-                    }
-                }
-            });
-		}
-		
-		public void Dispose()
-		{
-            FListening = false;
-
-			if (FUDPSender != null)
-			{
-				FUDPSender.Close();
-				FUDPSender.Dispose();
-			}	
-		}
+        public UDPClientTransporter(string remoteHost, int remotePort, int listeningPort) :
+            base(remoteHost, remotePort, listeningPort)
+        { }
 		
 		public void Send(byte[] bytes)
 		{
