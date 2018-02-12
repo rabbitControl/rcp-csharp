@@ -124,15 +124,27 @@ namespace RCP
 		        switch (packet.Command)
 		        {
 			        case RcpTypes.Command.Update:
-				        if (ParameterUpdated != null)
-					        ParameterUpdated(packet.Data);
+                        if (FParams.ContainsKey(packet.Data.Id))
+                            FParams.Remove(packet.Data.Id);
+                        FParams.Add(packet.Data.Id, packet.Data);
+                        ParameterUpdated?.Invoke(packet.Data);
 				        SendToMultiple(packet, senderId);
 				        break;
-				
-			        case RcpTypes.Command.Initialize:
+
+                    case RcpTypes.Command.Updatevalue:
+                        if (FParams.ContainsKey(packet.Data.Id))
+                            FParams.Remove(packet.Data.Id);
+                        FParams.Add(packet.Data.Id, packet.Data);
+                        ParameterValueUpdated?.Invoke(packet.Data);
+                        SendToMultiple(packet, senderId);
+                        break;
+
+                    case RcpTypes.Command.Initialize:
 				        //client requests all parameters
 				        foreach (var param in FParams.Values)
 					        SendToOne(Pack(RcpTypes.Command.Add, param), senderId);
+		        	
+		        	MessageBox.Show("sent init");
 				        break;
 		        }
             }

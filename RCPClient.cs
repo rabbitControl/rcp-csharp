@@ -31,7 +31,7 @@ namespace RCP
         public Action<IParameter> ParameterAdded;
         public Action<IParameter> ParameterUpdated;
         public Action<IParameter> ParameterValueUpdated;
-        public Action<IParameter> ParameterRemoved;
+        public Action<int> ParameterRemoved;
 
         public Action<Exception> ErrorLog;
         public Action<RcpTypes.Status, string> StatusChanged;
@@ -74,26 +74,32 @@ namespace RCP
 			switch (packet.Command)
 			{
 				case RcpTypes.Command.Add:
-				FParams.Add(packet.Data.Id, packet.Data);
-				//inform the application
-				if (ParameterAdded != null)
-					ParameterAdded(packet.Data);
-				break;
+				    FParams.Add(packet.Data.Id, packet.Data);
+				    //inform the application
+				    ParameterAdded?.Invoke(packet.Data);
+				    break;
 				
 				case RcpTypes.Command.Update:
-				FParams.Remove(packet.Data.Id);
-				FParams.Add(packet.Data.Id, packet.Data);
-				//inform the application
-				if (ParameterUpdated != null)
-					ParameterUpdated(packet.Data);
-				break;
-				
-				case RcpTypes.Command.Remove:
-				FParams.Remove(packet.Data.Id);
-				//inform the application
-				if (ParameterRemoved != null)
-					ParameterRemoved(packet.Data);
-				break;
+                    if (FParams.ContainsKey(packet.Data.Id))
+                        FParams.Remove(packet.Data.Id);
+                    FParams.Add(packet.Data.Id, packet.Data);
+				    //inform the application
+				    ParameterUpdated?.Invoke(packet.Data);
+				    break;
+
+                case RcpTypes.Command.Updatevalue:
+                    if (FParams.ContainsKey(packet.Data.Id))
+                        FParams.Remove(packet.Data.Id);
+                    FParams.Add(packet.Data.Id, packet.Data);
+                    //inform the application
+                    ParameterValueUpdated?.Invoke(packet.Data);
+                    break;
+
+                case RcpTypes.Command.Remove:
+				    FParams.Remove(packet.Data.Id);
+				    //inform the application
+				    ParameterRemoved?.Invoke(packet.Data.Id);
+				    break;
 			}
 		}
 		
