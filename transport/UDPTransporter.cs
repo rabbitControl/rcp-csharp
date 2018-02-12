@@ -12,44 +12,52 @@ namespace RCP.Transporter
     public abstract class UDPTransporter
     {
         protected UdpClient FUDPSender;
-        private bool FListening;
-        private bool FUpdatePort;
+        private Thread FThread;
         private int FListeningPort;
 
         public UDPTransporter(string remoteHost, int remotePort, int listeningPort)
         {
             SetRemoteHostAndPort(remoteHost, remotePort);
-
             FListeningPort = listeningPort;
-            FListening = true;
+            StartListening();
+        }
+
+        private void StartListening()
+        {
+            var uiContext = SynchronizationContext.Current;
 
             Task.Run(() =>
             {
-                while (FListening)
+                FThread = Thread.CurrentThread;
+                using (var udpClient = new UdpClient(FListeningPort))
                 {
-                    using (var udpClient = new UdpClient(FListeningPort))
+                    while (true)
                     {
-                        FUpdatePort = false;
+                        //IPEndPoint object will allow us to read datagrams sent from any source.
+                        var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        var bytes = udpClient.Receive(ref remoteEndPoint);
 
-                        while (!FUpdatePort)
-                        {
-                            //IPEndPoint object will allow us to read datagrams sent from any source.
-                            var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                            var bytes = udpClient.Receive(ref remoteEndPoint);
-
-                            if (bytes.Length > 0)
-                                OnReceived(bytes);
-                        }
+                        if (bytes.Length > 0)
+                            uiContext.Post((b) => OnReceived(b as byte[]), bytes);
                     }
                 }
             });
+        }
+
+        private void StopListening()
+        {
+            if (FThread != null)
+            {
+                FThread.Abort();
+                FThread = null;
+            }
         }
 
         protected abstract void OnReceived(byte[] bytes);
 
         public void Dispose()
         {
-            FListening = false;
+            StopListening();
 
             if (FUDPSender != null)
             {
@@ -71,8 +79,9 @@ namespace RCP.Transporter
 
         public void SetListeningPort(int port)
         {
+            StopListening();
             FListeningPort = port;
-            FUpdatePort = true;
+            StartListening();
         }
     }
 

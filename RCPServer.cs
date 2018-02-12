@@ -15,7 +15,7 @@ namespace RCP
 
         public RCPServer()
         { }
-
+ 
         public RCPServer(IServerTransporter transporter)
         {
             AddTransporter(transporter);
@@ -143,8 +143,6 @@ namespace RCP
 				        //client requests all parameters
 				        foreach (var param in FParams.Values)
 					        SendToOne(Pack(RcpTypes.Command.Add, param), senderId);
-		        	
-		        	MessageBox.Show("sent init");
 				        break;
 		        }
             }
