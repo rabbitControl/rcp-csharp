@@ -4,16 +4,13 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-//using VVVV.Core.Logging;
-using System.Windows.Forms;
-
 namespace RCP.Transporter
 {
     public abstract class UDPTransporter
     {
         protected UdpClient FUDPSender;
-        private Thread FThread;
         private int FListeningPort;
+        private bool FListening;
 
         public UDPTransporter(string remoteHost, int remotePort, int listeningPort)
         {
@@ -24,21 +21,21 @@ namespace RCP.Transporter
 
         private void StartListening()
         {
+            FListening = true;
             var uiContext = SynchronizationContext.Current;
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                FThread = Thread.CurrentThread;
                 using (var udpClient = new UdpClient(FListeningPort))
                 {
-                    while (true)
+                    while (FListening)
                     {
                         //IPEndPoint object will allow us to read datagrams sent from any source.
                         var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                        var bytes = udpClient.Receive(ref remoteEndPoint);
+                        var result = await udpClient.ReceiveAsync();// .Receive(ref remoteEndPoint);
 
-                        if (bytes.Length > 0)
-                            uiContext.Post((b) => OnReceived(b as byte[]), bytes);
+                        if (result.Buffer.Length > 0)
+                            uiContext.Post((b) => OnReceived(b as byte[]), result.Buffer);
                     }
                 }
             });
@@ -46,11 +43,7 @@ namespace RCP.Transporter
 
         private void StopListening()
         {
-            if (FThread != null)
-            {
-                FThread.Abort();
-                FThread = null;
-            }
+            FListening = false;
         }
 
         protected abstract void OnReceived(byte[] bytes);
