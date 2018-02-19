@@ -113,13 +113,12 @@ namespace RCP.Protocol
             Center = 4,
         }
 
-        public enum Status
+        public enum ClientStatus
         {
-            NoTransporter = 16,
-            NotConnected = 17,
-            Connected = 18,
-            VersionMissmatch = 19,
-            Ok = 20,
+            Disconnected = 0,
+            Connected = 1,
+            VersionMissmatch = 2,
+            Ok = 3,
         }
 
         public enum StringOptions
