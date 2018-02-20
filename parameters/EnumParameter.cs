@@ -11,11 +11,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IEnumDefinition; }
         }
 
-        public EnumParameter(int id): 
+        public EnumParameter(byte[] id): 
             base (id, new EnumDefinition())
         { }
 
-        public EnumParameter(int id, IEnumDefinition definition):
+        public EnumParameter(byte[] id, IEnumDefinition definition):
             base(id, definition)
         { }
 

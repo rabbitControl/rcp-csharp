@@ -11,11 +11,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IBooleanDefinition; }
         }
 
-        public BooleanParameter(int id): 
+        public BooleanParameter(byte[] id): 
             base (id, new BooleanDefinition())
         { }
 
-        public BooleanParameter(int id, IBooleanDefinition definition):
+        public BooleanParameter(byte[] id, IBooleanDefinition definition):
             base(id, definition)
         { }
 

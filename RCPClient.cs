@@ -7,9 +7,9 @@ using Kaitai;
 
 namespace RCP
 {
-    public class RCPClient: Base
+    public class RCPClient: ClientServerBase
 	{
-		Dictionary<int, IParameter> FParams = new Dictionary<int, IParameter>();
+		Dictionary<byte[], IParameter> FParams = new Dictionary<byte[], IParameter>(new StructuralEqualityComparer<byte[]>());
 		private IClientTransporter FTransporter;
 
         public RCPClient()
@@ -31,14 +31,27 @@ namespace RCP
         public Action<IParameter> ParameterAdded;
         public Action<IParameter> ParameterUpdated;
         public Action<IParameter> ParameterValueUpdated;
-        public Action<int> ParameterRemoved;
+        public Action<byte[]> ParameterRemoved;
 
-        public Action<Exception> ErrorLog;
-        public Action<RcpTypes.Status, string> StatusChanged;
+        public Action<Exception> OnError;
+        public Action<RcpTypes.ClientStatus, string> StatusChanged;
+
+
+        public void Connect(string host, int port)
+        {
+            if (FTransporter.IsConnected)
+                FTransporter.Disconnect();
+            FTransporter.Connect(host, port);
+        }
+
+        public void Disonnect()
+        {
+            FTransporter.Disconnect();
+        }
 
         public void Initialize()
 		{
-			FParams.Clear();
+            FParams.Clear();
             SendPacket(Pack(RcpTypes.Command.Initialize));
 		}
 		
@@ -47,7 +60,7 @@ namespace RCP
 			SendPacket(Pack(RcpTypes.Command.Update, param));
 		}
 
-        public IParameter GetParameter(int id)
+        public IParameter GetParameter(byte[] id)
         {
             return FParams[id];
         }
@@ -74,7 +87,7 @@ namespace RCP
 			switch (packet.Command)
 			{
 				case RcpTypes.Command.Add:
-				    FParams.Add(packet.Data.Id, packet.Data);
+                    FParams.Add(packet.Data.Id, packet.Data);
 				    //inform the application
 				    ParameterAdded?.Invoke(packet.Data);
 				    break;
@@ -96,7 +109,7 @@ namespace RCP
                     break;
 
                 case RcpTypes.Command.Remove:
-				    FParams.Remove(packet.Data.Id);
+                    FParams.Remove(packet.Data.Id);
 				    //inform the application
 				    ParameterRemoved?.Invoke(packet.Data.Id);
 				    break;

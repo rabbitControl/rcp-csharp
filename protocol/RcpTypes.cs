@@ -197,34 +197,6 @@ namespace RCP.Protocol
         private void _parse()
         {
         }
-        public partial class TinyString : KaitaiStruct
-        {
-            public static TinyString FromFile(string fileName)
-            {
-                return new TinyString(new KaitaiStream(fileName));
-            }
-
-            public TinyString(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
-            {
-                m_parent = parent;
-                m_root = root;
-                _parse();
-            }
-
-            private void _parse()
-            {
-                _myLen = m_io.ReadU1();
-                _data = System.Text.Encoding.GetEncoding("UTF-8").GetString(m_io.ReadBytes(MyLen));
-            }
-            private byte _myLen;
-            private string _data;
-            private RcpTypes m_root;
-            private KaitaiStruct m_parent;
-            public byte MyLen { get { return _myLen; } }
-            public string Data { get { return _data; } }
-            public RcpTypes M_Root { get { return m_root; } }
-            public KaitaiStruct M_Parent { get { return m_parent; } }
-        }
         public partial class ShortString : KaitaiStruct
         {
             public static ShortString FromFile(string fileName)
@@ -250,6 +222,34 @@ namespace RCP.Protocol
             private KaitaiStruct m_parent;
             public ushort MyLen { get { return _myLen; } }
             public string Data { get { return _data; } }
+            public RcpTypes M_Root { get { return m_root; } }
+            public KaitaiStruct M_Parent { get { return m_parent; } }
+        }
+        public partial class Userdata : KaitaiStruct
+        {
+            public static Userdata FromFile(string fileName)
+            {
+                return new Userdata(new KaitaiStream(fileName));
+            }
+
+            public Userdata(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
+            {
+                m_parent = parent;
+                m_root = root;
+                _parse();
+            }
+
+            private void _parse()
+            {
+                _myLen = m_io.ReadU4be();
+                _data = m_io.ReadBytes(MyLen);
+            }
+            private uint _myLen;
+            private byte[] _data;
+            private RcpTypes m_root;
+            private KaitaiStruct m_parent;
+            public uint MyLen { get { return _myLen; } }
+            public byte[] Data { get { return _data; } }
             public RcpTypes M_Root { get { return m_root; } }
             public KaitaiStruct M_Parent { get { return m_parent; } }
         }
@@ -281,14 +281,14 @@ namespace RCP.Protocol
             public RcpTypes M_Root { get { return m_root; } }
             public KaitaiStruct M_Parent { get { return m_parent; } }
         }
-        public partial class Userdata : KaitaiStruct
+        public partial class Id : KaitaiStruct
         {
-            public static Userdata FromFile(string fileName)
+            public static Id FromFile(string fileName)
             {
-                return new Userdata(new KaitaiStream(fileName));
+                return new Id(new KaitaiStream(fileName));
             }
 
-            public Userdata(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
+            public Id(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
             {
                 m_parent = parent;
                 m_root = root;
@@ -297,15 +297,43 @@ namespace RCP.Protocol
 
             private void _parse()
             {
-                _myLen = m_io.ReadU4be();
+                _myLen = m_io.ReadU1();
                 _data = m_io.ReadBytes(MyLen);
             }
-            private uint _myLen;
+            private byte _myLen;
             private byte[] _data;
             private RcpTypes m_root;
             private KaitaiStruct m_parent;
-            public uint MyLen { get { return _myLen; } }
+            public byte MyLen { get { return _myLen; } }
             public byte[] Data { get { return _data; } }
+            public RcpTypes M_Root { get { return m_root; } }
+            public KaitaiStruct M_Parent { get { return m_parent; } }
+        }
+        public partial class TinyString : KaitaiStruct
+        {
+            public static TinyString FromFile(string fileName)
+            {
+                return new TinyString(new KaitaiStream(fileName));
+            }
+
+            public TinyString(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
+            {
+                m_parent = parent;
+                m_root = root;
+                _parse();
+            }
+
+            private void _parse()
+            {
+                _myLen = m_io.ReadU1();
+                _data = System.Text.Encoding.GetEncoding("UTF-8").GetString(m_io.ReadBytes(MyLen));
+            }
+            private byte _myLen;
+            private string _data;
+            private RcpTypes m_root;
+            private KaitaiStruct m_parent;
+            public byte MyLen { get { return _myLen; } }
+            public string Data { get { return _data; } }
             public RcpTypes M_Root { get { return m_root; } }
             public KaitaiStruct M_Parent { get { return m_parent; } }
         }

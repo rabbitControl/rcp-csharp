@@ -11,11 +11,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IStringDefinition; }
         }
 
-        public StringParameter(int id): 
+        public StringParameter(byte[] id): 
             base (id, new StringDefinition())
         { }
 
-        public StringParameter(int id, IStringDefinition definition):
+        public StringParameter(byte[] id, IStringDefinition definition):
             base(id, definition)
         { }
 

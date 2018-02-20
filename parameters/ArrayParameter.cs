@@ -13,7 +13,7 @@ namespace RCP.Parameter
         //}
         ArrayDefinition<T> FTypeDefinition;
 
-        public ArrayParameter(int id, ArrayDefinition<T> typeDefinition): base (id, typeDefinition)
+        public ArrayParameter(byte[] id, ArrayDefinition<T> typeDefinition): base (id, typeDefinition)
         {
             FTypeDefinition = typeDefinition;
         }

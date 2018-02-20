@@ -18,14 +18,14 @@ namespace RCP
         void Write(BinaryWriter writer);
     }
 
-    public interface IParameter: IWriteable
+    public interface IParameter : IWriteable
     {
-        int Id { get; }
+        byte[] Id { get; }
         ITypeDefinition TypeDefinition { get; }
         string Label { get; set; }
         string Description { get; set; }
         int? Order { get; set; }
-        int? Parent { get; set; }
+        byte[] Parent { get; set; }
         //IWidget Widget { get; set; }
         byte[] Userdata { get; set; }
     }

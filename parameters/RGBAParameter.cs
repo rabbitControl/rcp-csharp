@@ -15,11 +15,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IRGBADefinition;}
         }
 
-		public RGBAParameter(int id): 
+		public RGBAParameter(byte[] id): 
             base (id, new RGBADefinition())
         { }
 
-        public RGBAParameter(int id, IRGBADefinition definition):
+        public RGBAParameter(byte[] id, IRGBADefinition definition):
             base(id, definition)
         { }
 

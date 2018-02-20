@@ -5,13 +5,15 @@ using System.Collections.Generic;
 using RCP.Protocol;
 using Kaitai;
 using System.Windows.Forms;
+using System.Collections;
+using System.Linq;
 
 namespace RCP
 {
-    public class RCPServer: Base 
+    public class RCPServer: ClientServerBase 
 	{
 		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
-		Dictionary<int, IParameter> FParams = new Dictionary<int, IParameter>();
+		Dictionary<byte[], IParameter> FParams = new Dictionary<byte[], IParameter>(new StructuralEqualityComparer<byte[]>());
 
         public RCPServer()
         { }
@@ -38,7 +40,8 @@ namespace RCP
 
         public Action<IParameter> ParameterValueUpdated;
 
-        public Action<Exception> ErrorLog;
+        public Action<Exception> OnError;
+
 		
 		public bool AddParameter(IParameter parameter)
 		{
@@ -74,7 +77,7 @@ namespace RCP
 			return result;
 		}
 		
-		public bool RemoveParameter(int id)
+		public bool RemoveParameter(byte[] id)
 		{
 			var param = FParams[id];
 			var result = FParams.Remove(id);
@@ -86,10 +89,12 @@ namespace RCP
 			return result;
 		}
 
-        public IParameter GetParameter(int id)
+        public IParameter GetParameter(byte[] id)
 		{
 			return FParams[id];
 		}
+
+        public int ConnectionCount => FTransporters.Sum(t => t.ConnectionCount);
 		
 		#region Transporter
 		public bool AddTransporter(IServerTransporter transporter)

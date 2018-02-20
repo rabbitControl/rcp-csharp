@@ -14,7 +14,7 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as INumberDefinition<T>;}
         }
 
-        public NumberParameter(int id, INumberDefinition<T> definition): 
+        public NumberParameter(byte[] id, INumberDefinition<T> definition): 
             base (id, definition)
         { }
 

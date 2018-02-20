@@ -7,14 +7,14 @@ namespace RCP.Parameter
 {
     public class GroupParameter : Parameter
     {
-        public GroupParameter(int id): 
+        public GroupParameter(byte[] id): 
             base (id, new GroupDefinition())
         { }
 
         public void Write(BinaryWriter writer)
         {
             //mandatory
-            writer.Write(Id, ByteOrder.BigEndian);
+            writer.WriteValues(Id, Id.Length, ByteOrder.BigEndian);
 
             //terminate
             writer.Write((byte)0);

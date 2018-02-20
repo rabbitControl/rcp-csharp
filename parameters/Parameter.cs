@@ -4,23 +4,24 @@ using Kaitai;
 
 using RCP.Exceptions;
 using RCP.Protocol;
+using System.Text;
 
 namespace RCP.Parameter
 {
-    public abstract class Parameter: IParameter, IWriteable
+    public abstract class Parameter : IParameter, IWriteable
     {
-        public int Id { get; private set; }
+        public byte[] Id { get; private set; }
         public ITypeDefinition TypeDefinition { get; private set; }
 
         public string Label { get; set; }
         public string Description { get; set; }
         public int? Order { get; set; }
 
-        public int? Parent { get; set; }
+        public byte[] Parent { get; set; }
         //public Widget Widget { get; set; }
         public byte[] Userdata { get; set; }
 
-        public Parameter(int id, ITypeDefinition typeDefinition)
+        public Parameter(byte[] id, ITypeDefinition typeDefinition)
         {
             Id = id;
             TypeDefinition = typeDefinition;
@@ -29,7 +30,8 @@ namespace RCP.Parameter
         public void Write(BinaryWriter writer)
         {
             //mandatory
-            writer.Write(Id, ByteOrder.BigEndian);
+            writer.Write((byte)Id.Length);
+            writer.Write(Id);
             TypeDefinition.Write(writer);
 
             //optional
@@ -56,15 +58,16 @@ namespace RCP.Parameter
             if (Parent != null)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Parent);
-                writer.Write((uint)Parent, ByteOrder.BigEndian);
+                writer.Write((byte)Id.Length);
+                writer.Write(Parent);
             }
 
             //widget
-        	
+
             if (Userdata != null)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Userdata);
-            	writer.Write(Userdata.Length, ByteOrder.BigEndian);
+                writer.Write(Userdata.Length, ByteOrder.BigEndian);
                 writer.Write(Userdata);
             }
 
@@ -77,7 +80,7 @@ namespace RCP.Parameter
         public static Parameter Parse(KaitaiStream input)
         {
             // get mandatory id
-            int id = input.ReadS4be();
+            byte[] id = new RcpTypes.Id(input).Data;
 
             var datatype = (RcpTypes.Datatype)input.ReadU1();
             if (!Enum.IsDefined(typeof(RcpTypes.Datatype), datatype))
@@ -138,6 +141,10 @@ namespace RCP.Parameter
                         Order = input.ReadS4be();
                         break;
 
+                    case RcpTypes.ParameterOptions.Parent:
+                        Parent =  new RcpTypes.Id(input).Data;
+                        break;
+
                     case RcpTypes.ParameterOptions.Widget:
                         throw new RCPUnsupportedFeatureException();
 
@@ -157,11 +164,34 @@ namespace RCP.Parameter
         }
     }
 
+    public static class IdExtensions
+    {
+        public static byte[] ToRCPId(this int id)
+        {
+            return BitConverter.GetBytes(id);
+        }
+
+        public static byte[] ToRCPId(this string id)
+        {
+            return Encoding.UTF8.GetBytes(id);
+        }
+
+        public static int ToIdInt(this byte[] id)
+        {
+            return BitConverter.ToInt32(id, 0);
+        }
+    	
+    	public static string ToIdString(this byte[] id)
+        {
+            return Encoding.UTF8.GetString(id);
+        }
+    }
+
     public abstract class ValueParameter<T> : Parameter, IValueParameter<T>
     {
         public T Value { get; set; }
 
-        public ValueParameter(int id, IDefaultDefinition<T> typeDefinition): base (id, typeDefinition)
+        public ValueParameter(byte[] id, IDefaultDefinition<T> typeDefinition): base (id, typeDefinition)
         { }
 
         protected override void WriteValue(BinaryWriter writer)
