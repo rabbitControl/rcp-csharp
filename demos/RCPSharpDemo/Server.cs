@@ -1,4 +1,5 @@
 ﻿using RCP;
+using RCP.Parameter;
 using RCP.Protocol;
 using RCP.Transporter;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace RCPSharpDemo
     public partial class Server : Form
     {
         RCPServer Rabbit;
-        Dictionary<int, IParameter> FParams = new Dictionary<int, IParameter>();
+        Dictionary<string, IParameter> FParams = new Dictionary<string, IParameter>();
 
         Client FClient;
 
@@ -67,8 +68,8 @@ namespace RCPSharpDemo
         
         private void button1_Click(object sender, System.EventArgs e)
         {
-            int id = FParams.Count;
-            var param = ParameterFactory.CreateParameter(id, RcpTypes.Datatype.Float32);
+            string id = FParams.Count.ToString();
+            var param = ParameterFactory.CreateParameter(id.ToRCPId(), RcpTypes.Datatype.Float32);
             //param now is of type NumberParameter<float>
             //holds param.TypeDefinition of type NumberDefinition<float>
             param.Label = "My Flöat: " + id;
@@ -88,5 +89,7 @@ namespace RCPSharpDemo
             ////expose parameter
             Rabbit.AddParameter(param); //sends add to all clients
         }
+
+        
     }
 }

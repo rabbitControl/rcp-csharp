@@ -11,14 +11,15 @@ namespace RCPSharpDemo
     public partial class Client : Form
     {
         RCPClient Carrot;
-        Dictionary<int, IParameter> UIParams = new Dictionary<int, IParameter>();
+        Dictionary<byte[], IParameter> UIParams = new Dictionary<byte[], IParameter>(new StructuralEqualityComparer<byte[]>());
 
         public Client()
         {
             InitializeComponent();
 
+            var transporter = new WebsocketClientTransporter();
             Carrot = new RCPClient();
-            Carrot.SetTransporter(new WebsocketClientTransporter("127.0.0.1", 10000));
+            Carrot.SetTransporter(transporter);
 
             Carrot.ParameterAdded = (p) =>
             {
@@ -62,6 +63,7 @@ namespace RCPSharpDemo
                 }
             };
 
+            transporter.Connect("127.0.0.1", 10000);
             //Carrot.Initialize();
         }
 
