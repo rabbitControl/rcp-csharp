@@ -82,6 +82,14 @@ namespace RCP.Transporter
 	{
         public Action<byte[], Object> Received { get; set; }
 
+        public int ConnectionCount
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public UDPServerTransporter(string remoteHost, int remotePort, int listeningPort):
             base(remoteHost, remotePort, listeningPort)
 		{ }
@@ -101,11 +109,60 @@ namespace RCP.Transporter
             if (id == this)
                 FUDPSender.Send(bytes, bytes.Length);
         }
-	}
+
+        public void Bind(int port)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unbind()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Bind(string host, int port)
+        {
+            throw new NotImplementedException();
+        }
+    }
 	
 	public class UDPClientTransporter: UDPTransporter, IClientTransporter
 	{
 		public Action<byte[]> Received {get; set;}
+
+        public bool IsConnected
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public Action Connected
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public Action Disconnected
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         protected override void OnReceived(byte[] bytes)
         {
@@ -120,5 +177,15 @@ namespace RCP.Transporter
 		{
 			var r = FUDPSender.Send(bytes, bytes.Length);
 		}
-	}
+
+        public void Connect(string host, int port)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Disconnect()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

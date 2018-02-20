@@ -16,11 +16,9 @@ namespace RCP.Transporter
 
         public bool IsConnected => FClient?.Handshaked ?? false;
 
-        public WebsocketClientTransporter(string remoteHost, int port)
+        public WebsocketClientTransporter()
         {
             FContext = SynchronizationContext.Current;
-
-            CreateClient(remoteHost, port);
         }
 
         public void Dispose()
@@ -45,30 +43,19 @@ namespace RCP.Transporter
             FClient = new WebSocket("ws://" + remoteHost + ":" + port.ToString());
             FClient.MessageReceived += FClient_MessageReceived;
             FClient.Opened += FClient_Opened;
-            FClient.Opened += FClient_Closed;
+            FClient.Closed += FClient_Closed;
+            FClient.Open();
         }
 
-        public void SetRemoteHostAndPort(string remoteHost, int port)
+        public void Connect(string remoteHost, int port)
         {
-            var wasConnected = FClient?.Handshaked ?? false;
-
             DestroyClient();
             CreateClient(remoteHost, port);
-
-            if (wasConnected)
-                Connect();
-        }
-
-        public void Connect()
-        {
-            //here we could try to connect until we're connected
-            //and try again when the connection gets lost
-            FClient.Open();
         }
 
         public void Disconnect()
         {
-            FClient.Close();
+            DestroyClient();
         }
 
         private void FClient_Opened(object sender, EventArgs e)

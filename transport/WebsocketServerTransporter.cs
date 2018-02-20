@@ -27,16 +27,7 @@ namespace RCP.Transporter
 
         public void Dispose()
         {
-            DestroyServer();
-        }
-
-        private void DestroyServer()
-        {
-            if (FServer != null)
-            {
-                FSockets.Clear();
-                FServer.Dispose();
-            }
+            Unbind();
         }
 
         private void CreateServer(string remoteHost, int port)
@@ -70,10 +61,19 @@ namespace RCP.Transporter
             });
         }
 
-        public void SetRemoteHostAndPort(string remoteHost, int port)
+        public void Bind(string remoteHost, int port)
         {
-            DestroyServer();
+            Unbind();
             CreateServer(remoteHost, port);
+        }
+
+        public void Unbind()
+        {
+            if (FServer != null)
+            {
+                FSockets.Clear();
+                FServer.Dispose();
+            }
         }
 
         public void SendToAll(byte[] bytes, object exceptId)
