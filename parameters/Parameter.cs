@@ -58,7 +58,7 @@ namespace RCP.Parameter
             if (Parent != null)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Parent);
-                writer.Write((byte)Id.Length);
+                writer.Write((byte)Parent.Length);
                 writer.Write(Parent);
             }
 
