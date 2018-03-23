@@ -1,7 +1,6 @@
 using System;
-using System.Text;
 using System.Threading;
-using WebSocket4Net;
+using WebSocketSharp;
 
 namespace RCP.Transporter
 {
@@ -14,7 +13,7 @@ namespace RCP.Transporter
         public Action Connected { get; set; }
         public Action Disconnected { get; set; }
 
-        public bool IsConnected => FClient?.Handshaked ?? false;
+        public bool IsConnected => FClient?.IsAlive ?? false;
 
         public WebsocketClientTransporter()
         {
@@ -31,20 +30,20 @@ namespace RCP.Transporter
             if (FClient != null)
             {
                 FClient.Close();
-                FClient.Opened -= FClient_Opened;
-                FClient.Closed -= FClient_Closed;
-                FClient.MessageReceived -= FClient_MessageReceived;
-                FClient.Dispose();
+                FClient.OnOpen -= FClient_Opened;
+                FClient.OnClose -= FClient_Closed;
+                FClient.OnMessage -= FClient_MessageReceived;
+                FClient.Close();
             }
         }
 
         private void CreateClient(string remoteHost, int port)
         {
             FClient = new WebSocket("ws://" + remoteHost + ":" + port.ToString());
-            FClient.MessageReceived += FClient_MessageReceived;
-            FClient.Opened += FClient_Opened;
-            FClient.Closed += FClient_Closed;
-            FClient.Open();
+            FClient.OnMessage += FClient_MessageReceived;
+            FClient.OnOpen += FClient_Opened;
+            FClient.OnClose += FClient_Closed;
+            FClient.Connect();
         }
 
         public void Connect(string remoteHost, int port)
@@ -68,22 +67,18 @@ namespace RCP.Transporter
             FContext.Post((b) => Disconnected?.Invoke(), null);
         }
 
-        private void FClient_MessageReceived(object sender, MessageReceivedEventArgs e)
+        private void FClient_MessageReceived(object sender, MessageEventArgs e)
         {
-            if (e.Message.Length > 0)
+            if (e.IsBinary && e.RawData.Length > 0)
             {
-                //NOTE: encoding shit here only because Websocket4Net doesn't receive binary
-                //beware: encoding obviously needs to be in sync with what server sends
-                //setting both to UTF8 didn't work..
-                var bytes = Encoding.Default.GetBytes(e.Message);
-                FContext.Post((b) => Received?.Invoke(bytes), bytes);
+                FContext.Post((b) => Received?.Invoke(e.RawData), e.RawData);
             }
         }
 
         public void Send(byte[] bytes)
         {
             if (FClient != null)
-                FClient.Send(bytes, 0, bytes.Length);
+                FClient.Send(bytes);
         }
     }
 }

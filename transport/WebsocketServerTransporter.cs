@@ -80,10 +80,7 @@ namespace RCP.Transporter
         {
             FSockets.Keys.ToList().ForEach(k => {
             	if (exceptId == null || k != (Guid)exceptId)
-                    //TODO: better send bytes directly once receiver understands that
-                    //FSockets[k].Send(bytes);
-                    //UTF8 encoding didn't work for some reason
-                    FSockets[k].Send(Encoding.Default.GetString(bytes));
+                    FSockets[k].Send(bytes);
             });
         }
 
@@ -91,10 +88,7 @@ namespace RCP.Transporter
         {
             IWebSocketConnection socket;
             if (id != null && FSockets.TryGetValue((Guid)id, out socket))
-                //TODO: better send bytes directly once receiver understands that
-                //socket.Send(bytes);
-                //UTF8 encoding didn't work for some reason
-                socket.Send(Encoding.Default.GetString(bytes));
+                socket.Send(bytes);
         }
     }
 }
