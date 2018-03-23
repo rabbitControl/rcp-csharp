@@ -57,7 +57,7 @@ namespace RCP.Parameter
 
             if (Parent != null)
             {
-                writer.Write((byte)RcpTypes.ParameterOptions.Parent);
+                writer.Write((byte)RcpTypes.ParameterOptions.Parentid);
                 writer.Write((byte)Parent.Length);
                 writer.Write(Parent);
             }
@@ -141,7 +141,7 @@ namespace RCP.Parameter
                         Order = input.ReadS4be();
                         break;
 
-                    case RcpTypes.ParameterOptions.Parent:
+                    case RcpTypes.ParameterOptions.Parentid:
                         Parent =  new RcpTypes.Id(input).Data;
                         break;
 

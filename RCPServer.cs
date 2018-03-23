@@ -53,7 +53,7 @@ namespace RCP
 			}
 			
 			//dispatch to all clients
-			SendToMultiple(Pack(RcpTypes.Command.Add, parameter));			
+			SendToMultiple(Pack(RcpTypes.Command.Update, parameter));			
 			//Logger.Log(LogType.Debug, "Server sent: Add Id: " + parameter.Id);
 			
 			return result;
@@ -147,7 +147,7 @@ namespace RCP
                     case RcpTypes.Command.Initialize:
 				        //client requests all parameters
 				        foreach (var param in FParams.Values)
-					        SendToOne(Pack(RcpTypes.Command.Add, param), senderId);
+					        SendToOne(Pack(RcpTypes.Command.Update, param), senderId);
 				        break;
 		        }
             }

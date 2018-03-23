@@ -86,11 +86,12 @@ namespace RCP
 			
 			switch (packet.Command)
 			{
-				case RcpTypes.Command.Add:
-                    FParams.Add(packet.Data.Id, packet.Data);
-				    //inform the application
-				    ParameterAdded?.Invoke(packet.Data);
-				    break;
+				//case RcpTypes.Command.Add:
+    //                Log?.Invoke("received add");
+    //                FParams.Add(packet.Data.Id, packet.Data);
+				//    //inform the application
+				//    ParameterAdded?.Invoke(packet.Data);
+				//    break;
 				
 				case RcpTypes.Command.Update:
                     if (FParams.ContainsKey(packet.Data.Id))

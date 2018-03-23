@@ -48,7 +48,6 @@ namespace RCP.Protocol
 //	                            // init - should not happen
 //	                            throw new RCPDataErrorException();
 
-                            case RcpTypes.Command.Add:
                             case RcpTypes.Command.Remove:
                             case RcpTypes.Command.Update:
                                 // expect parameter

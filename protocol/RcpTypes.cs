@@ -39,10 +39,16 @@ namespace RCP.Protocol
             Value = 32,
             Label = 33,
             Description = 34,
-            Order = 35,
-            Parent = 36,
-            Widget = 37,
-            Userdata = 38,
+            Tags = 35,
+            Order = 36,
+            Parentid = 37,
+            Widget = 38,
+            Userdata = 39,
+        }
+
+        public enum Ipv4Options
+        {
+            Default = 48,
         }
 
         public enum VectorOptions
@@ -53,11 +59,6 @@ namespace RCP.Protocol
             Multipleof = 51,
             Scale = 52,
             Unit = 53,
-        }
-
-        public enum CompoundOptions
-        {
-            Default = 48,
         }
 
         public enum BooleanOptions
@@ -86,7 +87,7 @@ namespace RCP.Protocol
             Invalid = 0,
             Version = 1,
             Initialize = 2,
-            Add = 3,
+            Discover = 3,
             Update = 4,
             Remove = 5,
             Updatevalue = 6,
@@ -111,6 +112,13 @@ namespace RCP.Protocol
             Top = 2,
             Bottom = 3,
             Center = 4,
+        }
+
+        public enum UriOptions
+        {
+            Default = 48,
+            Filter = 49,
+            Schema = 50,
         }
 
         public enum ClientStatus
@@ -153,7 +161,6 @@ namespace RCP.Protocol
             DynamicArray = 38,
             Bang = 39,
             Group = 40,
-            Compound = 41,
             Uri = 42,
             Ipv4 = 43,
             Ipv6 = 44,
@@ -167,6 +174,11 @@ namespace RCP.Protocol
             Multipleof = 51,
             Scale = 52,
             Unit = 53,
+        }
+
+        public enum Ipv6Options
+        {
+            Default = 48,
         }
 
         public enum MetadataOptions
