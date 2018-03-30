@@ -66,6 +66,12 @@ namespace RCP
     {
     }
 
+    public interface IUriDefinition : IDefaultDefinition<string>
+    {
+        string Schema { get; set; }
+        string Filter { get; set; }
+    }
+
     public interface IRGBADefinition : IDefaultDefinition<Color>
     {
     }

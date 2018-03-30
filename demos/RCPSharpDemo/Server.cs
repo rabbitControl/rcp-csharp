@@ -69,14 +69,14 @@ namespace RCPSharpDemo
         private void button1_Click(object sender, System.EventArgs e)
         {
             string id = FParams.Count.ToString();
-            var param = ParameterFactory.CreateParameter(id.ToRCPId(), RcpTypes.Datatype.Float32);
+            var param = ParameterFactory.CreateParameter(id.ToRCPId(), RcpTypes.Datatype.Uri);
             //param now is of type NumberParameter<float>
             //holds param.TypeDefinition of type NumberDefinition<float>
             param.Label = "My Flöat: " + id;
             param.Description = "@€träöü";
             param.Order = 1;
             param.Userdata = Encoding.UTF8.GetBytes("öäüad");
-            (param.TypeDefinition as INumberDefinition<float>).Minimum = 0.4f;
+            (param.TypeDefinition as IUriDefinition).Schema = "file";
             param.Widget = new SliderWidget();
             //param.Value = 0.5f;
             //param.TypeDefinition.Minimum = -1.0f;

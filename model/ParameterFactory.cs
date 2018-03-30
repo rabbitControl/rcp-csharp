@@ -29,6 +29,9 @@ namespace RCP
                 case RcpTypes.Datatype.String:
                     return new StringParameter(id);
 
+                case RcpTypes.Datatype.Uri:
+                    return new UriParameter(id);
+
                 case RcpTypes.Datatype.Rgba:
                     return new RGBAParameter(id);
 
@@ -63,6 +66,9 @@ namespace RCP
                 case RcpTypes.Datatype.String:
                     return new StringParameter(id, typeDefinition as IStringDefinition);
 
+                case RcpTypes.Datatype.Uri:
+                    return new UriParameter(id, typeDefinition as IUriDefinition);
+
                 case RcpTypes.Datatype.Rgba:
                     return new RGBAParameter(id, typeDefinition as IRGBADefinition);
 
@@ -96,6 +102,9 @@ namespace RCP
 
                 case RcpTypes.Datatype.String:
                     return new ArrayParameter<string>(id, new ArrayDefinition<string>(new StringDefinition(), length));
+
+                case RcpTypes.Datatype.Uri:
+                    return new ArrayParameter<string>(id, new ArrayDefinition<string>(new UriDefinition(), length));
 
                 case RcpTypes.Datatype.Rgba:
                     return new ArrayParameter<Color>(id, new ArrayDefinition<Color>(new RGBADefinition(), length));
