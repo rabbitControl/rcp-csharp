@@ -3,51 +3,6 @@ using System.Linq;
 
 namespace RCP.Model
 {
-    public class Widget
-    {
-        public string Type { get; set; }
-
-        public Widget(string type)
-        {
-            Type = type;
-        }
-    }
-
-    public enum ButtonBehavior 
-	{ 
-		Toggle, 
-		Bang, 
-		Press
-	}
-	
-    public class RCPButton: Widget
-    {
-        public ButtonBehavior Behavior { get; set; }
-
-        public RCPButton()
-        : base("button")
-        {
-        }
-    }
-	
-	public class RCPNumberBox<T>: Widget
-    {
-        public uint Precision { get; set; }
-    	
-        public T Stepsize { get; set; }
-    	
-        public bool Cyclic { get; set; }
-
-        public RCPNumberBox()
-        : base("numberbox")
-        {
-//        	if ((typeof(T) == typeof(float)) || typeof(T) == typeof(double))
-//                Stepsize = (T) (object) 0.01;
-//        	else
-//        		Stepsize = (T) (object) 1;
-        }
-    }
-
 	public static class Converter
 	{
 	    public static byte[] GetBytes(bool value)

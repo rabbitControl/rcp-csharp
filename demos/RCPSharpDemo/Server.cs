@@ -77,6 +77,7 @@ namespace RCPSharpDemo
             param.Order = 1;
             param.Userdata = Encoding.UTF8.GetBytes("öäüad");
             (param.TypeDefinition as INumberDefinition<float>).Minimum = 0.4f;
+            param.Widget = new SliderWidget();
             //param.Value = 0.5f;
             //param.TypeDefinition.Minimum = -1.0f;
             //param.TypeDefinition.Maximum = 1.0f;

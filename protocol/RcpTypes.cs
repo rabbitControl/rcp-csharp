@@ -68,12 +68,12 @@ namespace RCP.Protocol
 
         public enum Widgettype
         {
-            Textbox = 16,
-            Numberbox = 17,
-            Button = 18,
-            Checkbox = 19,
-            Radiobutton = 20,
-            Slider = 21,
+            Bang = 16,
+            Press = 17,
+            Toggle = 18,
+            Slider = 19,
+            Endless = 20,
+            TextBox = 21,
             Dial = 22,
             Colorbox = 23,
             Table = 24,

@@ -18,7 +18,7 @@ namespace RCP.Parameter
         public int? Order { get; set; }
 
         public byte[] Parent { get; set; }
-        //public Widget Widget { get; set; }
+        public Widget Widget { get; set; }
         public byte[] Userdata { get; set; }
 
         public Parameter(byte[] id, ITypeDefinition typeDefinition)
@@ -62,7 +62,11 @@ namespace RCP.Parameter
                 writer.Write(Parent);
             }
 
-            //widget
+            if (Widget != null)
+            {
+                writer.Write((byte)RcpTypes.ParameterOptions.Widget);
+                Widget.Write(writer);
+            }
 
             if (Userdata != null)
             {
@@ -142,11 +146,12 @@ namespace RCP.Parameter
                         break;
 
                     case RcpTypes.ParameterOptions.Parentid:
-                        Parent =  new RcpTypes.Id(input).Data;
+                        Parent = new RcpTypes.Id(input).Data;
                         break;
 
                     case RcpTypes.ParameterOptions.Widget:
-                        throw new RCPUnsupportedFeatureException();
+                        Widget = Widget.Parse(input);
+                        break;
 
                     case RcpTypes.ParameterOptions.Userdata:
                         Userdata = new RcpTypes.Userdata(input).Data;

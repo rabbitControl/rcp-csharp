@@ -135,6 +135,7 @@
     <Compile Include="model\BinaryWriterExtensions.cs" />
     <Compile Include="model\Exceptions.cs" />
     <Compile Include="model\Interfaces.cs" />
+    <Compile Include="model\Widget.cs" />
     <Compile Include="model\Model.cs" />
     <Compile Include="protocol\Packet.cs" />
     <Compile Include="parameters\Parameter.cs" />

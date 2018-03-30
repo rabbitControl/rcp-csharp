@@ -26,7 +26,7 @@ namespace RCP
         string Description { get; set; }
         int? Order { get; set; }
         byte[] Parent { get; set; }
-        //IWidget Widget { get; set; }
+        Widget Widget { get; set; }
         byte[] Userdata { get; set; }
     }
 
