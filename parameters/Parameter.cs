@@ -188,7 +188,10 @@ namespace RCP.Parameter
     	
     	public static string ToIdString(this byte[] id)
         {
-            return Encoding.UTF8.GetString(id);
+            if (id != null)
+                return Encoding.UTF8.GetString(id);
+            else
+                return "";
         }
     }
 
