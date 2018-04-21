@@ -1,5 +1,6 @@
-using Kaitai;
+using System;
 
+using Kaitai;
 using RCP.Protocol;
 
 namespace RCP.Parameter
@@ -11,11 +12,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IBooleanDefinition; }
         }
 
-        public BooleanParameter(byte[] id): 
+        public BooleanParameter(Int16 id): 
             base (id, new BooleanDefinition())
         { }
 
-        public BooleanParameter(byte[] id, IBooleanDefinition definition):
+        public BooleanParameter(Int16 id, IBooleanDefinition definition):
             base(id, definition)
         { }
 

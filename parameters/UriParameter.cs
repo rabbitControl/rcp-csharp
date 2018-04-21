@@ -1,3 +1,4 @@
+using System;
 using Kaitai;
 
 using RCP.Protocol;
@@ -11,11 +12,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IUriDefinition; }
         }
 
-        public UriParameter(byte[] id): 
+        public UriParameter(Int16 id): 
             base (id, new UriDefinition())
         { }
 
-        public UriParameter(byte[] id, IUriDefinition definition):
+        public UriParameter(Int16 id, IUriDefinition definition):
             base(id, definition)
         { }
 

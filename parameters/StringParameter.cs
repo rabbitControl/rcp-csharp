@@ -1,6 +1,7 @@
 using Kaitai;
 
 using RCP.Protocol;
+using System;
 
 namespace RCP.Parameter
 {
@@ -11,11 +12,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IStringDefinition; }
         }
 
-        public StringParameter(byte[] id): 
+        public StringParameter(Int16 id): 
             base (id, new StringDefinition())
         { }
 
-        public StringParameter(byte[] id, IStringDefinition definition):
+        public StringParameter(Int16 id, IStringDefinition definition):
             base(id, definition)
         { }
 

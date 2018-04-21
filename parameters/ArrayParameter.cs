@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
-using Kaitai;
 
+using Kaitai;
 using RCP.Protocol;
 
 namespace RCP.Parameter
@@ -13,7 +14,7 @@ namespace RCP.Parameter
         //}
         ArrayDefinition<T> FTypeDefinition;
 
-        public ArrayParameter(byte[] id, ArrayDefinition<T> typeDefinition): base (id, typeDefinition)
+        public ArrayParameter(Int16 id, ArrayDefinition<T> typeDefinition): base (id, typeDefinition)
         {
             FTypeDefinition = typeDefinition;
         }

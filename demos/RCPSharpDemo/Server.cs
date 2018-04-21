@@ -2,6 +2,7 @@
 using RCP.Parameter;
 using RCP.Protocol;
 using RCP.Transporter;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
@@ -11,7 +12,7 @@ namespace RCPSharpDemo
     public partial class Server : Form
     {
         RCPServer Rabbit;
-        Dictionary<string, IParameter> FParams = new Dictionary<string, IParameter>();
+        Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
 
         Client FClient;
 
@@ -23,8 +24,6 @@ namespace RCPSharpDemo
 
             //Rabbit.AddTransporter(new UDPServerTransporter("127.0.0.1", 4568, 4567));
             Rabbit.AddTransporter(new WebsocketServerTransporter("127.0.0.1", 10000));
-
-            
 
             //update a parameter value
             //param.Value = 0.2f;
@@ -68,8 +67,8 @@ namespace RCPSharpDemo
         
         private void button1_Click(object sender, System.EventArgs e)
         {
-            string id = FParams.Count.ToString();
-            var param = ParameterFactory.CreateParameter(id.ToRCPId(), RcpTypes.Datatype.Uri);
+            Int16 id = (Int16)FParams.Count;
+            var param = ParameterFactory.CreateParameter(id, RcpTypes.Datatype.Uri);
             //param now is of type NumberParameter<float>
             //holds param.TypeDefinition of type NumberDefinition<float>
             param.Label = "My Flöat: " + id;
@@ -77,7 +76,7 @@ namespace RCPSharpDemo
             param.Order = 1;
             param.Userdata = Encoding.UTF8.GetBytes("öäüad");
             (param.TypeDefinition as IUriDefinition).Schema = "file";
-            param.Widget = new SliderWidget();
+            //param.Widget = new SliderWidget();
             //param.Value = 0.5f;
             //param.TypeDefinition.Minimum = -1.0f;
             //param.TypeDefinition.Maximum = 1.0f;

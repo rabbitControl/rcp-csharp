@@ -20,14 +20,16 @@ namespace RCP
 
     public interface IParameter : IWriteable
     {
-        byte[] Id { get; }
+        Int16 Id { get; }
         ITypeDefinition TypeDefinition { get; }
         string Label { get; set; }
         string Description { get; set; }
+        string Tags { get; set; }
         int? Order { get; set; }
-        byte[] Parent { get; set; }
+        Int16? Parent { get; set; }
         Widget Widget { get; set; }
         byte[] Userdata { get; set; }
+        string UserId { get; set; }
     }
 
     public interface IValueParameter<T>: IParameter

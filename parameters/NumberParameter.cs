@@ -1,7 +1,7 @@
 using System;
 using System.IO;
-using Kaitai;
 
+using Kaitai;
 using RCP.Protocol;
 
 namespace RCP.Parameter
@@ -14,7 +14,7 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as INumberDefinition<T>;}
         }
 
-        public NumberParameter(byte[] id, INumberDefinition<T> definition): 
+        public NumberParameter(Int16 id, INumberDefinition<T> definition): 
             base (id, definition)
         { }
 

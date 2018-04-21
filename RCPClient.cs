@@ -9,7 +9,7 @@ namespace RCP
 {
     public class RCPClient: ClientServerBase
 	{
-		Dictionary<byte[], IParameter> FParams = new Dictionary<byte[], IParameter>(new StructuralEqualityComparer<byte[]>());
+		Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
 		private IClientTransporter FTransporter;
 
         public RCPClient()
@@ -31,7 +31,7 @@ namespace RCP
         public Action<IParameter> ParameterAdded;
         public Action<IParameter> ParameterUpdated;
         public Action<IParameter> ParameterValueUpdated;
-        public Action<byte[]> ParameterRemoved;
+        public Action<Int16> ParameterRemoved;
 
         public Action<Exception> OnError;
         public Action<RcpTypes.ClientStatus, string> StatusChanged;
@@ -60,7 +60,7 @@ namespace RCP
 			SendPacket(Pack(RcpTypes.Command.Update, param));
 		}
 
-        public IParameter GetParameter(byte[] id)
+        public IParameter GetParameter(Int16 id)
         {
             return FParams[id];
         }

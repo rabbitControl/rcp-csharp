@@ -1,6 +1,6 @@
 using System;
-using System.Drawing;
 using System.IO;
+using System.Drawing;
 using Kaitai;
 
 using RCP.Protocol;
@@ -15,11 +15,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IRGBADefinition;}
         }
 
-		public RGBAParameter(byte[] id): 
+		public RGBAParameter(Int16 id): 
             base (id, new RGBADefinition())
         { }
 
-        public RGBAParameter(byte[] id, IRGBADefinition definition):
+        public RGBAParameter(Int16 id, IRGBADefinition definition):
             base(id, definition)
         { }
 

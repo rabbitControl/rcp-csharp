@@ -1,20 +1,18 @@
-using Kaitai;
+using System;
 using System.IO;
-
-using RCP.Protocol;
 
 namespace RCP.Parameter
 {
     public class GroupParameter : Parameter
     {
-        public GroupParameter(byte[] id): 
+        public GroupParameter(Int16 id): 
             base (id, new GroupDefinition())
         { }
 
         public void Write(BinaryWriter writer)
         {
             //mandatory
-            writer.WriteValues(Id, Id.Length, ByteOrder.BigEndian);
+            writer.Write(Id);
 
             //terminate
             writer.Write((byte)0);

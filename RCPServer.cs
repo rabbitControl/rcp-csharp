@@ -13,7 +13,7 @@ namespace RCP
     public class RCPServer: ClientServerBase 
 	{
 		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
-		Dictionary<byte[], IParameter> FParams = new Dictionary<byte[], IParameter>(new StructuralEqualityComparer<byte[]>());
+		Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
 
         public RCPServer()
         { }
@@ -77,7 +77,7 @@ namespace RCP
 			return result;
 		}
 		
-		public bool RemoveParameter(byte[] id)
+		public bool RemoveParameter(Int16 id)
 		{
 			var param = FParams[id];
 			var result = FParams.Remove(id);
@@ -89,7 +89,7 @@ namespace RCP
 			return result;
 		}
 
-        public IParameter GetParameter(byte[] id)
+        public IParameter GetParameter(Int16 id)
 		{
 			return FParams[id];
 		}

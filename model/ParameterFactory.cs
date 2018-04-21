@@ -5,12 +5,13 @@ using System.Numerics;
 using RCP.Protocol;
 using RCP.Exceptions;
 using RCP.Parameter;
+using System;
 
 namespace RCP
 {
     public static class ParameterFactory
     {
-        public static IParameter CreateParameter(byte[] id, RcpTypes.Datatype datatype)
+        public static IParameter CreateParameter(Int16 id, RcpTypes.Datatype datatype)
         {
             switch (datatype)
             {
@@ -47,7 +48,7 @@ namespace RCP
             }
         }
     	
-    	public static IParameter CreateParameter(byte[] id, ITypeDefinition typeDefinition)
+    	public static IParameter CreateParameter(Int16 id, ITypeDefinition typeDefinition)
         {
             switch (typeDefinition.Datatype)
             {
@@ -84,7 +85,7 @@ namespace RCP
             }
         }
 
-        public static IParameter CreateArrayParameter(byte[] id, RcpTypes.Datatype datatype, uint length)
+        public static IParameter CreateArrayParameter(Int16 id, RcpTypes.Datatype datatype, uint length)
         {
             switch (datatype)
             {
@@ -119,7 +120,7 @@ namespace RCP
             }
         }
     	
-    	public static IParameter CreateArrayParameter<T>(byte[] id, ArrayDefinition<T> definition)
+    	public static IParameter CreateArrayParameter<T>(Int16 id, ArrayDefinition<T> definition)
         {
             return new ArrayParameter<T>(id, definition);
         }

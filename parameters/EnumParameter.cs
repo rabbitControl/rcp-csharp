@@ -1,5 +1,6 @@
-using Kaitai;
+using System;
 
+using Kaitai;
 using RCP.Protocol;
 
 namespace RCP.Parameter
@@ -11,11 +12,11 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IEnumDefinition; }
         }
 
-        public EnumParameter(byte[] id): 
+        public EnumParameter(Int16 id): 
             base (id, new EnumDefinition())
         { }
 
-        public EnumParameter(byte[] id, IEnumDefinition definition):
+        public EnumParameter(Int16 id, IEnumDefinition definition):
             base(id, definition)
         { }
 

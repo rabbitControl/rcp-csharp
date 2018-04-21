@@ -3,15 +3,17 @@
 using RCP;
 using RCP.Transporter;
 using RCP.Parameter;
-using RCP.Protocol;
+using System;
 using System.Collections.Generic;
+
+using RCP.Protocol;
 
 namespace RCPSharpDemo
 {
     public partial class Client : Form
     {
         RCPClient Carrot;
-        Dictionary<byte[], IParameter> UIParams = new Dictionary<byte[], IParameter>(new StructuralEqualityComparer<byte[]>());
+        Dictionary<Int16, IParameter> UIParams = new Dictionary<Int16, IParameter>();
 
         public Client()
         {
