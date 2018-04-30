@@ -7,8 +7,14 @@ using RCP.Protocol;
 
 namespace RCP.Parameter
 {
+    public enum Status { Update, Remove };
+
     public abstract class Parameter : IParameter, IWriteable
     {
+        protected IManager FManager;
+        private Status FStatus;
+        public Status Status => FStatus;
+
         public Int16 Id { get; private set; }
         public ITypeDefinition TypeDefinition { get; private set; }
 
@@ -17,21 +23,42 @@ namespace RCP.Parameter
         public string Tags { get; set; }
         public int? Order { get; set; }
 
-        public Int16? Parent { get; set; }
+        public Int16? ParentId { get; private set; }
         public Widget Widget { get; set; }
         public byte[] Userdata { get; set; }
         public string UserId { get; set; }
 
-        public Parameter(Int16 id, ITypeDefinition typeDefinition)
+        public Parameter(Int16 id, ITypeDefinition typeDefinition, IManager manager)
         {
             Id = id;
             TypeDefinition = typeDefinition;
+            FManager = manager;
+
+            SetDirty();
+        }
+
+        public void Destroy()
+        {
+            FStatus = Status.Remove;
+            SetDirty();
+        }
+
+        public void SetParent(IParameter param)
+        {
+            ParentId = param.Id;
+            SetDirty();
+        }
+
+        protected void SetDirty()
+        {
+            if (FManager != null) //not assigned for temp-parameters (ie. those just used for parsing on clients)
+                FManager.SetParameterDirty(this);
         }
 
         public void Write(BinaryWriter writer)
         {
             //mandatory
-            writer.Write(Id);
+            writer.Write(Id, ByteOrder.BigEndian);
             TypeDefinition.Write(writer);
 
             //optional
@@ -61,10 +88,10 @@ namespace RCP.Parameter
                 writer.Write(Order.Value, ByteOrder.BigEndian);
             }
 
-            if (Parent.HasValue)
+            if (ParentId.HasValue)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Parentid);
-                writer.Write(Parent.Value);
+                writer.Write(ParentId.Value, ByteOrder.BigEndian);
             }
 
             if (Widget != null)
@@ -105,16 +132,16 @@ namespace RCP.Parameter
 
             switch (datatype)
             {
-                case RcpTypes.Datatype.FixedArray:
-                    {
-                        dynamic arrayDefinition = ArrayDefinition<dynamic>.Parse(input);
-                        parameter = (Parameter)ParameterFactory.CreateArrayParameter(id, arrayDefinition.Subtype.Datatype, arrayDefinition.Length);
-                        break;
-                    }
+                //case RcpTypes.Datatype.FixedArray:
+                //    {
+                //        dynamic arrayDefinition = ArrayDefinition<dynamic>.Parse(input);
+                //        parameter = (Parameter)ParameterFactory.CreateArrayParameter(id, arrayDefinition.Subtype.Datatype, arrayDefinition.Length);
+                //        break;
+                //    }
 
                 default:
                     {
-                        parameter = (Parameter)ParameterFactory.CreateParameter(id, datatype);
+                        parameter = (Parameter)ParameterFactory.CreateParameter(id, datatype, null);
                         parameter.TypeDefinition.ParseOptions(input);
                         break;
                     }
@@ -161,7 +188,7 @@ namespace RCP.Parameter
                         break;
 
                     case RcpTypes.ParameterOptions.Parentid:
-                        Parent = input.ReadS2be();
+                        ParentId = input.ReadS2be();
                         break;
 
                     case RcpTypes.ParameterOptions.Widget:
@@ -192,8 +219,8 @@ namespace RCP.Parameter
     {
         public T Value { get; set; }
 
-        public ValueParameter(Int16 id, IDefaultDefinition<T> typeDefinition): 
-            base (id, typeDefinition)
+        public ValueParameter(Int16 id, IDefaultDefinition<T> typeDefinition, IManager manager) : 
+            base (id, typeDefinition, manager)
         { }
 
         protected override void WriteValue(BinaryWriter writer)

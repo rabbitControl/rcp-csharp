@@ -14,8 +14,8 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as INumberDefinition<T>;}
         }
 
-        public NumberParameter(Int16 id, INumberDefinition<T> definition): 
-            base (id, definition)
+        public NumberParameter(Int16 id, INumberDefinition<T> definition, IManager manager) : 
+            base (id, definition, manager)
         { }
 
         protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)

@@ -2,28 +2,23 @@
 using RCP.Parameter;
 using RCP.Protocol;
 using RCP.Transporter;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 
 namespace RCPSharpDemo
 {
     public partial class Server : Form
     {
-        RCPServer Rabbit;
-        Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
-
+        RCPServer FRabbit;
         Client FClient;
 
         public Server()
         {
             InitializeComponent();
 
-            Rabbit = new RCPServer();
+            FRabbit = new RCPServer();
 
             //Rabbit.AddTransporter(new UDPServerTransporter("127.0.0.1", 4568, 4567));
-            Rabbit.AddTransporter(new WebsocketServerTransporter("127.0.0.1", 10000));
+            FRabbit.AddTransporter(new WebsocketServerTransporter("127.0.0.1", 10000));
 
             //update a parameter value
             //param.Value = 0.2f;
@@ -35,14 +30,14 @@ namespace RCPSharpDemo
             //Rabbit.UpdateParameter(param); // this sends an update to all clients
 
             //listen for value updates on the parameter
-            Rabbit.ParameterValueUpdated = (p) =>
+            FRabbit.ParameterValueUpdated = (p) =>
             {
                 //Log(p.Value);
             };
 
             //listen for any changes on the parameter
             //some of the options of the parameter will be updated but since we don't know which ones, we'll have to take over all of them
-            Rabbit.ParameterUpdated = (p) =>
+            FRabbit.ParameterUpdated = (p) =>
             {
                 //get application object from a list
                 //var appObj = AppObjects[p.Id];
@@ -62,34 +57,33 @@ namespace RCPSharpDemo
         private void Server_FormClosing(object sender, FormClosingEventArgs e)
         {
             FClient.Dispose();
-            Rabbit.Dispose();
+            FRabbit.Dispose();
         }
         
         private void button1_Click(object sender, System.EventArgs e)
         {
-            Int16 id = (Int16)FParams.Count;
-            var param = ParameterFactory.CreateParameter(id, RcpTypes.Datatype.Uri);
+            var group = FRabbit.CreateGroup();
+            group.Label = "foo";
+            var param = (NumberParameter<float>)FRabbit.CreateParameter(RcpTypes.Datatype.Float32);
             //param now is of type NumberParameter<float>
             //holds param.TypeDefinition of type NumberDefinition<float>
-            param.Label = "My Flöat: " + id;
-            param.Description = "@€träöü";
-            param.Order = 1;
-            param.Userdata = Encoding.UTF8.GetBytes("öäüad");
-            (param.TypeDefinition as IUriDefinition).Schema = "file";
-            //param.Widget = new SliderWidget();
-            //param.Value = 0.5f;
-            //param.TypeDefinition.Minimum = -1.0f;
-            //param.TypeDefinition.Maximum = 1.0f;
+            param.Label = "My Flöat: " + param.Id;
+            param.Order = param.Id;
+            param.Widget = new SliderWidget();
+            param.Value = 0.5f;
+            param.TypeDefinition.Minimum = -1.0f;
+            param.TypeDefinition.Maximum = 1.0f;
+            
+            group.AddParameter(param);
+            FRabbit.Root.AddParameter(group);
+
+            // listen for value updates on the parameter
+            //param.ValueUpdated = (p) => Log(p.Value);
 
             //var paramGroup = ParameterFactory.CreateParameterGroup(1);
             //paramGroup.addChild(param);
 
-            FParams.Add(id, param);
-
-            ////expose parameter
-            Rabbit.AddParameter(param); //sends add to all clients
+            FRabbit.Update();
         }
-
-        
     }
 }

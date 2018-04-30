@@ -12,12 +12,12 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IUriDefinition; }
         }
 
-        public UriParameter(Int16 id): 
-            base (id, new UriDefinition())
+        public UriParameter(Int16 id, IManager manager) : 
+            base (id, new UriDefinition(), manager)
         { }
 
-        public UriParameter(Int16 id, IUriDefinition definition):
-            base(id, definition)
+        public UriParameter(Int16 id, IUriDefinition definition, IManager manager) :
+            base(id, definition, manager)
         { }
 
         protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)

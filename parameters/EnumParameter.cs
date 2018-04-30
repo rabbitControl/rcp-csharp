@@ -12,12 +12,12 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IEnumDefinition; }
         }
 
-        public EnumParameter(Int16 id): 
-            base (id, new EnumDefinition())
+        public EnumParameter(Int16 id, IManager manager) : 
+            base (id, new EnumDefinition(), manager)
         { }
 
-        public EnumParameter(Int16 id, IEnumDefinition definition):
-            base(id, definition)
+        public EnumParameter(Int16 id, IEnumDefinition definition, IManager manager):
+            base(id, definition, manager)
         { }
 
         protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)

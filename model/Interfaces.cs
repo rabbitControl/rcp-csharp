@@ -7,12 +7,6 @@ using RCP.Protocol;
 
 namespace RCP
 {
-    public interface IRCPServer
-    {
-        void UpdateValue();
-        void UpdateParameter();
-    }
-
     public interface IWriteable
     {
         void Write(BinaryWriter writer);
@@ -26,7 +20,7 @@ namespace RCP
         string Description { get; set; }
         string Tags { get; set; }
         int? Order { get; set; }
-        Int16? Parent { get; set; }
+        Int16? ParentId { get; }
         Widget Widget { get; set; }
         byte[] Userdata { get; set; }
         string UserId { get; set; }
@@ -99,6 +93,6 @@ namespace RCP
 
     public interface IGroupParameter: IParameter
     {
-
+        void AddParameter(IParameter param);
     }
 }

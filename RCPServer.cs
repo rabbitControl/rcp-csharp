@@ -7,18 +7,21 @@ using Kaitai;
 using System.Windows.Forms;
 using System.Collections;
 using System.Linq;
+using RCP.Parameter;
 
 namespace RCP
 {
     public class RCPServer: ClientServerBase 
 	{
 		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
-		Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
+        Int16 FIdCounter = 1;
 
         public RCPServer()
+            : base()
         { }
  
         public RCPServer(IServerTransporter transporter)
+            : this()
         {
             AddTransporter(transporter);
         }
@@ -35,6 +38,40 @@ namespace RCP
 
             base.Dispose();
 		}
+
+        public IParameter CreateParameter(RcpTypes.Datatype datatype)
+        {
+            var param = ParameterFactory.CreateParameter(FIdCounter++, datatype, this);
+            FParams.Add(param.Id, param);
+            return param;
+        }
+
+        public IGroupParameter CreateGroup()
+        {
+            var group = new GroupParameter(FIdCounter++, this);
+            FParams.Add(group.Id, group);
+            return group;
+        }
+
+        public void RemoveParameter(IParameter param)
+        {
+            FParams.Remove(param.Id);
+            (param as Parameter.Parameter).Destroy();
+        }
+
+        public override void Update()
+        {
+            foreach (var param in FDirtyParams)
+            {
+                switch((param as RCP.Parameter.Parameter).Status)
+                {
+                    case Status.Update: SendToMultiple(Pack(RcpTypes.Command.Update, param)); break;
+                    case Status.Remove: SendToMultiple(Pack(RcpTypes.Command.Remove, param)); break;
+                }
+            }
+
+            base.Update();
+        }
 		
 		public Action<IParameter> ParameterUpdated;
 

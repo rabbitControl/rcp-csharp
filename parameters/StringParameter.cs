@@ -12,12 +12,12 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IStringDefinition; }
         }
 
-        public StringParameter(Int16 id): 
-            base (id, new StringDefinition())
+        public StringParameter(Int16 id, IManager manager) : 
+            base (id, new StringDefinition(), manager)
         { }
 
-        public StringParameter(Int16 id, IStringDefinition definition):
-            base(id, definition)
+        public StringParameter(Int16 id, IStringDefinition definition, IManager manager) :
+            base(id, definition, manager)
         { }
 
         protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)

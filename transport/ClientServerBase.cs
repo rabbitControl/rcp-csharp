@@ -3,14 +3,31 @@ using System;
 using RCP.Protocol;
 using System.Collections.Generic;
 using System.Collections;
+using RCP.Parameter;
 
 namespace RCP
 {
-    public abstract class ClientServerBase: IDisposable
+    public interface IManager
+    {
+        void SetParameterDirty(IParameter param);
+    }
+
+
+    public abstract class ClientServerBase: IDisposable, IManager
 	{
-		//public ILogger Logger { get; set; }
-		
-		protected Packet Pack(RcpTypes.Command command, IParameter parameter)
+        //public ILogger Logger { get; set; }
+        protected Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
+        protected List<IParameter> FDirtyParams = new List<IParameter>();
+
+        protected IGroupParameter FRoot;
+        public IGroupParameter Root => FRoot;
+
+        public ClientServerBase()
+        {
+            FRoot = new GroupParameter(0, this);
+        }
+
+        protected Packet Pack(RcpTypes.Command command, IParameter parameter)
 		{
 			var packet = new Packet(command);
 			packet.Data = parameter;
@@ -37,5 +54,16 @@ namespace RCP
 		{
 			//Logger = null;
 		}
-	}
+
+        public void SetParameterDirty(IParameter param)
+        {
+            if (!FDirtyParams.Contains(param) && param.Id != 0)
+                FDirtyParams.Add(param);
+        }
+
+        public virtual void Update()
+        {
+            FDirtyParams.Clear();
+        }
+    }
 }

@@ -14,7 +14,7 @@ namespace RCP.Parameter
         //}
         ArrayDefinition<T> FTypeDefinition;
 
-        public ArrayParameter(Int16 id, ArrayDefinition<T> typeDefinition): base (id, typeDefinition)
+        public ArrayParameter(Int16 id, ArrayDefinition<T> typeDefinition, IManager manager): base (id, typeDefinition, manager)
         {
             FTypeDefinition = typeDefinition;
         }

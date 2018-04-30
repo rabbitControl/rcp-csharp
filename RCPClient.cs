@@ -9,13 +9,14 @@ namespace RCP
 {
     public class RCPClient: ClientServerBase
 	{
-		Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
 		private IClientTransporter FTransporter;
 
         public RCPClient()
+            : base()
         { }
 
         public RCPClient(IClientTransporter transporter)
+            : this()
         {
             SetTransporter(transporter);
         }
@@ -54,11 +55,14 @@ namespace RCP
             FParams.Clear();
             SendPacket(Pack(RcpTypes.Command.Initialize));
 		}
-		
-		public void Update(dynamic param)
-		{
-			SendPacket(Pack(RcpTypes.Command.Update, param));
-		}
+
+        public override void Update()
+        {
+            foreach (var param in FDirtyParams)
+                SendPacket(Pack(RcpTypes.Command.Update, param));
+
+            base.Update();
+        }
 
         public IParameter GetParameter(Int16 id)
         {
@@ -88,6 +92,7 @@ namespace RCP
 			{
 				case RcpTypes.Command.Update:
                     if (FParams.ContainsKey(packet.Data.Id))
+                        //TODO: don't remove existing param, but update existing one!
                         FParams.Remove(packet.Data.Id);
                         FParams.Add(packet.Data.Id, packet.Data);
                         //inform the application

@@ -12,12 +12,12 @@ namespace RCP.Parameter
             get { return base.TypeDefinition as IBooleanDefinition; }
         }
 
-        public BooleanParameter(Int16 id): 
-            base (id, new BooleanDefinition())
+        public BooleanParameter(Int16 id, IManager manager) : 
+            base (id, new BooleanDefinition(), manager)
         { }
 
-        public BooleanParameter(Int16 id, IBooleanDefinition definition):
-            base(id, definition)
+        public BooleanParameter(Int16 id, IBooleanDefinition definition, IManager manager) :
+            base(id, definition, manager)
         { }
 
         protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
