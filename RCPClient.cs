@@ -30,9 +30,7 @@ namespace RCP
 		}
 		
         public Action<IParameter> ParameterAdded;
-        public Action<IParameter> ParameterUpdated;
-        public Action<IParameter> ParameterValueUpdated;
-        public Action<Int16> ParameterRemoved;
+        public Action<IParameter> ParameterRemoved;
 
         public Action<Exception> OnError;
         public Action<RcpTypes.ClientStatus, string> StatusChanged;
@@ -92,12 +90,7 @@ namespace RCP
 			{
 				case RcpTypes.Command.Update:
                     if (FParams.ContainsKey(packet.Data.Id))
-                        //TODO: don't remove existing param, but update existing one!
-                        FParams.Remove(packet.Data.Id);
-                        FParams.Add(packet.Data.Id, packet.Data);
-                        //inform the application
-                        ParameterUpdated?.Invoke(packet.Data);
-                    }
+                        (packet.Data as Parameter.Parameter).CopyTo(FParams[packet.Data.Id]);
                     else
                     {
                         FParams.Add(packet.Data.Id, packet.Data);
@@ -108,17 +101,17 @@ namespace RCP
 				    break;
 
                 case RcpTypes.Command.Updatevalue:
+                    //TODO: actually only set the parameters value
                     if (FParams.ContainsKey(packet.Data.Id))
                         FParams.Remove(packet.Data.Id);
                     FParams.Add(packet.Data.Id, packet.Data);
                     //inform the application
-                    ParameterValueUpdated?.Invoke(packet.Data);
                     break;
 
                 case RcpTypes.Command.Remove:
                     FParams.Remove(packet.Data.Id);
 				    //inform the application
-				    ParameterRemoved?.Invoke(packet.Data.Id);
+				    ParameterRemoved?.Invoke(packet.Data);
 				    break;
 			}
 		}

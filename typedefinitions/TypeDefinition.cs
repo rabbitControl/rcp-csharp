@@ -54,7 +54,9 @@ namespace RCP.Parameter
 
     public abstract class DefaultDefinition<T>: TypeDefinition, IDefaultDefinition<T>
     {
-        public T Default { get; set; }
+        private bool FDefaultChanged;
+        private T FDefault;
+        public T Default { get { return FDefault; } set { FDefault = value; FDefaultChanged = true; } }
 
         public DefaultDefinition(RcpTypes.Datatype datatype) : base(datatype)
         { }
@@ -64,10 +66,11 @@ namespace RCP.Parameter
 
         protected override void WriteOptions(BinaryWriter writer)
         {
-            if (Default != null)
+            if (FDefaultChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Default);
                 WriteValue(writer, Default);
+                FDefaultChanged = false;
             }
         }
 

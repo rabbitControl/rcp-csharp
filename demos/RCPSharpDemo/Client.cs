@@ -27,26 +27,28 @@ namespace RCPSharpDemo
             {
                 UIParams.Add(p.Id, p);
                 label1.Text = UIParams.Count.ToString() + ": " + p.Label;
+
+                p.Updated += P_Updated;
             };
 
-            //listen for any parameter changes
-            Carrot.ParameterUpdated = (p) =>
-            {
-                var uip = UIParams[p.Id];
-                uip.Label = p.Label;
-                //...
-            };
+            ////listen for any parameter changes
+            //Carrot.ParameterUpdated = (p) =>
+            //{
+            //    var uip = UIParams[p.Id];
+            //    uip.Label = p.Label;
+            //    //...
+            //};
 
-            //listen for any value changes
-            Carrot.ParameterValueUpdated = (p) =>
-            {
-                var uip = UIParams[p.Id];
-                switch (p.TypeDefinition.Datatype)
-                {
-                    //case RcpTypes.Datatype.Float32: uip.Value = (float)p.Value; break;
-                        //...
-                }
-            };
+            ////listen for any value changes
+            //Carrot.ParameterValueUpdated = (p) =>
+            //{
+            //    var uip = UIParams[p.Id];
+            //    switch (p.TypeDefinition.Datatype)
+            //    {
+            //        //case RcpTypes.Datatype.Float32: uip.Value = (float)p.Value; break;
+            //            //...
+            //    }
+            //};
 
             Carrot.ParameterRemoved = (p) =>
             {
@@ -67,6 +69,12 @@ namespace RCPSharpDemo
 
             transporter.Connect("127.0.0.1", 10000);
             //Carrot.Initialize();
+        }
+
+        private void P_Updated(object sender, EventArgs e)
+        {
+            var p = sender as IParameter;
+            label1.Text = UIParams.Count.ToString() + ": " + p.Label;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

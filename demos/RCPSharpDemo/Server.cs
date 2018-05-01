@@ -62,8 +62,8 @@ namespace RCPSharpDemo
         
         private void button1_Click(object sender, System.EventArgs e)
         {
-            var group = FRabbit.CreateGroup();
-            group.Label = "foo";
+            //var group = FRabbit.CreateGroup();
+            //group.Label = "foo";
             var param = (NumberParameter<float>)FRabbit.CreateParameter(RcpTypes.Datatype.Float32);
             //param now is of type NumberParameter<float>
             //holds param.TypeDefinition of type NumberDefinition<float>
@@ -71,11 +71,13 @@ namespace RCPSharpDemo
             param.Order = param.Id;
             param.Widget = new SliderWidget();
             param.Value = 0.5f;
-            param.TypeDefinition.Minimum = -1.0f;
-            param.TypeDefinition.Maximum = 1.0f;
+            param.TypeDefinition.Minimum = -10.0f;
+            param.TypeDefinition.Maximum = 10.0f;
+
+            param.ValueUpdated += Param_ValueUpdated;
             
-            group.AddParameter(param);
-            FRabbit.Root.AddParameter(group);
+            //group.AddParameter(param);
+            FRabbit.Root.AddParameter(param);
 
             // listen for value updates on the parameter
             //param.ValueUpdated = (p) => Log(p.Value);
@@ -84,6 +86,14 @@ namespace RCPSharpDemo
             //paramGroup.addChild(param);
 
             FRabbit.Update();
+
+            param.Label = "asdfasf";
+            FRabbit.Update();
+        }
+
+        private void Param_ValueUpdated(object sender, float e)
+        {
+            //throw new System.NotImplementedException();
         }
     }
 }

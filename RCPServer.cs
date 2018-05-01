@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Collections;
 using System.Linq;
 using RCP.Parameter;
+using System.Numerics;
 
 namespace RCP
 {
@@ -46,6 +47,37 @@ namespace RCP
             return param;
         }
 
+        public NumberParameter<T> CreateNumberParameter<T>() where T: struct
+        {
+            INumberDefinition<T> definition = null;
+            if (typeof(T) == typeof(float))
+                definition = (INumberDefinition<T>)new Float32Definition();
+            else if (typeof(T) == typeof(int))
+                definition = (INumberDefinition<T>)new Integer32Definition();
+            else if (typeof(T) == typeof(Vector2))
+                definition = (INumberDefinition<T>)new Vector2f32Definition();
+            else if (typeof(T) == typeof(Vector3))
+                definition = (INumberDefinition<T>)new Vector3f32Definition();
+
+            var param = new NumberParameter<T>(FIdCounter++, definition, this);
+            FParams.Add(param.Id, param);
+            return param;
+        }
+
+        public StringParameter CreateStringParameter()
+        {
+            var param = new StringParameter(FIdCounter++, this);
+            FParams.Add(param.Id, param);
+            return param;
+        }
+
+        public RGBAParameter CreateRGBAParameter()
+        {
+            var param = new RGBAParameter(FIdCounter++, this);
+            FParams.Add(param.Id, param);
+            return param;
+        }
+
         public IGroupParameter CreateGroup()
         {
             var group = new GroupParameter(FIdCounter++, this);
@@ -73,58 +105,8 @@ namespace RCP
             base.Update();
         }
 		
-		public Action<IParameter> ParameterUpdated;
-
-        public Action<IParameter> ParameterValueUpdated;
-
         public Action<Exception> OnError;
 
-		
-		public bool AddParameter(IParameter parameter)
-		{
-			var result = false;
-			if (!FParams.ContainsKey(parameter.Id))
-			{
-				FParams.Add(parameter.Id, parameter);
-				result = true;
-			}
-			
-			//dispatch to all clients
-			SendToMultiple(Pack(RcpTypes.Command.Update, parameter));			
-			//Logger.Log(LogType.Debug, "Server sent: Add Id: " + parameter.Id);
-			
-			return result;
-		}
-		
-		public bool UpdateParameter(IParameter parameter)
-		{
-			//Logger.Log(LogType.Debug, "Server Update: " + parameter.Id);
-			
-			var result = false;
-			if (FParams.ContainsKey(parameter.Id))
-				FParams.Remove(parameter.Id);
-			
-			FParams.Add(parameter.Id, parameter);
-			result = true;
-			//Logger.Log(LogType.Debug, "Server sending..");
-			//dispatch to all clients
-			SendToMultiple(Pack(RcpTypes.Command.Update, parameter));
-			//Logger.Log(LogType.Debug, "Server sent: Update");
-			
-			return result;
-		}
-		
-		public bool RemoveParameter(Int16 id)
-		{
-			var param = FParams[id];
-			var result = FParams.Remove(id);
-			
-			//dispatch to all clients
-			SendToMultiple(Pack(RcpTypes.Command.Remove, param));
-			//Logger.Log(LogType.Debug, "Server sent: Remove Id: " + id);
-			
-			return result;
-		}
 
         public IParameter GetParameter(Int16 id)
 		{
@@ -167,24 +149,27 @@ namespace RCP
 		        {
 			        case RcpTypes.Command.Update:
                         if (FParams.ContainsKey(packet.Data.Id))
-                            FParams.Remove(packet.Data.Id);
-                        FParams.Add(packet.Data.Id, packet.Data);
-                        ParameterUpdated?.Invoke(packet.Data);
-				        SendToMultiple(packet, senderId);
+                        {
+                            (packet.Data as Parameter.Parameter).CopyTo(FParams[packet.Data.Id]);
+                            SendToMultiple(packet, senderId);
+                        }
 				        break;
 
                     case RcpTypes.Command.Updatevalue:
+                        //TODO: actually only set the parameters value
                         if (FParams.ContainsKey(packet.Data.Id))
                             FParams.Remove(packet.Data.Id);
                         FParams.Add(packet.Data.Id, packet.Data);
-                        ParameterValueUpdated?.Invoke(packet.Data);
                         SendToMultiple(packet, senderId);
                         break;
 
                     case RcpTypes.Command.Initialize:
 				        //client requests all parameters
 				        foreach (var param in FParams.Values)
+                        {
+                            (param as Parameter.Parameter).ResetForInitialize();
 					        SendToOne(Pack(RcpTypes.Command.Update, param), senderId);
+                        }
 				        break;
 		        }
             }

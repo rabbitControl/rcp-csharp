@@ -8,7 +8,7 @@ namespace RCP.Parameter
 {
     public class NumberParameter<T> : ValueParameter<T> where T : struct
     {
-        public new Nullable<T> Value { get; set; }
+        //public new Nullable<T> Value { get; set; }
         public new INumberDefinition<T> TypeDefinition
         {
             get { return base.TypeDefinition as INumberDefinition<T>;}
@@ -31,13 +31,13 @@ namespace RCP.Parameter
         }
 
         //since we're reintroducing the value as nullable we also need to override WriteValue
-        protected override void WriteValue(BinaryWriter writer)
-        {
-            if (Value != null)
-            {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                TypeDefinition.WriteValue(writer, (T)Value);
-            }
-        }
+        //protected override void WriteValue(BinaryWriter writer)
+        //{
+        //    if (Value != null)
+        //    {
+        //        writer.Write((byte)RcpTypes.ParameterOptions.Value);
+        //        TypeDefinition.WriteValue(writer, (T)Value);
+        //    }
+        //}
     }
 }

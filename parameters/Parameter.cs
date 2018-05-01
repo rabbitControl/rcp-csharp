@@ -11,6 +11,8 @@ namespace RCP.Parameter
 
     public abstract class Parameter : IParameter, IWriteable
     {
+        public event EventHandler Updated;
+
         protected IManager FManager;
         private Status FStatus;
         public Status Status => FStatus;
@@ -18,15 +20,35 @@ namespace RCP.Parameter
         public Int16 Id { get; private set; }
         public ITypeDefinition TypeDefinition { get; private set; }
 
-        public string Label { get; set; }
-        public string Description { get; set; }
-        public string Tags { get; set; }
-        public int? Order { get; set; }
+        private bool FParentIdChanged;
+        private Int16 FParentId;
+        public Int16 ParentId { get { return FParentId; } set { FParentId = value; FParentIdChanged = true; SetDirty(); } }
 
-        public Int16? ParentId { get; private set; }
+        private bool FLabelChanged;
+        private string FLabel = "";
+        public string Label { get { return FLabel; } set { FLabel = value; FLabelChanged = true; SetDirty(); } }
+
+        private bool FDescriptionChanged;
+        private string FDescription = "";
+        public string Description { get { return FDescription; } set { FDescription = value; FDescriptionChanged = true; SetDirty(); } }
+
+        private bool FTagsChanged;
+        private string FTags = "";
+        public string Tags { get { return FTags; } set { FTags = value; FTagsChanged = true; SetDirty(); } }
+
+        private bool FOrderChanged;
+        private int FOrder;
+        public int Order { get { return FOrder; } set { FOrder = value; FOrderChanged = true; SetDirty(); } }
+
+        private bool FUserdataChanged;
+        private byte[] FUserdata = new byte[0];
+        public byte[] Userdata { get { return FUserdata; } set { FUserdata = value; FUserdataChanged = true; SetDirty(); } }
+
+        private bool FUserIdChanged;
+        private string FUserId = "";
+        public string UserId { get { return FUserId; } set { FUserId = value; FUserIdChanged = true; SetDirty(); } }
+
         public Widget Widget { get; set; }
-        public byte[] Userdata { get; set; }
-        public string UserId { get; set; }
 
         public Parameter(Int16 id, ITypeDefinition typeDefinition, IManager manager)
         {
@@ -46,7 +68,6 @@ namespace RCP.Parameter
         public void SetParent(IParameter param)
         {
             ParentId = param.Id;
-            SetDirty();
         }
 
         protected void SetDirty()
@@ -64,34 +85,39 @@ namespace RCP.Parameter
             //optional
             WriteValue(writer);
 
-            if (!string.IsNullOrWhiteSpace(Label))
+            if (FLabelChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Label);
                 RcpTypes.TinyString.Write(Label, writer);
+                FLabelChanged = false;
             }
 
-            if (!string.IsNullOrWhiteSpace(Description))
+            if (FDescriptionChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Description);
                 RcpTypes.ShortString.Write(Description, writer);
+                FDescriptionChanged = false;
             }
 
-            if (!string.IsNullOrWhiteSpace(Tags))
+            if (FTagsChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Tags);
                 RcpTypes.TinyString.Write(Tags, writer);
+                FTagsChanged = false;
             }
 
-            if (Order.HasValue)
+            if (FOrderChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Order);
-                writer.Write(Order.Value, ByteOrder.BigEndian);
+                writer.Write(Order, ByteOrder.BigEndian);
+                FOrderChanged = false;
             }
 
-            if (ParentId.HasValue)
+            if (FParentIdChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Parentid);
-                writer.Write(ParentId.Value, ByteOrder.BigEndian);
+                writer.Write(ParentId, ByteOrder.BigEndian);
+                FParentIdChanged = false;
             }
 
             if (Widget != null)
@@ -100,17 +126,19 @@ namespace RCP.Parameter
                 Widget.Write(writer);
             }
 
-            if (Userdata != null)
+            if (FUserdataChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Userdata);
                 writer.Write(Userdata.Length, ByteOrder.BigEndian);
                 writer.Write(Userdata);
+                FUserdataChanged = false;
             }
 
-            if (!string.IsNullOrWhiteSpace(UserId))
+            if (FUserIdChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Userid);
                 RcpTypes.TinyString.Write(UserId, writer);
+                FUserIdChanged = false;
             }
 
             //terminate
@@ -213,11 +241,49 @@ namespace RCP.Parameter
                 }
             }
         }
+
+        public virtual void CopyTo(IParameter other)
+        {
+            if (FLabelChanged)
+                other.Label = FLabel;
+
+            if (FDescriptionChanged)
+                FDescription = other.Description;
+
+            if (FTagsChanged)
+                FTags = other.Tags;
+
+            if (FOrderChanged)
+                FOrder = other.Order;
+
+            if (FUserdataChanged)
+                FUserdata = other.Userdata;
+
+            if (FUserIdChanged)
+                FUserId = other.UserId;
+
+            if (FLabelChanged || FDescriptionChanged || FTagsChanged || FOrderChanged || FUserdataChanged || FUserIdChanged)
+                (other as Parameter).Updated?.Invoke(other, null);
+        }
+
+        public void ResetForInitialize()
+        {
+            FLabelChanged = FLabel != "";
+            FDescriptionChanged = FDescription != "";
+            FTagsChanged = FTags != "";
+            FOrderChanged = FOrder != 0;
+            FUserdataChanged = FUserdata.Length != 0;
+            FUserIdChanged = FUserId != "";
+        }
     }
 
     public abstract class ValueParameter<T> : Parameter, IValueParameter<T>
     {
-        public T Value { get; set; }
+        public event EventHandler<T> ValueUpdated;
+
+        private bool FValueChanged;
+        private T FValue;
+        public T Value { get { return FValue; } set { FValue = value; FValueChanged = true; SetDirty(); } }
 
         public ValueParameter(Int16 id, IDefaultDefinition<T> typeDefinition, IManager manager) : 
             base (id, typeDefinition, manager)
@@ -225,10 +291,23 @@ namespace RCP.Parameter
 
         protected override void WriteValue(BinaryWriter writer)
         {
-            if (Value != null)
+            if (FValueChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Value);
                 ((IDefaultDefinition<T>)TypeDefinition).WriteValue(writer, Value);
+                FValueChanged = false;
+            }
+        }
+
+        public override void CopyTo(IParameter other)
+        {
+            base.CopyTo(other);
+
+            if (FValueChanged)
+            {
+                var valueParameter = other as ValueParameter<T>;
+                valueParameter.Value = FValue;
+                valueParameter.ValueUpdated?.Invoke(other, FValue);
             }
         }
     }

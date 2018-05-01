@@ -19,16 +19,19 @@ namespace RCP
         string Label { get; set; }
         string Description { get; set; }
         string Tags { get; set; }
-        int? Order { get; set; }
-        Int16? ParentId { get; }
+        int Order { get; set; }
+        Int16 ParentId { get; }
         Widget Widget { get; set; }
         byte[] Userdata { get; set; }
         string UserId { get; set; }
+
+        event EventHandler Updated;
     }
 
     public interface IValueParameter<T>: IParameter
     {
         T Value { get; set; }
+        event EventHandler<T> ValueUpdated;
     }
 
     public interface ITypeDefinition: IWriteable
