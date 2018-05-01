@@ -2,6 +2,7 @@
 using RCP.Parameter;
 using RCP.Protocol;
 using RCP.Transporter;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace RCPSharpDemo
@@ -20,36 +21,7 @@ namespace RCPSharpDemo
             //Rabbit.AddTransporter(new UDPServerTransporter("127.0.0.1", 4568, 4567));
             FRabbit.AddTransporter(new WebsocketServerTransporter("127.0.0.1", 10000));
 
-            //update a parameter value
-            //param.Value = 0.2f;
-            //update label
-            //param.Label = "My better Float";
-            //update minimum
-            //param.TypeDefinition.Minimum = 0f;
-
-            //Rabbit.UpdateParameter(param); // this sends an update to all clients
-
-            //listen for value updates on the parameter
-            FRabbit.ParameterValueUpdated = (p) =>
-            {
-                //Log(p.Value);
-            };
-
-            //listen for any changes on the parameter
-            //some of the options of the parameter will be updated but since we don't know which ones, we'll have to take over all of them
-            FRabbit.ParameterUpdated = (p) =>
-            {
-                //get application object from a list
-                //var appObj = AppObjects[p.Id];
-
-                //update application object
-                //appObj.Label = p.Label;
-                //...
-            };
-
-            //remove parameter
-            //Rabbit.RemoveParameter(param.Id);
-
+            //the client
             FClient = new Client();
             FClient.Show();
         }
@@ -62,38 +34,44 @@ namespace RCPSharpDemo
         
         private void button1_Click(object sender, System.EventArgs e)
         {
-            //var group = FRabbit.CreateGroup();
-            //group.Label = "foo";
-            var param = (NumberParameter<float>)FRabbit.CreateParameter(RcpTypes.Datatype.Float32);
-            //param now is of type NumberParameter<float>
-            //holds param.TypeDefinition of type NumberDefinition<float>
+            var group = FRabbit.CreateGroup();
+            group.Label = "foo";
+
+            var param = FRabbit.CreateNumberParameter<float>();
             param.Label = "My Flöat: " + param.Id;
             param.Order = param.Id;
             param.Widget = new SliderWidget();
-            param.Value = 0.5f;
+            param.Value = 2.5f;
             param.TypeDefinition.Minimum = -10.0f;
             param.TypeDefinition.Maximum = 10.0f;
-
             param.ValueUpdated += Param_ValueUpdated;
-            
-            //group.AddParameter(param);
-            FRabbit.Root.AddParameter(param);
+            group.AddParameter(param);
 
-            // listen for value updates on the parameter
-            //param.ValueUpdated = (p) => Log(p.Value);
+            var nt = FRabbit.CreateNumberParameter<int>();
+            nt.Label = "integer";
+            nt.Value = 7;
+            nt.TypeDefinition.Minimum = -10;
+            nt.TypeDefinition.Maximum = 10;
+            group.AddParameter(nt);
 
-            //var paramGroup = ParameterFactory.CreateParameterGroup(1);
-            //paramGroup.addChild(param);
+            var str = FRabbit.CreateStringParameter();
+            str.Label = "string";
+            str.Value = "foobar";
+            group.AddParameter(str);
 
-            FRabbit.Update();
+            var clr = FRabbit.CreateRGBAParameter();
+            clr.Label = "color";
+            clr.Value = Color.Red;
+            group.AddParameter(clr);
 
-            param.Label = "asdfasf";
+            FRabbit.Root.AddParameter(group);
+
             FRabbit.Update();
         }
 
         private void Param_ValueUpdated(object sender, float e)
         {
-            //throw new System.NotImplementedException();
+            label1.Text = e.ToString();
         }
     }
 }
