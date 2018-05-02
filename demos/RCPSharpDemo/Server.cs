@@ -42,16 +42,16 @@ namespace RCPSharpDemo
             param.Order = param.Id;
             param.Widget = new SliderWidget();
             param.Value = 2.5f;
-            param.TypeDefinition.Minimum = -10.0f;
-            param.TypeDefinition.Maximum = 10.0f;
+            param.Minimum = -10.0f;
+            param.Maximum = 10.0f;
             param.ValueUpdated += Param_ValueUpdated;
             group.AddParameter(param);
 
             var nt = FRabbit.CreateNumberParameter<int>();
             nt.Label = "integer";
             nt.Value = 7;
-            nt.TypeDefinition.Minimum = -10;
-            nt.TypeDefinition.Maximum = 10;
+            nt.Minimum = -10;
+            nt.Maximum = 10;
             group.AddParameter(nt);
 
             var str = FRabbit.CreateStringParameter();

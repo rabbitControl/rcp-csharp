@@ -1,6 +1,7 @@
+using Kaitai;
+using RCP.Protocol;
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace RCP.Parameter
 {
@@ -11,13 +12,8 @@ namespace RCP.Parameter
         private List<IParameter> FRemovedParams = new List<IParameter>();
 
         public GroupParameter(Int16 id, IManager manager): 
-            base (id, new GroupDefinition(), manager)
+            base (id, RcpTypes.Datatype.Group, manager)
         { }
-
-        protected override void WriteValue(BinaryWriter writer)
-        {
-            //groups have no value!
-        }
 
         public void AddParameter(IParameter param)
         {
@@ -26,7 +22,14 @@ namespace RCP.Parameter
 
         public void RemoveParameter(IParameter param)
         {
+            //should probably only set parent to -1?
             (param as Parameter).Destroy();
+        }
+
+        protected override void ParseTypeDefinitionOptions(KaitaiStream input)
+        {
+            //read the terminator
+            input.ReadU1();
         }
     }
 }

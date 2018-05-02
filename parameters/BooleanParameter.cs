@@ -2,34 +2,24 @@ using System;
 
 using Kaitai;
 using RCP.Protocol;
+using System.IO;
 
 namespace RCP.Parameter
 {
     public class BooleanParameter : ValueParameter<bool>
     {
-        public new IBooleanDefinition TypeDefinition
+        public BooleanParameter(Int16 id, IManager manager) : 
+            base (id, RcpTypes.Datatype.Boolean, manager)
+        { }
+
+        public override bool ReadValue(KaitaiStream input)
         {
-            get { return base.TypeDefinition as IBooleanDefinition; }
+            return input.ReadU1() > 0;
         }
 
-        public BooleanParameter(Int16 id, IManager manager) : 
-            base (id, new BooleanDefinition(), manager)
-        { }
-
-        public BooleanParameter(Int16 id, IBooleanDefinition definition, IManager manager) :
-            base(id, definition, manager)
-        { }
-
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        public override void WriteValue(BinaryWriter writer, bool value)
         {
-            switch (option)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = TypeDefinition.ReadValue(input);
-                    return true;
-            }
-
-            return false;
+            writer.Write(value, ByteOrder.BigEndian);
         }
     }
 }

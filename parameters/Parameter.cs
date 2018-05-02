@@ -18,7 +18,7 @@ namespace RCP.Parameter
         public Status Status => FStatus;
 
         public Int16 Id { get; private set; }
-        public ITypeDefinition TypeDefinition { get; private set; }
+        public RcpTypes.Datatype Datatype { get; private set; }
 
         private bool FParentIdChanged;
         private Int16 FParentId;
@@ -50,10 +50,10 @@ namespace RCP.Parameter
 
         public Widget Widget { get; set; }
 
-        public Parameter(Int16 id, ITypeDefinition typeDefinition, IManager manager)
+        public Parameter(Int16 id, RcpTypes.Datatype datatype, IManager manager)
         {
             Id = id;
-            TypeDefinition = typeDefinition;
+            Datatype = datatype;
             FManager = manager;
 
             SetDirty();
@@ -80,7 +80,10 @@ namespace RCP.Parameter
         {
             //mandatory
             writer.Write(Id, ByteOrder.BigEndian);
-            TypeDefinition.Write(writer);
+
+            writer.Write((byte)Datatype);
+            WriteTypeDefinitionOptions(writer);
+            writer.Write((byte)0);
 
             //optional
             WriteValue(writer);
@@ -145,7 +148,9 @@ namespace RCP.Parameter
             writer.Write((byte)0);
         }
 
-        protected abstract void WriteValue(BinaryWriter writer);
+        protected virtual void WriteTypeDefinitionOptions(BinaryWriter writer) { }
+        protected virtual void ParseTypeDefinitionOptions(KaitaiStream input) { }
+        protected virtual void WriteValue(BinaryWriter writer) { }
 
         public static Parameter Parse(KaitaiStream input)
         {
@@ -170,7 +175,7 @@ namespace RCP.Parameter
                 default:
                     {
                         parameter = (Parameter)ParameterFactory.CreateParameter(id, datatype, null);
-                        parameter.TypeDefinition.ParseOptions(input);
+                        parameter.ParseTypeDefinitionOptions(input);
                         break;
                     }
             }
@@ -179,7 +184,7 @@ namespace RCP.Parameter
             return parameter;
         }
 
-        protected virtual bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        protected virtual bool HandleOption(KaitaiStream input, byte code)
         {
             return false;
         }
@@ -231,9 +236,8 @@ namespace RCP.Parameter
                         UserId = new RcpTypes.TinyString(input).Data;
                         break;
 
-                    case RcpTypes.ParameterOptions.Value:
                     default:
-                        if (!HandleOption(input, option))
+                        if (!HandleOption(input, code))
                         {
                             throw new RCPUnsupportedFeatureException();
                         }
@@ -285,18 +289,90 @@ namespace RCP.Parameter
         private T FValue;
         public T Value { get { return FValue; } set { FValue = value; FValueChanged = true; SetDirty(); } }
 
-        public ValueParameter(Int16 id, IDefaultDefinition<T> typeDefinition, IManager manager) : 
-            base (id, typeDefinition, manager)
+        private bool FDefaultChanged;
+        private T FDefault;
+        public T Default { get { return FDefault; } set { FDefault = value; FDefaultChanged = true; } }
+
+        public ValueParameter(Int16 id, RcpTypes.Datatype datatype, IManager manager) : 
+            base (id, datatype, manager)
         { }
+
+        public abstract void WriteValue(BinaryWriter writer, T value);
+        public abstract T ReadValue(KaitaiStream input);
+
+        protected override void ParseTypeDefinitionOptions(KaitaiStream input)
+        {
+            // get options from the stream
+            while (true)
+            {
+                var code = input.ReadU1();
+                if (code == 0)
+                    break;
+
+                var option = (RcpTypes.NumberOptions)code;
+                if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option))
+                    throw new RCPDataErrorException("Parameter parsing: Unknown option: " + option.ToString());
+
+                switch (option)
+                {
+                    case RcpTypes.NumberOptions.Default:
+                        Default = ReadValue(input); break;
+
+                    default:
+                        if (!HandleTypeDefinitionOption(input, code))
+                        {
+                            throw new RCPUnsupportedFeatureException();
+                        }
+                        break;
+                }
+            }
+        }
+
+        protected override void WriteTypeDefinitionOptions(BinaryWriter writer)
+        {
+            base.WriteTypeDefinitionOptions(writer);
+            if (FDefaultChanged)
+            {
+                writer.Write((byte)RcpTypes.NumberOptions.Default);
+                WriteValue(writer, Value);
+                FValueChanged = false;
+            }
+        }
 
         protected override void WriteValue(BinaryWriter writer)
         {
             if (FValueChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                ((IDefaultDefinition<T>)TypeDefinition).WriteValue(writer, Value);
+                WriteValue(writer, Value);
                 FValueChanged = false;
             }
+        }
+
+        protected override bool HandleOption(KaitaiStream input, byte code)
+        {
+            var paramOption = (RcpTypes.ParameterOptions)code;
+            switch (paramOption)
+            {
+                case RcpTypes.ParameterOptions.Value:
+                    Value = ReadValue(input);
+                    return true;
+            }
+
+            return false;
+        }
+
+        protected virtual bool HandleTypeDefinitionOption(KaitaiStream input, byte code)
+        {
+            var paramOption = (RcpTypes.ParameterOptions)code;
+            switch (paramOption)
+            {
+                case RcpTypes.ParameterOptions.Value:
+                    Value = ReadValue(input);
+                    return true;
+            }
+
+            return false;
         }
 
         public override void CopyTo(IParameter other)

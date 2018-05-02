@@ -15,7 +15,7 @@ namespace RCP
     public interface IParameter : IWriteable
     {
         Int16 Id { get; }
-        ITypeDefinition TypeDefinition { get; }
+        RcpTypes.Datatype Datatype { get; }
         string Label { get; set; }
         string Description { get; set; }
         string Tags { get; set; }

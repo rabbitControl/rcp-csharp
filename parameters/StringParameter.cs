@@ -2,34 +2,24 @@ using Kaitai;
 
 using RCP.Protocol;
 using System;
+using System.IO;
 
 namespace RCP.Parameter
 {
     public class StringParameter : ValueParameter<string>
     {
-        public new IStringDefinition TypeDefinition
+        public StringParameter(Int16 id, IManager manager) : 
+            base (id, RcpTypes.Datatype.String, manager)
+        { }
+
+        public override string ReadValue(KaitaiStream input)
         {
-            get { return base.TypeDefinition as IStringDefinition; }
+            return new RcpTypes.LongString(input).Data;
         }
 
-        public StringParameter(Int16 id, IManager manager) : 
-            base (id, new StringDefinition(), manager)
-        { }
-
-        public StringParameter(Int16 id, IStringDefinition definition, IManager manager) :
-            base(id, definition, manager)
-        { }
-
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        public override void WriteValue(BinaryWriter writer, string value)
         {
-            switch (option)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = TypeDefinition.ReadValue(input);
-                    return true;
-            }
-
-            return false;
+            RcpTypes.LongString.Write(value, writer);
         }
     }
 }

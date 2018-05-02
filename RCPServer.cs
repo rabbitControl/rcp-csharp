@@ -49,19 +49,18 @@ namespace RCP
 
         public NumberParameter<T> CreateNumberParameter<T>() where T: struct
         {
-            INumberDefinition<T> definition = null;
+            IParameter param = null;
             if (typeof(T) == typeof(float))
-                definition = (INumberDefinition<T>)new Float32Definition();
+                param = new Float32Parameter(FIdCounter++, this);
             else if (typeof(T) == typeof(int))
-                definition = (INumberDefinition<T>)new Integer32Definition();
+                param = new Integer32Parameter(FIdCounter++, this);
             else if (typeof(T) == typeof(Vector2))
-                definition = (INumberDefinition<T>)new Vector2f32Definition();
+                param = new Vector2f32Parameter(FIdCounter++, this);
             else if (typeof(T) == typeof(Vector3))
-                definition = (INumberDefinition<T>)new Vector3f32Definition();
+                param = new Vector3f32Parameter(FIdCounter++, this);
 
-            var param = new NumberParameter<T>(FIdCounter++, definition, this);
             FParams.Add(param.Id, param);
-            return param;
+            return param as NumberParameter<T>;
         }
 
         public StringParameter CreateStringParameter()

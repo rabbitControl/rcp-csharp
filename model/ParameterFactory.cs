@@ -22,10 +22,10 @@ namespace RCP
                     return new EnumParameter(id, manager);
 
                 case RcpTypes.Datatype.Int32:
-                    return new NumberParameter<int>(id, new Integer32Definition(), manager);
+                    return new Integer32Parameter(id, manager);
 
                 case RcpTypes.Datatype.Float32:
-                    return new NumberParameter<float>(id, new Float32Definition(), manager);
+                    return new Float32Parameter(id, manager);
 
                 case RcpTypes.Datatype.String:
                     return new StringParameter(id, manager);
@@ -37,50 +37,13 @@ namespace RCP
                     return new RGBAParameter(id, manager);
 
                 case RcpTypes.Datatype.Vector2f32:
-                    return new NumberParameter<Vector2>(id, new Vector2f32Definition(), manager);
+                    return new Vector2f32Parameter(id, manager);
 
                 case RcpTypes.Datatype.Vector3f32:
-                    return new NumberParameter<Vector3>(id, new Vector3f32Definition(), manager);
+                    return new Vector3f32Parameter(id, manager);
 
                 case RcpTypes.Datatype.Group:
                     return new GroupParameter(id, manager);
-
-                default: throw new RCPUnsupportedFeatureException();
-                //group
-                //array
-            }
-        }
-    	
-    	public static IParameter CreateParameter(Int16 id, IManager manager, ITypeDefinition typeDefinition)
-        {
-            switch (typeDefinition.Datatype)
-            {
-                case RcpTypes.Datatype.Boolean:
-                    return new BooleanParameter(id, typeDefinition as IBooleanDefinition, manager);
-
-                case RcpTypes.Datatype.Enum:
-                    return new EnumParameter(id, typeDefinition as IEnumDefinition, manager);
-
-                case RcpTypes.Datatype.Int32:
-                    return new NumberParameter<int>(id, typeDefinition as INumberDefinition<int>, manager);
-
-                case RcpTypes.Datatype.Float32:
-                    return new NumberParameter<float>(id, typeDefinition as INumberDefinition<float>, manager);
-
-                case RcpTypes.Datatype.String:
-                    return new StringParameter(id, typeDefinition as IStringDefinition, manager);
-
-                case RcpTypes.Datatype.Uri:
-                    return new UriParameter(id, typeDefinition as IUriDefinition, manager);
-
-                case RcpTypes.Datatype.Rgba:
-                    return new RGBAParameter(id, typeDefinition as IRGBADefinition, manager);
-
-                case RcpTypes.Datatype.Vector2f32:
-                    return new NumberParameter<Vector2>(id, typeDefinition as INumberDefinition<Vector2>, manager);
-
-                case RcpTypes.Datatype.Vector3f32:
-                    return new NumberParameter<Vector3>(id, typeDefinition as INumberDefinition<Vector3>, manager);
 
                 default: throw new RCPUnsupportedFeatureException();
                 //group

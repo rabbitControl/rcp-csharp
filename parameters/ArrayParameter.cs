@@ -1,34 +1,26 @@
 using System;
 using System.Collections.Generic;
-
+using System.IO;
 using Kaitai;
 using RCP.Protocol;
 
 namespace RCP.Parameter
 {
-    public class ArrayParameter<T> : ValueParameter<List<T>>
-    {
-        //public new IArrayDefinition<T> TypeDefinition
-        //{
-        //    get { return FTypeDefinition; }
-        //}
-        ArrayDefinition<T> FTypeDefinition;
+    //public class ArrayParameter<T> : ValueParameter<List<T>>
+    //{
+    //    public ArrayParameter(Int16 id, ArrayDefinition<T> typeDefinition, IManager manager): base (id, typeDefinition, manager)
+    //    {
+    //        FTypeDefinition = typeDefinition;
+    //    }
 
-        public ArrayParameter(Int16 id, ArrayDefinition<T> typeDefinition, IManager manager): base (id, typeDefinition, manager)
-        {
-            FTypeDefinition = typeDefinition;
-        }
+    //    public override List<T> ReadValue(KaitaiStream input)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
-        {
-            switch (option)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = FTypeDefinition.ReadValue(input);
-                    return true;
-            }
-
-            return false;
-        }
-    }
+    //    public override void WriteValue(BinaryWriter writer, List<T> value)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

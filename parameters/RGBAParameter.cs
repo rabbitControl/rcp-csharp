@@ -9,40 +9,25 @@ namespace RCP.Parameter
 {
     public class RGBAParameter : ValueParameter<Color>
     {
-        public new Nullable<Color> Value { get; set; }
-        public new IRGBADefinition TypeDefinition 
-        {
-            get { return base.TypeDefinition as IRGBADefinition;}
-        }
-
 		public RGBAParameter(Int16 id, IManager manager) : 
-            base (id, new RGBADefinition(), manager)
+            base (id, RcpTypes.Datatype.Rgba, manager)
         { }
 
-        public RGBAParameter(Int16 id, IRGBADefinition definition, IManager manager) :
-            base(id, definition, manager)
-        { }
-
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        public override Color ReadValue(KaitaiStream input)
         {
-            switch (option)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = TypeDefinition.ReadValue(input);
-                    return true;
-            }
-
-            return false;
+            var a = input.ReadU1();
+            var b = input.ReadU1();
+            var g = input.ReadU1();
+            var r = input.ReadU1();
+            return Color.FromArgb(a, r, g, b);
         }
 
-        //since we're reintroducing the value as nullable we also need to override WriteValue
-        protected override void WriteValue(BinaryWriter writer)
+        public override void WriteValue(BinaryWriter writer, Color value)
         {
-            if (Value != null)
-            {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                TypeDefinition.WriteValue(writer, (Color)Value);
-            }
+            writer.Write((byte)value.A);
+            writer.Write((byte)value.B);
+            writer.Write((byte)value.G);
+            writer.Write((byte)value.R);
         }
     }
 }

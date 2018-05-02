@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Numerics;
 using Kaitai;
@@ -6,10 +7,10 @@ using RCP.Protocol;
 
 namespace RCP.Parameter
 {
-    public class Vector2f32Definition : NumberDefinition<Vector2>
+    public class Vector2f32Parameter : NumberParameter<Vector2>
     {
-        public Vector2f32Definition()
-        : base(RcpTypes.Datatype.Vector2f32)
+        public Vector2f32Parameter(Int16 id, IManager manager)
+        : base(id, RcpTypes.Datatype.Vector2f32, manager)
         { }
 
         public override Vector2 ReadValue(KaitaiStream input)

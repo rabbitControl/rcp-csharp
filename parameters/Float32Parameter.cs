@@ -1,14 +1,15 @@
-using Kaitai;
+using System;
 using System.IO;
+using Kaitai;
 
 using RCP.Protocol;
 
 namespace RCP.Parameter
 {
-    public class Float32Definition : NumberDefinition<float>
+    public class Float32Parameter : NumberParameter<float>
     {
-        public Float32Definition()
-        : base(RcpTypes.Datatype.Float32)
+        public Float32Parameter(Int16 id, IManager manager)
+        : base(id, RcpTypes.Datatype.Float32, manager)
         { }
 
         public override float ReadValue(KaitaiStream input)

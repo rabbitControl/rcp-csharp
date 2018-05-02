@@ -1,14 +1,15 @@
-using Kaitai;
+using System;
 using System.IO;
+using Kaitai;
 
 using RCP.Protocol;
 
 namespace RCP.Parameter
 {
-    public class Integer32Definition : NumberDefinition<int>
+    public class Integer32Parameter : NumberParameter<int>
     {
-        public Integer32Definition()
-        : base(RcpTypes.Datatype.Int32)
+        public Integer32Parameter(Int16 id, IManager manager)
+        : base(id, RcpTypes.Datatype.Int32, manager)
         { }
 
         public override int ReadValue(KaitaiStream input)
