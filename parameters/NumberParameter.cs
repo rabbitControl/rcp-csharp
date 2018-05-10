@@ -10,29 +10,42 @@ namespace RCP.Parameter
 {
     public abstract class NumberParameter<T> : ValueParameter<T> where T : struct
     {
-        private bool FMinimumChanged;
+        protected bool FMinimumChanged;
         private T FMinimum;
-        public T Minimum { get { return FMinimum; } set { FMinimum = value; FMinimumChanged = true; } }
+        public T Minimum { get { return FMinimum; } set { FMinimum = value; FMinimumChanged = true; SetDirty(); } }
 
-        private bool FMaximumChanged;
+        protected bool FMaximumChanged;
         private T FMaximum;
-        public T Maximum { get { return FMaximum; } set { FMaximum = value; FMaximumChanged = true; } }
+        public T Maximum { get { return FMaximum; } set { FMaximum = value; FMaximumChanged = true; SetDirty(); } }
 
-        private bool FMultipleOfChanged;
-        private T FMultipleOf;
-        public T MultipleOf { get { return FMultipleOf; } set { FMultipleOf = value; FMultipleOfChanged = true; } }
+        protected bool FMultipleOfChanged;
+        protected T FMultipleOf;
+        public T MultipleOf { get { return FMultipleOf; } set { FMultipleOf = value; FMultipleOfChanged = true; SetDirty(); } }
 
         private bool FScaleChanged;
         private RcpTypes.NumberScale FScale;
-        public RcpTypes.NumberScale Scale { get { return FScale; } set { FScale = value; FScaleChanged = true; } }
+        public RcpTypes.NumberScale Scale { get { return FScale; } set { FScale = value; FScaleChanged = true; SetDirty(); } }
 
         private bool FUnitChanged;
-        private string FUnit;
-        public string Unit { get { return FUnit; } set { FUnit = value; FUnitChanged = true; } }
+        private string FUnit = "";
+        public string Unit { get { return FUnit; } set { FUnit = value; FUnitChanged = true; SetDirty(); } }
 
-        public NumberParameter(Int16 id, RcpTypes.Datatype datatype, IManager manager) : 
+        public NumberParameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager) : 
             base (id, datatype, manager)
         { }
+
+        protected override bool AnyChanged()
+        {
+            return base.AnyChanged() || FMinimumChanged || FMaximumChanged || FMultipleOfChanged || FScaleChanged || FUnitChanged;
+        }
+
+        public override void ResetForInitialize()
+        {
+            base.ResetForInitialize();
+
+            FScaleChanged = FScale != RcpTypes.NumberScale.Linear;
+            FUnitChanged = FUnit != "";
+        }
 
         protected override void WriteTypeDefinitionOptions(BinaryWriter writer)
         {
@@ -41,21 +54,21 @@ namespace RCP.Parameter
             if (FMinimumChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Minimum);
-                WriteValue(writer, (T)Minimum);
+                WriteValue(writer, Minimum);
                 FMinimumChanged = false;
             }
 
             if (FMaximumChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Maximum);
-                WriteValue(writer, (T)Maximum);
+                WriteValue(writer, Maximum);
                 FMaximumChanged = false;
             }
 
             if (FMultipleOfChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Multipleof);
-                WriteValue(writer, (T)MultipleOf);
+                WriteValue(writer, MultipleOf);
                 FMultipleOfChanged = false;
             }
 

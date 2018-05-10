@@ -13,9 +13,7 @@ namespace RCP.Parameter
     {
         public event EventHandler Updated;
 
-        protected IManager FManager;
-        private Status FStatus;
-        public Status Status => FStatus;
+        protected IParameterManager FManager;
 
         public Int16 Id { get; private set; }
         public RcpTypes.Datatype Datatype { get; private set; }
@@ -50,18 +48,12 @@ namespace RCP.Parameter
 
         public Widget Widget { get; set; }
 
-        public Parameter(Int16 id, RcpTypes.Datatype datatype, IManager manager)
+        public Parameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager)
         {
             Id = id;
             Datatype = datatype;
             FManager = manager;
 
-            SetDirty();
-        }
-
-        public void Destroy()
-        {
-            FStatus = Status.Remove;
             SetDirty();
         }
 
@@ -174,7 +166,7 @@ namespace RCP.Parameter
 
                 default:
                     {
-                        parameter = (Parameter)ParameterFactory.CreateParameter(id, datatype, null);
+                        parameter = (Parameter)RCPClient.CreateParameter(id, datatype, null);
                         parameter.ParseTypeDefinitionOptions(input);
                         break;
                     }
@@ -248,6 +240,9 @@ namespace RCP.Parameter
 
         public virtual void CopyTo(IParameter other)
         {
+            if (FParentIdChanged)
+                FParentId = other.ParentId;
+
             if (FLabelChanged)
                 other.Label = FLabel;
 
@@ -266,12 +261,18 @@ namespace RCP.Parameter
             if (FUserIdChanged)
                 FUserId = other.UserId;
 
-            if (FLabelChanged || FDescriptionChanged || FTagsChanged || FOrderChanged || FUserdataChanged || FUserIdChanged)
+            if (AnyChanged())
                 (other as Parameter).Updated?.Invoke(other, null);
         }
 
-        public void ResetForInitialize()
+        protected virtual bool AnyChanged()
         {
+            return FParentIdChanged || FLabelChanged || FDescriptionChanged || FTagsChanged || FOrderChanged || FUserdataChanged || FUserIdChanged;
+        }
+
+        public virtual void ResetForInitialize()
+        {
+            FParentIdChanged = FParentId != 0;
             FLabelChanged = FLabel != "";
             FDescriptionChanged = FDescription != "";
             FTagsChanged = FTags != "";
@@ -285,17 +286,22 @@ namespace RCP.Parameter
     {
         public event EventHandler<T> ValueUpdated;
 
-        private bool FValueChanged;
-        private T FValue;
+        protected bool FValueChanged;
+        protected T FValue;
         public T Value { get { return FValue; } set { FValue = value; FValueChanged = true; SetDirty(); } }
 
-        private bool FDefaultChanged;
-        private T FDefault;
-        public T Default { get { return FDefault; } set { FDefault = value; FDefaultChanged = true; } }
+        protected bool FDefaultChanged;
+        protected T FDefault;
+        public T Default { get { return FDefault; } set { FDefault = value; FDefaultChanged = true; SetDirty(); } }
 
-        public ValueParameter(Int16 id, RcpTypes.Datatype datatype, IManager manager) : 
+        public ValueParameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager) : 
             base (id, datatype, manager)
         { }
+
+        protected override bool AnyChanged()
+        {
+            return base.AnyChanged() || FValueChanged || FDefaultChanged;
+        }
 
         public abstract void WriteValue(BinaryWriter writer, T value);
         public abstract T ReadValue(KaitaiStream input);
@@ -334,8 +340,8 @@ namespace RCP.Parameter
             if (FDefaultChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Default);
-                WriteValue(writer, Value);
-                FValueChanged = false;
+                WriteValue(writer, Default);
+                FDefaultChanged = false;
             }
         }
 
@@ -377,14 +383,20 @@ namespace RCP.Parameter
 
         public override void CopyTo(IParameter other)
         {
-            base.CopyTo(other);
-
             if (FValueChanged)
             {
                 var valueParameter = other as ValueParameter<T>;
                 valueParameter.Value = FValue;
                 valueParameter.ValueUpdated?.Invoke(other, FValue);
             }
+
+            if (FDefaultChanged)
+            {
+                var valueParameter = other as ValueParameter<T>;
+                valueParameter.Default = FDefault;
+            }
+
+            base.CopyTo(other);
         }
     }
 }

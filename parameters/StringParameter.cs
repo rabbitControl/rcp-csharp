@@ -8,9 +8,20 @@ namespace RCP.Parameter
 {
     public class StringParameter : ValueParameter<string>
     {
-        public StringParameter(Int16 id, IManager manager) : 
+        public StringParameter(Int16 id, IParameterManager manager) : 
             base (id, RcpTypes.Datatype.String, manager)
-        { }
+        {
+            FValue = "";
+            FDefault = "";
+        }
+
+        public override void ResetForInitialize()
+        {
+            base.ResetForInitialize();
+
+            FValueChanged = Value != "";
+            FDefaultChanged = Default != "";
+        }
 
         public override string ReadValue(KaitaiStream input)
         {

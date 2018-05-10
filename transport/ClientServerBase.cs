@@ -7,13 +7,12 @@ using RCP.Parameter;
 
 namespace RCP
 {
-    public interface IManager
+    public interface IParameterManager
     {
         void SetParameterDirty(IParameter param);
     }
 
-
-    public abstract class ClientServerBase: IDisposable, IManager
+    public abstract class ClientServerBase: IDisposable, IParameterManager
 	{
         //public ILogger Logger { get; set; }
         protected Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();

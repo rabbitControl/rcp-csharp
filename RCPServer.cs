@@ -12,8 +12,9 @@ using System.Numerics;
 
 namespace RCP
 {
-    public class RCPServer: ClientServerBase 
-	{
+    public class RCPServer: ClientServerBase
+    {
+        List<IParameter> FParamsToRemove = new List<IParameter>();
 		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
         Int16 FIdCounter = 1;
 
@@ -40,14 +41,7 @@ namespace RCP
             base.Dispose();
 		}
 
-        public IParameter CreateParameter(RcpTypes.Datatype datatype)
-        {
-            var param = ParameterFactory.CreateParameter(FIdCounter++, datatype, this);
-            FParams.Add(param.Id, param);
-            return param;
-        }
-
-        public NumberParameter<T> CreateNumberParameter<T>() where T: struct
+        public NumberParameter<T> CreateNumberParameter<T>(string label = "", IGroupParameter group = null) where T: struct
         {
             IParameter param = null;
             if (typeof(T) == typeof(float))
@@ -59,47 +53,65 @@ namespace RCP
             else if (typeof(T) == typeof(Vector3))
                 param = new Vector3f32Parameter(FIdCounter++, this);
 
-            FParams.Add(param.Id, param);
+            param.Label = label;
+            AddParameter(param);
+
             return param as NumberParameter<T>;
         }
 
         public StringParameter CreateStringParameter()
         {
             var param = new StringParameter(FIdCounter++, this);
-            FParams.Add(param.Id, param);
+            AddParameter(param);
+            return param;
+        }
+
+        public EnumParameter CreateEnumParameter()
+        {
+            var param = new EnumParameter(FIdCounter++, this);
+            AddParameter(param);
             return param;
         }
 
         public RGBAParameter CreateRGBAParameter()
         {
             var param = new RGBAParameter(FIdCounter++, this);
-            FParams.Add(param.Id, param);
+            AddParameter(param);
             return param;
         }
 
         public IGroupParameter CreateGroup()
         {
             var group = new GroupParameter(FIdCounter++, this);
-            FParams.Add(group.Id, group);
+            AddParameter(group);
             return group;
+        }
+
+        public void AddParameter(IParameter param, IGroupParameter group = null)
+        {
+            if (!FParams.ContainsKey(param.Id))
+                FParams.Add(param.Id, param);
+
+            if (group == null)
+                group = Root;
+
+            group.AddParameter(param);
         }
 
         public void RemoveParameter(IParameter param)
         {
             FParams.Remove(param.Id);
-            (param as Parameter.Parameter).Destroy();
+            FParamsToRemove.Add(param);
         }
 
         public override void Update()
         {
+            foreach (var param in FParamsToRemove)
+                SendToMultiple(Pack(RcpTypes.Command.Remove, param));
+            FParamsToRemove.Clear();
+
             foreach (var param in FDirtyParams)
-            {
-                switch((param as RCP.Parameter.Parameter).Status)
-                {
-                    case Status.Update: SendToMultiple(Pack(RcpTypes.Command.Update, param)); break;
-                    case Status.Remove: SendToMultiple(Pack(RcpTypes.Command.Remove, param)); break;
-                }
-            }
+                SendToMultiple(Pack(RcpTypes.Command.Update, param));
 
             base.Update();
         }
@@ -201,6 +213,16 @@ namespace RCP
                     transporter.SendToOne(bytes, clientId);
             }
 		}
-		#endregion
-	}
+        #endregion
+
+        //public void WriteValue(this float value, BinaryWriter writer)
+        //{
+        //    writer.Write(value, ByteOrder.BigEndian);
+        //}
+
+        //public float ReadValue(this float , KaitaiStream input)
+        //{
+        //    return input.ReadF4be();
+        //}        
+    }
 }

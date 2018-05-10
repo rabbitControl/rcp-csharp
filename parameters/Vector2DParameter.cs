@@ -9,9 +9,24 @@ namespace RCP.Parameter
 {
     public class Vector2f32Parameter : NumberParameter<Vector2>
     {
-        public Vector2f32Parameter(Int16 id, IManager manager)
+        public Vector2f32Parameter(Int16 id, IParameterManager manager)
         : base(id, RcpTypes.Datatype.Vector2f32, manager)
-        { }
+        {
+            FValue = new Vector2(0, 0);
+            FDefault = new Vector2(0, 0); 
+        }
+
+        public override void ResetForInitialize()
+        {
+            base.ResetForInitialize();
+
+            FValueChanged = Value != new Vector2(0, 0);
+            FDefaultChanged = Default != new Vector2(0, 0);
+
+            FMinimumChanged = Minimum != new Vector2(-9999, -9999);
+            FMaximumChanged = Maximum != new Vector2(9999, 9999);
+            FMultipleOfChanged = MultipleOf != new Vector2(0.01f, 0.01f);
+        }
 
         public override Vector2 ReadValue(KaitaiStream input)
         {

@@ -140,7 +140,6 @@
     <Compile Include="parameters\UriParameter.cs" />
     <Compile Include="protocol\Packet.cs" />
     <Compile Include="parameters\Parameter.cs" />
-    <Compile Include="model\ParameterFactory.cs" />
     <Compile Include="parameters\ArrayParameter.cs" />
     <Compile Include="parameters\BooleanParameter.cs" />
     <Compile Include="parameters\EnumParameter.cs" />

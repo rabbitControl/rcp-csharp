@@ -11,15 +11,35 @@ namespace RCP.Parameter
     {
         private bool FSchemaChanged;
         private string FSchema;
-        public string Schema { get { return FSchema; } set { FSchema = value; FSchemaChanged = true; } }
+        public string Schema { get { return FSchema; } set { FSchema = value; FSchemaChanged = true; SetDirty(); } }
 
         private bool FFilterChanged;
         private string FFilter;
-        public string Filter { get { return FFilter; } set { FFilter = value; FFilterChanged = true; } }
+        public string Filter { get { return FFilter; } set { FFilter = value; FFilterChanged = true; SetDirty(); } }
 
-        public UriParameter(Int16 id, IManager manager) : 
+        public UriParameter(Int16 id, IParameterManager manager) : 
             base (id, RcpTypes.Datatype.Uri, manager)
-        { }
+        {
+            FValue = "";
+            FDefault = "";
+            FSchema = "file";
+            FFilter = "";
+        }
+
+        protected override bool AnyChanged()
+        {
+            return base.AnyChanged() || FSchemaChanged || FFilterChanged;
+        }
+
+        public override void ResetForInitialize()
+        {
+            base.ResetForInitialize();
+
+            FValueChanged = Value != "";
+            FDefaultChanged = Default != "";
+            FSchemaChanged = FSchema != "";
+            FFilterChanged = FFilter != "";
+        }
 
         public override string ReadValue(KaitaiStream input)
         {

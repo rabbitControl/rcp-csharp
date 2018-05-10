@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 using RCP.Protocol;
 using Kaitai;
+using RCP.Parameter;
+using RCP.Exceptions;
 
 namespace RCP
 {
@@ -65,6 +67,46 @@ namespace RCP
         public IParameter GetParameter(Int16 id)
         {
             return FParams[id];
+        }
+
+        internal static IParameter CreateParameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager)
+        {
+            switch (datatype)
+            {
+                case RcpTypes.Datatype.Boolean:
+                    return new BooleanParameter(id, manager);
+
+                case RcpTypes.Datatype.Enum:
+                    return new EnumParameter(id, manager);
+
+                case RcpTypes.Datatype.Int32:
+                    return new Integer32Parameter(id, manager);
+
+                case RcpTypes.Datatype.Float32:
+                    return new Float32Parameter(id, manager);
+
+                case RcpTypes.Datatype.String:
+                    return new StringParameter(id, manager);
+
+                case RcpTypes.Datatype.Uri:
+                    return new UriParameter(id, manager);
+
+                case RcpTypes.Datatype.Rgba:
+                    return new RGBAParameter(id, manager);
+
+                case RcpTypes.Datatype.Vector2f32:
+                    return new Vector2f32Parameter(id, manager);
+
+                case RcpTypes.Datatype.Vector3f32:
+                    return new Vector3f32Parameter(id, manager);
+
+                case RcpTypes.Datatype.Group:
+                    return new GroupParameter(id, manager);
+
+                default: throw new RCPUnsupportedFeatureException();
+                    //group
+                    //array
+            }
         }
 
         #region Transporter

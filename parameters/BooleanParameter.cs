@@ -8,9 +8,17 @@ namespace RCP.Parameter
 {
     public class BooleanParameter : ValueParameter<bool>
     {
-        public BooleanParameter(Int16 id, IManager manager) : 
+        public BooleanParameter(Int16 id, IParameterManager manager) : 
             base (id, RcpTypes.Datatype.Boolean, manager)
         { }
+
+        public override void ResetForInitialize()
+        {
+            base.ResetForInitialize();
+
+            FValueChanged = Value != false;
+            FDefaultChanged = Default != false;
+        }
 
         public override bool ReadValue(KaitaiStream input)
         {
