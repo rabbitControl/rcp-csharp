@@ -76,5 +76,15 @@ namespace RCP.Parameter
 
             return false;
         }
+
+        public override void CopyTo(IParameter other)
+        {
+            var param = other as EnumParameter;
+
+            if (FEntriesChanged)
+                param.Entries = FEntries;
+
+            base.CopyTo(other);
+        }
     }
 }

@@ -118,5 +118,27 @@ namespace RCP.Parameter
 
             return false;
         }
+
+        public override void CopyTo(IParameter other)
+        {
+            var param = other as NumberParameter<T>;
+
+            if (FMinimumChanged)
+                param.Minimum = FMinimum;
+
+            if (FMaximumChanged)
+                param.Maximum = FMaximum;
+
+            if (FMultipleOfChanged)
+                param.MultipleOf = FMultipleOf;
+
+            if (FScaleChanged)
+                param.Scale = FScale;
+
+            if (FUnitChanged)
+                param.Unit = FUnit;
+
+            base.CopyTo(other);
+        }
     }
 }

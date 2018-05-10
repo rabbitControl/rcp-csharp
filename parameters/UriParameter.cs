@@ -89,5 +89,18 @@ namespace RCP.Parameter
 
             return false;
         }
+
+        public override void CopyTo(IParameter other)
+        {
+            var param = other as UriParameter;
+
+            if (FSchemaChanged)
+                param.Schema = FSchema;
+
+            if (FFilterChanged)
+                param.Filter = FFilter;
+
+            base.CopyTo(other);
+        }
     }
 }
