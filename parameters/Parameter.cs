@@ -4,6 +4,7 @@ using System.IO;
 using Kaitai;
 using RCP.Exceptions;
 using RCP.Protocol;
+using System.Collections.Generic;
 
 namespace RCP.Parameter
 {
@@ -11,9 +12,12 @@ namespace RCP.Parameter
 
     internal abstract class Parameter : IParameter, IWriteable
     {
-        public event EventHandler Updated;
+        private Dictionary<string, string> FLabels = new Dictionary<string, string>();
+        private Dictionary<string, string> FDescriptions = new Dictionary<string, string>();
 
         protected IParameterManager FManager;
+
+        public event EventHandler Updated;
 
         public Int16 Id { get; private set; }
         public RcpTypes.Datatype Datatype { get; private set; }
@@ -23,12 +27,10 @@ namespace RCP.Parameter
         public Int16 ParentId { get { return FParentId; } set { FParentId = value; FParentIdChanged = true; SetDirty(); } }
 
         private bool FLabelChanged;
-        private string FLabel = "";
-        public string Label { get { return FLabel; } set { FLabel = value; FLabelChanged = true; SetDirty(); } }
+        public string Label { get { return FLabels.ContainsKey("any") ? FLabels["any"] : ""; } set { FLabels["any"] = value; FLabelChanged = true; SetDirty(); } }
 
         private bool FDescriptionChanged;
-        private string FDescription = "";
-        public string Description { get { return FDescription; } set { FDescription = value; FDescriptionChanged = true; SetDirty(); } }
+        public string Description { get { return FDescriptions.ContainsKey("any") ? FDescriptions["any"] : ""; } set { FDescriptions["any"] = value; FDescriptionChanged = true; SetDirty(); } }
 
         private bool FTagsChanged;
         private string FTags = "";
@@ -67,6 +69,36 @@ namespace RCP.Parameter
             if (FManager != null) //not assigned for temp-parameters (ie. those just used for parsing on clients)
                 FManager.SetParameterDirty(this);
         }
+        
+        public void SetLanguageLabel(string iso639_3, string label)
+        {
+            FLabels[iso639_3] = label;
+            FLabelChanged = true;
+        }
+
+        public void RemoveLanguageLabel(string iso639_3)
+        {
+            if (FLabels.ContainsKey(iso639_3))
+            {
+                FLabels.Remove(iso639_3);
+                FLabelChanged = true;
+            }
+        }
+
+        public void SetLanguageDescription(string iso639_3, string description)
+        {
+            FDescriptions[iso639_3] = description;
+            FDescriptionChanged = true;
+        }
+
+        public void RemoveLanguageDescription(string iso639_3)
+        {
+            if (FDescriptions.ContainsKey(iso639_3))
+            {
+                FDescriptions.Remove(iso639_3);
+                FDescriptionChanged = true;
+            }
+        }
 
         public void Write(BinaryWriter writer)
         {
@@ -83,14 +115,24 @@ namespace RCP.Parameter
             if (FLabelChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Label);
-                RcpTypes.TinyString.Write(Label, writer);
+                foreach (var language in FLabels.Keys)
+                {
+                    writer.Write(Encoding.ASCII.GetBytes(language));
+                    RcpTypes.TinyString.Write(FLabels[language], writer);
+                }
+                writer.Write((byte)0);
                 FLabelChanged = false;
             }
 
             if (FDescriptionChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Description);
-                RcpTypes.ShortString.Write(Description, writer);
+                foreach (var language in FDescriptions.Keys)
+                {
+                    writer.Write(Encoding.ASCII.GetBytes(language));
+                    RcpTypes.ShortString.Write(FDescriptions[language], writer);
+                }
+                writer.Write((byte)0);
                 FDescriptionChanged = false;
             }
 
@@ -197,11 +239,21 @@ namespace RCP.Parameter
                 switch (option)
                 {
                     case RcpTypes.ParameterOptions.Label:
-                        Label = new RcpTypes.TinyString(input).Data;
+                        while (input.PeekChar() > 0)
+                        {
+                            var language = new string(input.ReadChars(3));
+                            FLabels.Add(language, new RcpTypes.TinyString(input).Data);
+                        }
+                        input.ReadByte(); //0 terminator
                         break;
 
                     case RcpTypes.ParameterOptions.Description:
-                        Description = new RcpTypes.ShortString(input).Data;
+                        while (input.PeekChar() > 0)
+                        {
+                            var language = new string(input.ReadChars(3));
+                            FDescriptions.Add(language, new RcpTypes.ShortString(input).Data);
+                        }
+                        input.ReadByte(); //0 terminator
                         break;
 
                     case RcpTypes.ParameterOptions.Tags:
@@ -243,11 +295,11 @@ namespace RCP.Parameter
             if (FParentIdChanged)
                 FParentId = other.ParentId;
 
-            if (FLabelChanged)
-                other.Label = FLabel;
+            //if (FLabelChanged)
+            //    other.Label = FLabel;
 
-            if (FDescriptionChanged)
-                FDescription = other.Description;
+            //if (FDescriptionChanged)
+            //    FDescription = other.Description;
 
             if (FTagsChanged)
                 FTags = other.Tags;
@@ -273,8 +325,8 @@ namespace RCP.Parameter
         public virtual void ResetForInitialize()
         {
             FParentIdChanged = FParentId != 0;
-            FLabelChanged = FLabel != "";
-            FDescriptionChanged = FDescription != "";
+            FLabelChanged = FLabels.Count > 0;
+            FDescriptionChanged = FDescriptions.Count > 0;
             FTagsChanged = FTags != "";
             FOrderChanged = FOrder != 0;
             FUserdataChanged = FUserdata.Length != 0;
