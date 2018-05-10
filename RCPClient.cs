@@ -125,7 +125,7 @@ namespace RCP
         void ReceiveCB(byte[] bytes)
 		{
 			//Logger.Log(LogType.Debug, "Client received: " + bytes.Length + "bytes");
-			var packet = Packet.Parse(new KaitaiStream(bytes));
+			var packet = Packet.Parse(new KaitaiStream(bytes), this);
 			//Logger.Log(LogType.Debug, packet.Command.ToString());
 			
 			switch (packet.Command)

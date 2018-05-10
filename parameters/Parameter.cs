@@ -144,7 +144,7 @@ namespace RCP.Parameter
         protected virtual void ParseTypeDefinitionOptions(KaitaiStream input) { }
         protected virtual void WriteValue(BinaryWriter writer) { }
 
-        public static Parameter Parse(KaitaiStream input)
+        public static Parameter Parse(KaitaiStream input, IParameterManager manager)
         {
             // get mandatory id
             var id = input.ReadS2be();
@@ -166,7 +166,7 @@ namespace RCP.Parameter
 
                 default:
                     {
-                        parameter = (Parameter)RCPClient.CreateParameter(id, datatype, null);
+                        parameter = (Parameter)RCPClient.CreateParameter(id, datatype, manager);
                         parameter.ParseTypeDefinitionOptions(input);
                         break;
                     }

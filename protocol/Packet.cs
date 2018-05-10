@@ -19,7 +19,7 @@ namespace RCP.Protocol
             Command = command;
         }
 
-        public static Packet Parse(KaitaiStream input)
+        public static Packet Parse(KaitaiStream input, IParameterManager manager)
         {
             // get command
             var command = (RcpTypes.Command)input.ReadU1();
@@ -51,7 +51,7 @@ namespace RCP.Protocol
                             case RcpTypes.Command.Remove:
                             case RcpTypes.Command.Update:
                                 // expect parameter
-                                packet.Data = RCP.Parameter.Parameter.Parse(input);
+                                packet.Data = RCP.Parameter.Parameter.Parse(input, manager);
                                 break;
 
                             case RcpTypes.Command.Version:

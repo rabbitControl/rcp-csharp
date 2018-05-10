@@ -154,7 +154,7 @@ namespace RCP
 		{
 			try
             {
-			    var packet = Packet.Parse(new KaitaiStream(bytes));
+			    var packet = Packet.Parse(new KaitaiStream(bytes), this);
 				//MessageBox.Show(packet.Command.ToString());
 		        switch (packet.Command)
 		        {
