@@ -7,7 +7,7 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    public class UriParameter : ValueParameter<string>
+    internal class UriParameter : ValueParameter<string>, IUriParameter
     {
         private bool FSchemaChanged;
         private string FSchema;

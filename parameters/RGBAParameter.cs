@@ -7,7 +7,7 @@ using RCP.Protocol;
 
 namespace RCP.Parameter
 {
-    public class RGBAParameter : ValueParameter<Color>
+    internal class RGBAParameter : ValueParameter<Color>, IRGBAParameter
     {
 		public RGBAParameter(Int16 id, IParameterManager manager) : 
             base (id, RcpTypes.Datatype.Rgba, manager)

@@ -9,7 +9,7 @@ namespace RCP.Parameter
 {
     public enum Status { Update, Remove };
 
-    public abstract class Parameter : IParameter, IWriteable
+    internal abstract class Parameter : IParameter, IWriteable
     {
         public event EventHandler Updated;
 
@@ -282,7 +282,7 @@ namespace RCP.Parameter
         }
     }
 
-    public abstract class ValueParameter<T> : Parameter, IValueParameter<T>
+    internal abstract class ValueParameter<T> : Parameter, IValueParameter<T>
     {
         public event EventHandler<T> ValueUpdated;
 

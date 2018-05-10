@@ -31,71 +31,48 @@ namespace RCP
     public interface IValueParameter<T>: IParameter
     {
         T Value { get; set; }
+        T Default { get; set; }
         event EventHandler<T> ValueUpdated;
     }
 
-    public interface ITypeDefinition: IWriteable
+    public interface IArrayParameter<T> : IValueParameter<T>
     {
-        RcpTypes.Datatype Datatype { get; }
-        void ParseOptions(Kaitai.KaitaiStream input);
+        //new List<T> ReadValue(Kaitai.KaitaiStream input);
     }
 
-    public interface IDefaultDefinition<T>: ITypeDefinition
-    {
-        T Default { get; set; }
-        T ReadValue(Kaitai.KaitaiStream input);
-        void WriteValue(BinaryWriter writer, T value);
-    }
-
-    public interface IArrayDefinition<T> : IDefaultDefinition<T>
-    {
-        new List<T> ReadValue(Kaitai.KaitaiStream input);
-    }
-
-    public interface IBooleanDefinition : IDefaultDefinition<bool>
+    public interface IBooleanParameter : IValueParameter<bool>
     {
     }
 
-    public interface IEnumDefinition : IDefaultDefinition<ushort>
+    public interface IEnumParameter : IValueParameter<string>
     {
     	string[] Entries { get; set; }
     }
 
-    public interface IStringDefinition : IDefaultDefinition<string>
+    public interface IStringParameter : IValueParameter<string>
     {
     }
 
-    public interface IUriDefinition : IDefaultDefinition<string>
+    public interface IUriParameter : IValueParameter<string>
     {
         string Schema { get; set; }
         string Filter { get; set; }
     }
 
-    public interface IRGBADefinition : IDefaultDefinition<Color>
+    public interface IRGBAParameter : IValueParameter<Color>
     {
     }
 
-    public interface INumberDefinition<T>: IDefaultDefinition<T> where T: struct
+    public interface INumberParameter<T> : IValueParameter<T> where T : struct
     {
-        Nullable<T> Minimum { get; set; }
-        Nullable<T> Maximum { get; set; }
-        Nullable<T> MultipleOf { get; set; }
-        //scale
-        //unit
-    }
-
-    public interface INumberParameter<T>: IValueParameter<T> where T : struct
-    {
-        INumberDefinition<T> NumberDefinition { get; }
-    }
-
-    public interface IStringParameter : IValueParameter<string>
-    {
-        IStringDefinition StringDefinition { get; }
+        T Minimum { get; set; }
+        T Maximum { get; set; }
+        T MultipleOf { get; set; }
+        RcpTypes.NumberScale Scale { get; set; }
+        string Unit { get; set; }
     }
 
     public interface IGroupParameter: IParameter
     {
-        void AddParameter(IParameter param);
     }
 }

@@ -7,7 +7,7 @@ using RCP.Protocol;
 
 namespace RCP.Parameter
 {
-    public class Vector2f32Parameter : NumberParameter<Vector2>
+    internal class Vector2f32Parameter : NumberParameter<Vector2>
     {
         public Vector2f32Parameter(Int16 id, IParameterManager manager)
         : base(id, RcpTypes.Datatype.Vector2f32, manager)

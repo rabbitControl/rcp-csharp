@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace RCP.Parameter
 {
-    public class EnumParameter : ValueParameter<string>
+    internal class EnumParameter : ValueParameter<string>, IEnumParameter
     {
         private bool FEntriesChanged;
         private string[] FEntries;

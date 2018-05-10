@@ -6,7 +6,7 @@ using RCP.Protocol;
 
 namespace RCP.Parameter
 {
-    public class Float32Parameter : NumberParameter<float>
+    internal class Float32Parameter : NumberParameter<float>
     {
         public Float32Parameter(Int16 id, IParameterManager manager)
         : base(id, RcpTypes.Datatype.Float32, manager)
@@ -35,7 +35,5 @@ namespace RCP.Parameter
         {
             writer.Write(value, ByteOrder.BigEndian);
         }
-
-        
     }
 }

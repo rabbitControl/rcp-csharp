@@ -6,7 +6,7 @@ using System.IO;
 
 namespace RCP.Parameter
 {
-    public class BooleanParameter : ValueParameter<bool>
+    internal class BooleanParameter : ValueParameter<bool>, IBooleanParameter
     {
         public BooleanParameter(Int16 id, IParameterManager manager) : 
             base (id, RcpTypes.Datatype.Boolean, manager)

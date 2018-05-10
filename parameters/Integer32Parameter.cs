@@ -6,7 +6,7 @@ using RCP.Protocol;
 
 namespace RCP.Parameter
 {
-    public class Integer32Parameter : NumberParameter<int>
+    internal class Integer32Parameter : NumberParameter<int>
     {
         public Integer32Parameter(Int16 id, IParameterManager manager)
         : base(id, RcpTypes.Datatype.Int32, manager)

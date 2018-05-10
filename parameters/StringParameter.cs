@@ -6,7 +6,7 @@ using System.IO;
 
 namespace RCP.Parameter
 {
-    public class StringParameter : ValueParameter<string>
+    internal class StringParameter : ValueParameter<string>, IStringParameter
     {
         public StringParameter(Int16 id, IParameterManager manager) : 
             base (id, RcpTypes.Datatype.String, manager)

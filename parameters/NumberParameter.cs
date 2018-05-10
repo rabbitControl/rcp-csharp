@@ -8,7 +8,7 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    public abstract class NumberParameter<T> : ValueParameter<T> where T : struct
+    internal abstract class NumberParameter<T> : ValueParameter<T>, INumberParameter<T> where T : struct
     {
         protected bool FMinimumChanged;
         private T FMinimum;
