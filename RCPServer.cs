@@ -41,7 +41,7 @@ namespace RCP
             base.Dispose();
 		}
 
-        public NumberParameter<T> CreateNumberParameter<T>(string label = "", IGroupParameter group = null) where T: struct
+        public INumberParameter<T> CreateNumberParameter<T>(string label = "", IGroupParameter group = null) where T: struct
         {
             IParameter param = null;
             if (typeof(T) == typeof(float))
@@ -54,37 +54,49 @@ namespace RCP
                 param = new Vector3f32Parameter(FIdCounter++, this);
 
             param.Label = label;
-            AddParameter(param);
+            AddParameter(param, group);
 
             return param as NumberParameter<T>;
         }
 
-        public StringParameter CreateStringParameter()
+        //public IArrayParameter<T> CreateArrayNumberParameter<T>(string label = "", IGroupParameter group = null) where T : struct
+        //{
+        //    var param = new ArrayParameter<T>(FIdCounter++, this);
+        //    param.Label = label;
+        //    AddParameter(param);
+        //    return param;
+        //}
+
+        public IStringParameter CreateStringParameter(string label = "", IGroupParameter group = null)
         {
             var param = new StringParameter(FIdCounter++, this);
-            AddParameter(param);
+            param.Label = label;
+            AddParameter(param, group);
             return param;
         }
 
-        public EnumParameter CreateEnumParameter()
+        public IEnumParameter CreateEnumParameter(string label = "", IGroupParameter group = null)
         {
             var param = new EnumParameter(FIdCounter++, this);
-            AddParameter(param);
+            param.Label = label;
+            AddParameter(param, group);
             return param;
         }
 
-        public RGBAParameter CreateRGBAParameter()
+        public IRGBAParameter CreateRGBAParameter(string label = "", IGroupParameter group = null)
         {
             var param = new RGBAParameter(FIdCounter++, this);
-            AddParameter(param);
+            param.Label = label;
+            AddParameter(param, group);
             return param;
         }
 
-        public IGroupParameter CreateGroup()
+        public IGroupParameter CreateGroup(string label = "", IGroupParameter group = null)
         {
-            var group = new GroupParameter(FIdCounter++, this);
-            AddParameter(group);
-            return group;
+            var param = new GroupParameter(FIdCounter++, this);
+            param.Label = label;
+            AddParameter(param, group);
+            return param;
         }
 
         public void AddParameter(IParameter param, IGroupParameter group = null)
@@ -95,7 +107,7 @@ namespace RCP
             if (group == null)
                 group = Root;
 
-            group.AddParameter(param);
+            (group as GroupParameter).AddParameter(param);
         }
 
         public void RemoveParameter(IParameter param)
