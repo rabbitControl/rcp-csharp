@@ -17,6 +17,22 @@ namespace RCP.Protocol
         {
             Default = 48,
             Entries = 49,
+            Multiselect = 50,
+        }
+
+        public enum NumberboxOptions
+        {
+            Precision = 86,
+            Format = 87,
+            Stepsize = 88,
+            Cyclic = 89,
+        }
+
+        public enum CustomtypeOptions
+        {
+            Default = 48,
+            Uuid = 49,
+            Config = 50,
         }
 
         public enum WidgetOptions
@@ -69,18 +85,27 @@ namespace RCP.Protocol
 
         public enum Widgettype
         {
-            Bang = 16,
-            Press = 17,
-            Toggle = 18,
-            Slider = 19,
-            Endless = 20,
-            TextBox = 21,
+            Customwidget = 1,
+            Info = 16,
+            Textbox = 17,
+            Bang = 18,
+            Press = 19,
+            Toggle = 20,
+            Numberbox = 21,
             Dial = 22,
-            Colorbox = 23,
-            Table = 24,
-            Treeview = 25,
+            Slider = 23,
+            Slider2d = 24,
+            Range = 25,
             Dropdown = 26,
-            Xyfield = 31,
+            Radiobutton = 27,
+            Colorbox = 28,
+            Table = 29,
+            Filechooser = 30,
+            Directorychooser = 31,
+            Ip = 32,
+            List = 32768,
+            Listpage = 32769,
+            Tabs = 32770,
         }
 
         public enum Command
@@ -101,18 +126,23 @@ namespace RCP.Protocol
             Exp2 = 2,
         }
 
-        public enum DynamicArrayOptions
+        public enum DialOptions
+        {
+            Cyclic = 86,
+        }
+
+        public enum RangeOptions
         {
             Default = 48,
         }
 
         public enum LabelPosition
         {
-            Left = 0,
-            Right = 1,
-            Top = 2,
-            Bottom = 3,
-            Center = 4,
+            Left = 1,
+            Right = 2,
+            Top = 3,
+            Bottom = 4,
+            Center = 5,
         }
 
         public enum UriOptions
@@ -120,6 +150,11 @@ namespace RCP.Protocol
             Default = 48,
             Filter = 49,
             Schema = 50,
+        }
+
+        public enum SliderOptions
+        {
+            Horizontal = 86,
         }
 
         public enum ClientStatus
@@ -133,10 +168,25 @@ namespace RCP.Protocol
         public enum StringOptions
         {
             Default = 48,
+            RegularExpression = 49,
+        }
+
+        public enum ArrayOptions
+        {
+            Default = 48,
+            Structure = 49,
+        }
+
+        public enum NumberboxFormat
+        {
+            Dec = 1,
+            Hex = 2,
+            Bin = 3,
         }
 
         public enum Datatype
         {
+            Customtype = 1,
             Boolean = 16,
             Int8 = 17,
             Uint8 = 18,
@@ -158,13 +208,14 @@ namespace RCP.Protocol
             Rgb = 34,
             Rgba = 35,
             Enum = 36,
-            FixedArray = 37,
-            DynamicArray = 38,
+            Array = 37,
+            List = 38,
             Bang = 39,
             Group = 40,
             Uri = 42,
             Ipv4 = 43,
             Ipv6 = 44,
+            Range = 45,
         }
 
         public enum NumberOptions
@@ -195,9 +246,24 @@ namespace RCP.Protocol
             Data = 18,
         }
 
-        public enum FixedArrayOptions
+        public enum TextboxOptions
+        {
+            Multiline = 86,
+            Wordwrap = 87,
+            Password = 88,
+        }
+
+        public enum ListOptions
         {
             Default = 48,
+            Minimum = 49,
+            Maximum = 50,
+        }
+
+        public enum CustomwidgetOptions
+        {
+            Uuid = 86,
+            Config = 87,
         }
 
         public RcpTypes(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)

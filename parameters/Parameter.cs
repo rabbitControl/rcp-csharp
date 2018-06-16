@@ -5,6 +5,7 @@ using Kaitai;
 using RCP.Exceptions;
 using RCP.Protocol;
 using System.Collections.Generic;
+using System.Text;
 
 namespace RCP.Parameter
 {
@@ -199,12 +200,18 @@ namespace RCP.Parameter
 
             switch (datatype)
             {
-                //case RcpTypes.Datatype.FixedArray:
-                //    {
-                //        dynamic arrayDefinition = ArrayDefinition<dynamic>.Parse(input);
-                //        parameter = (Parameter)ParameterFactory.CreateArrayParameter(id, arrayDefinition.Subtype.Datatype, arrayDefinition.Length);
-                //        break;
-                //    }
+                case RcpTypes.Datatype.Array:
+                    {
+                        var elementType = (RcpTypes.Datatype)input.ReadU1();
+                        parameter = (Parameter)RCPClient.CreateArrayParameter(id, elementType, manager);
+                        //parse options of elementType
+                        //parameter.ParseTypeDefinitionOptions(input);
+                        input.ReadU1();
+
+                        //parse options of array
+                        parameter.ParseTypeDefinitionOptions(input);
+                        break;
+                    }
 
                 default:
                     {

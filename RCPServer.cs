@@ -75,6 +75,14 @@ namespace RCP
             return param;
         }
 
+        public IStringArrayParameter<T> CreateStringArrayParameter<T>(string label, params int[] structure)
+        {
+            var param = new StringArrayParameter<T>(FIdCounter++, this, structure);
+            param.Label = label;
+            AddParameter(param);
+            return param;
+        }
+
         public IEnumParameter CreateEnumParameter(string label = "", IGroupParameter group = null)
         {
             var param = new EnumParameter(FIdCounter++, this);

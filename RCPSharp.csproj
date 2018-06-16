@@ -137,6 +137,7 @@
     <Compile Include="model\Interfaces.cs" />
     <Compile Include="model\Widget.cs" />
     <Compile Include="model\Model.cs" />
+    <Compile Include="parameters\StringArrayParameter.cs" />
     <Compile Include="parameters\UriParameter.cs" />
     <Compile Include="protocol\Packet.cs" />
     <Compile Include="parameters\Parameter.cs" />

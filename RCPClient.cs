@@ -109,6 +109,18 @@ namespace RCP
             }
         }
 
+        internal static IParameter CreateArrayParameter(Int16 id, RcpTypes.Datatype elementType, IParameterManager manager)
+        {
+            switch (elementType)
+            {
+                case RcpTypes.Datatype.String:
+                    return new StringArrayParameter<string[]>(id, manager);
+
+                default: throw new RCPUnsupportedFeatureException();
+            }
+        }
+
+
         #region Transporter
         public void SetTransporter(IClientTransporter transporter)
         {

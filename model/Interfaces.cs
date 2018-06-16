@@ -37,7 +37,7 @@ namespace RCP
 
     public interface IArrayParameter<T> : IValueParameter<T>
     {
-        //new List<T> ReadValue(Kaitai.KaitaiStream input);
+        int[] Structure { get; set; }
     }
 
     public interface IBooleanParameter : IValueParameter<bool>
@@ -50,6 +50,10 @@ namespace RCP
     }
 
     public interface IStringParameter : IValueParameter<string>
+    {
+    }
+
+    public interface IStringArrayParameter<T> : IArrayParameter<T> 
     {
     }
 
