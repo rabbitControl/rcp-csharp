@@ -27,7 +27,6 @@ namespace RCP.Parameter
             base.ResetForInitialize();
 
             FValueChanged = Value != null;
-            FDefaultChanged = Default != null;
         }
 
         //protected override void ParseTypeDefinitionOptions(KaitaiStream input)

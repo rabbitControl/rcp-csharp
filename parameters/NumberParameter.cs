@@ -8,111 +8,61 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    internal abstract class NumberParameter<T> : ValueParameter<T>, INumberParameter<T> where T : struct
+    internal class NumberParameter<T> : ValueParameter<T>, INumberParameter<T> where T : struct
     {
-        protected bool FMinimumChanged;
-        private T FMinimum;
-        public T Minimum { get { return FMinimum; } set { FMinimum = value; FMinimumChanged = true; SetDirty(); } }
+        public NumberDefinition<T> NumberDefinition => TypeDefinition as NumberDefinition<T>;
+        
+        public T Minimum { get { return NumberDefinition.Minimum; } set { NumberDefinition.Minimum = value; SetDirty(); } }
+        public T Maximum { get { return NumberDefinition.Maximum; } set { NumberDefinition.Maximum = value; SetDirty(); } }
+        public T MultipleOf { get { return NumberDefinition.MultipleOf; } set { NumberDefinition.MultipleOf = value; SetDirty(); } }
+        public RcpTypes.NumberScale Scale { get { return NumberDefinition.Scale; } set { NumberDefinition.Scale = value; SetDirty(); } }
+        public string Unit { get { return NumberDefinition.Unit; } set { NumberDefinition.Unit = value; SetDirty(); } }
 
-        protected bool FMaximumChanged;
-        private T FMaximum;
-        public T Maximum { get { return FMaximum; } set { FMaximum = value; FMaximumChanged = true; SetDirty(); } }
+        public NumberParameter(Int16 id, IParameterManager manager) : 
+            base (id, manager)
+        {
+            if (typeof(T) == typeof(float))
+                TypeDefinition = new Float32Definition() as NumberDefinition<T>;
+            else if (typeof(T) == typeof(int))
+                TypeDefinition = new Integer32Definition() as NumberDefinition<T>;
+            //else if (typeof(T) == typeof(Vector2))
+            //    param = new Vector2f32Parameter(FIdCounter++, this);
+            //else if (typeof(T) == typeof(Vector3))
+            //    param = new Vector3f32Parameter(FIdCounter++, this);
 
-        protected bool FMultipleOfChanged;
-        protected T FMultipleOf;
-        public T MultipleOf { get { return FMultipleOf; } set { FMultipleOf = value; FMultipleOfChanged = true; SetDirty(); } }
-
-        private bool FScaleChanged;
-        private RcpTypes.NumberScale FScale;
-        public RcpTypes.NumberScale Scale { get { return FScale; } set { FScale = value; FScaleChanged = true; SetDirty(); } }
-
-        private bool FUnitChanged;
-        private string FUnit = "";
-        public string Unit { get { return FUnit; } set { FUnit = value; FUnitChanged = true; SetDirty(); } }
-
-        public NumberParameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager) : 
-            base (id, datatype, manager)
-        { }
+            //TypeDefinition = new Integer32Definition() as NumberDefinition<T>;
+        }
 
         protected override bool AnyChanged()
         {
-            return base.AnyChanged() || FMinimumChanged || FMaximumChanged || FMultipleOfChanged || FScaleChanged || FUnitChanged;
+            return base.AnyChanged() || TypeDefinition.AnyChanged();
         }
 
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();
 
-            FScaleChanged = FScale != RcpTypes.NumberScale.Linear;
-            FUnitChanged = FUnit != "";
+            TypeDefinition.ResetForInitialize();
+
+            FValueChanged = !FValue.Equals(default(T));
         }
 
-        protected override void WriteTypeDefinitionOptions(BinaryWriter writer)
+        protected override void WriteValue(BinaryWriter writer)
         {
-            base.WriteTypeDefinitionOptions(writer);
-
-            if (FMinimumChanged)
+            if (FValueChanged)
             {
-                writer.Write((byte)RcpTypes.NumberOptions.Minimum);
-                WriteValue(writer, Minimum);
-                FMinimumChanged = false;
-            }
-
-            if (FMaximumChanged)
-            {
-                writer.Write((byte)RcpTypes.NumberOptions.Maximum);
-                WriteValue(writer, Maximum);
-                FMaximumChanged = false;
-            }
-
-            if (FMultipleOfChanged)
-            {
-                writer.Write((byte)RcpTypes.NumberOptions.Multipleof);
-                WriteValue(writer, MultipleOf);
-                FMultipleOfChanged = false;
-            }
-
-            if (FScaleChanged)
-            {
-                writer.Write((byte)RcpTypes.NumberOptions.Scale);
-                writer.Write((byte)Scale);
-                FScaleChanged = false;
-            }
-
-            if (FUnitChanged)
-            {
-                writer.Write((byte)RcpTypes.NumberOptions.Unit);
-                writer.Write(Unit);
-                FUnitChanged = false;
+                writer.Write((byte)RcpTypes.ParameterOptions.Value);
+                NumberDefinition.WriteValue(writer, Value);
+                FValueChanged = false;
             }
         }
 
-        protected override bool HandleTypeDefinitionOption(KaitaiStream input, byte code)
+        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
         {
-            var option = (RcpTypes.NumberOptions)code;
-            if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option))
-                throw new RCPDataErrorException("NumberDefinition parsing: Unknown option: " + option.ToString());
-
             switch (option)
             {
-                case RcpTypes.NumberOptions.Minimum:
-                    Minimum = ReadValue(input);
-                    return true;
-
-                case RcpTypes.NumberOptions.Maximum:
-                    Maximum = ReadValue(input);
-                    return true;
-
-                case RcpTypes.NumberOptions.Multipleof:
-                    MultipleOf = ReadValue(input);
-                    return true;
-
-                case RcpTypes.NumberOptions.Scale:
-                    Scale = (RcpTypes.NumberScale)input.ReadU1();
-                    return true;
-
-                case RcpTypes.NumberOptions.Unit:
-                    Unit = new RcpTypes.TinyString(input).Data;
+                case RcpTypes.ParameterOptions.Value:
+                    Value = NumberDefinition.ReadValue(input);
                     return true;
             }
 
@@ -123,20 +73,7 @@ namespace RCP.Parameter
         {
             var param = other as NumberParameter<T>;
 
-            if (FMinimumChanged)
-                param.Minimum = FMinimum;
-
-            if (FMaximumChanged)
-                param.Maximum = FMaximum;
-
-            if (FMultipleOfChanged)
-                param.MultipleOf = FMultipleOf;
-
-            if (FScaleChanged)
-                param.Scale = FScale;
-
-            if (FUnitChanged)
-                param.Unit = FUnit;
+            TypeDefinition.CopyTo(param.TypeDefinition);
 
             base.CopyTo(other);
         }

@@ -12,7 +12,7 @@ namespace RCP.Parameter
         private List<IParameter> FRemovedParams = new List<IParameter>();
 
         public GroupParameter(Int16 id, IParameterManager manager): 
-            base (id, RcpTypes.Datatype.Group, manager)
+            base (id, manager)
         { }
 
         public void AddParameter(IParameter param)

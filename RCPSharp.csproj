@@ -137,24 +137,13 @@
     <Compile Include="model\Interfaces.cs" />
     <Compile Include="model\Widget.cs" />
     <Compile Include="model\Model.cs" />
-    <Compile Include="parameters\StringArrayParameter.cs" />
-    <Compile Include="parameters\UriParameter.cs" />
+    <Compile Include="parameters\GroupParameter.cs" />
     <Compile Include="protocol\Packet.cs" />
     <Compile Include="parameters\Parameter.cs" />
-    <Compile Include="parameters\ArrayParameter.cs" />
-    <Compile Include="parameters\BooleanParameter.cs" />
-    <Compile Include="parameters\EnumParameter.cs" />
-    <Compile Include="parameters\GroupParameter.cs" />
     <Compile Include="parameters\NumberParameter.cs" />
-    <Compile Include="parameters\RGBAParameter.cs" />
-    <Compile Include="parameters\StringParameter.cs" />
     <Compile Include="protocol\RcpTypesExtensions.cs" />
     <Compile Include="transport\WebsocketClientTransporter.cs" />
     <Compile Include="typedefinitions\ArrayDefinition.cs" />
-    <Compile Include="parameters\Float32Parameter.cs" />
-    <Compile Include="parameters\Integer32Parameter.cs" />
-    <Compile Include="parameters\Vector2DParameter.cs" />
-    <Compile Include="parameters\Vector3DParameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="protocol\RcpTypes.cs" />
     <Compile Include="RCPClient.cs" />
@@ -163,6 +152,10 @@
     <Compile Include="RCPServer.cs" />
     <Compile Include="transport\UDPTransporter.cs" />
     <Compile Include="transport\WebsocketServerTransporter.cs" />
+    <Compile Include="typedefinitions\Float32Definition.cs" />
+    <Compile Include="typedefinitions\Integer32Definition.cs" />
+    <Compile Include="typedefinitions\NumberDefinition.cs" />
+    <Compile Include="typedefinitions\TypeDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

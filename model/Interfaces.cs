@@ -12,10 +12,35 @@ namespace RCP
         void Write(BinaryWriter writer);
     }
 
+    public interface ITypeDefinition : IWriteable
+    {
+        RcpTypes.Datatype Datatype { get; }
+        void ParseOptions(Kaitai.KaitaiStream input);
+        void ResetForInitialize();
+        bool AnyChanged();
+        void CopyTo(ITypeDefinition other);
+    }
+
+    public interface IDefaultDefinition<T> : ITypeDefinition
+    {
+        T Default { get; set; }
+        T ReadValue(Kaitai.KaitaiStream input);
+        void WriteValue(BinaryWriter writer, T value);
+    }
+
+    public interface INumberDefinition<T> : IDefaultDefinition<T> where T : struct
+    {
+        T Minimum { get; set; }
+        T Maximum { get; set; }
+        T MultipleOf { get; set; }
+        RcpTypes.NumberScale Scale { get; set; }
+        string Unit { get; set; }
+    }
+
     public interface IParameter : IWriteable
     {
         Int16 Id { get; }
-        RcpTypes.Datatype Datatype { get; }
+        ITypeDefinition TypeDefinition { get; }
         string Label { get; set; }
         string Description { get; set; }
         string Tags { get; set; }

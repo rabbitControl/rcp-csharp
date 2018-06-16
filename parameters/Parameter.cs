@@ -21,7 +21,8 @@ namespace RCP.Parameter
         public event EventHandler Updated;
 
         public Int16 Id { get; private set; }
-        public RcpTypes.Datatype Datatype { get; private set; }
+
+        public ITypeDefinition TypeDefinition { get; set; }
 
         private bool FParentIdChanged;
         private Int16 FParentId;
@@ -51,10 +52,9 @@ namespace RCP.Parameter
 
         public Widget Widget { get; set; }
 
-        public Parameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager)
+        public Parameter(Int16 id, IParameterManager manager)
         {
             Id = id;
-            Datatype = datatype;
             FManager = manager;
 
             SetDirty();
@@ -106,9 +106,7 @@ namespace RCP.Parameter
             //mandatory
             writer.Write(Id, ByteOrder.BigEndian);
 
-            writer.Write((byte)Datatype);
-            WriteTypeDefinitionOptions(writer);
-            writer.Write((byte)0);
+            TypeDefinition.Write(writer);
 
             //optional
             WriteValue(writer);
@@ -202,6 +200,14 @@ namespace RCP.Parameter
             {
                 case RcpTypes.Datatype.Array:
                     {
+                        //parse element type definition
+                        //create array param
+                        //set element type definition on array param
+                        //create array definition
+                        //parse array definition options
+                        //set array definition on array param
+
+
                         var elementType = (RcpTypes.Datatype)input.ReadU1();
                         parameter = (Parameter)RCPClient.CreateArrayParameter(id, elementType, manager);
                         //parse options of elementType
@@ -216,7 +222,7 @@ namespace RCP.Parameter
                 default:
                     {
                         parameter = (Parameter)RCPClient.CreateParameter(id, datatype, manager);
-                        parameter.ParseTypeDefinitionOptions(input);
+                        parameter.TypeDefinition.ParseOptions(input);
                         break;
                     }
             }
@@ -225,7 +231,7 @@ namespace RCP.Parameter
             return parameter;
         }
 
-        protected virtual bool HandleOption(KaitaiStream input, byte code)
+        protected virtual bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions code)
         {
             return false;
         }
@@ -288,7 +294,7 @@ namespace RCP.Parameter
                         break;
 
                     default:
-                        if (!HandleOption(input, code))
+                        if (!HandleOption(input, option))
                         {
                             throw new RCPUnsupportedFeatureException();
                         }
@@ -302,6 +308,7 @@ namespace RCP.Parameter
             if (FParentIdChanged)
                 FParentId = other.ParentId;
 
+            //TODO: language specific copy
             //if (FLabelChanged)
             //    other.Label = FLabel;
 
@@ -326,7 +333,7 @@ namespace RCP.Parameter
 
         protected virtual bool AnyChanged()
         {
-            return FParentIdChanged || FLabelChanged || FDescriptionChanged || FTagsChanged || FOrderChanged || FUserdataChanged || FUserIdChanged;
+            return TypeDefinition.AnyChanged() || FParentIdChanged || FLabelChanged || FDescriptionChanged || FTagsChanged || FOrderChanged || FUserdataChanged || FUserIdChanged;
         }
 
         public virtual void ResetForInitialize()
@@ -343,101 +350,21 @@ namespace RCP.Parameter
 
     internal abstract class ValueParameter<T> : Parameter, IValueParameter<T>
     {
-        public event EventHandler<T> ValueUpdated;
+        public IDefaultDefinition<T> DefaultDefinition => TypeDefinition as IDefaultDefinition<T>;
+        public T Default { get { return DefaultDefinition.Default; } set { DefaultDefinition.Default = value; SetDirty(); } }
 
+        public event EventHandler<T> ValueUpdated;
         protected bool FValueChanged;
         protected T FValue;
         public T Value { get { return FValue; } set { FValue = value; FValueChanged = true; SetDirty(); } }
 
-        protected bool FDefaultChanged;
-        protected T FDefault;
-        public T Default { get { return FDefault; } set { FDefault = value; FDefaultChanged = true; SetDirty(); } }
-
-        public ValueParameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager) : 
-            base (id, datatype, manager)
+        public ValueParameter(Int16 id, IParameterManager manager) : 
+            base (id, manager)
         { }
 
         protected override bool AnyChanged()
         {
-            return base.AnyChanged() || FValueChanged || FDefaultChanged;
-        }
-
-        public abstract void WriteValue(BinaryWriter writer, T value);
-        public abstract T ReadValue(KaitaiStream input);
-
-        protected override void ParseTypeDefinitionOptions(KaitaiStream input)
-        {
-            // get options from the stream
-            while (true)
-            {
-                var code = input.ReadU1();
-                if (code == 0)
-                    break;
-
-                var option = (RcpTypes.NumberOptions)code;
-                if (!Enum.IsDefined(typeof(RcpTypes.NumberOptions), option))
-                    throw new RCPDataErrorException("Parameter parsing: Unknown option: " + option.ToString());
-
-                switch (option)
-                {
-                    case RcpTypes.NumberOptions.Default:
-                        Default = ReadValue(input); break;
-
-                    default:
-                        if (!HandleTypeDefinitionOption(input, code))
-                        {
-                            throw new RCPUnsupportedFeatureException();
-                        }
-                        break;
-                }
-            }
-        }
-
-        protected override void WriteTypeDefinitionOptions(BinaryWriter writer)
-        {
-            base.WriteTypeDefinitionOptions(writer);
-            if (FDefaultChanged)
-            {
-                writer.Write((byte)RcpTypes.NumberOptions.Default);
-                WriteValue(writer, Default);
-                FDefaultChanged = false;
-            }
-        }
-
-        protected override void WriteValue(BinaryWriter writer)
-        {
-            if (FValueChanged)
-            {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                WriteValue(writer, Value);
-                FValueChanged = false;
-            }
-        }
-
-        protected override bool HandleOption(KaitaiStream input, byte code)
-        {
-            var paramOption = (RcpTypes.ParameterOptions)code;
-            switch (paramOption)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = ReadValue(input);
-                    return true;
-            }
-
-            return false;
-        }
-
-        protected virtual bool HandleTypeDefinitionOption(KaitaiStream input, byte code)
-        {
-            var paramOption = (RcpTypes.ParameterOptions)code;
-            switch (paramOption)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = ReadValue(input);
-                    return true;
-            }
-
-            return false;
+            return base.AnyChanged() || FValueChanged;
         }
 
         public override void CopyTo(IParameter other)
@@ -447,12 +374,6 @@ namespace RCP.Parameter
                 var valueParameter = other as ValueParameter<T>;
                 valueParameter.Value = FValue;
                 valueParameter.ValueUpdated?.Invoke(other, FValue);
-            }
-
-            if (FDefaultChanged)
-            {
-                var valueParameter = other as ValueParameter<T>;
-                valueParameter.Default = FDefault;
             }
 
             base.CopyTo(other);

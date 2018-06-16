@@ -44,14 +44,16 @@ namespace RCP
         public INumberParameter<T> CreateNumberParameter<T>(string label = "", IGroupParameter group = null) where T: struct
         {
             IParameter param = null;
-            if (typeof(T) == typeof(float))
-                param = new Float32Parameter(FIdCounter++, this);
-            else if (typeof(T) == typeof(int))
-                param = new Integer32Parameter(FIdCounter++, this);
-            else if (typeof(T) == typeof(Vector2))
-                param = new Vector2f32Parameter(FIdCounter++, this);
-            else if (typeof(T) == typeof(Vector3))
-                param = new Vector3f32Parameter(FIdCounter++, this);
+            //if (typeof(T) == typeof(float))
+            //    param = new Float32Parameter(FIdCounter++, this);
+            //else if (typeof(T) == typeof(int))
+            //    param = new Integer32Parameter(FIdCounter++, this);
+            //else if (typeof(T) == typeof(Vector2))
+            //    param = new Vector2f32Parameter(FIdCounter++, this);
+            //else if (typeof(T) == typeof(Vector3))
+            //    param = new Vector3f32Parameter(FIdCounter++, this);
+
+            param = new NumberParameter<T>(FIdCounter++, this);
 
             param.Label = label;
             AddParameter(param, group);
@@ -67,45 +69,45 @@ namespace RCP
         //    return param;
         //}
 
-        public IStringParameter CreateStringParameter(string label = "", IGroupParameter group = null)
-        {
-            var param = new StringParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
+        //public IStringParameter CreateStringParameter(string label = "", IGroupParameter group = null)
+        //{
+        //    var param = new StringParameter(FIdCounter++, this);
+        //    param.Label = label;
+        //    AddParameter(param, group);
+        //    return param;
+        //}
 
-        public IStringArrayParameter<T> CreateStringArrayParameter<T>(string label, params int[] structure)
-        {
-            var param = new StringArrayParameter<T>(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
-        }
+        //public IStringArrayParameter<T> CreateStringArrayParameter<T>(string label, params int[] structure)
+        //{
+        //    var param = new StringArrayParameter<T>(FIdCounter++, this, structure);
+        //    param.Label = label;
+        //    AddParameter(param);
+        //    return param;
+        //}
 
-        public IEnumParameter CreateEnumParameter(string label = "", IGroupParameter group = null)
-        {
-            var param = new EnumParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
+        //public IEnumParameter CreateEnumParameter(string label = "", IGroupParameter group = null)
+        //{
+        //    var param = new EnumParameter(FIdCounter++, this);
+        //    param.Label = label;
+        //    AddParameter(param, group);
+        //    return param;
+        //}
 
-        public IRGBAParameter CreateRGBAParameter(string label = "", IGroupParameter group = null)
-        {
-            var param = new RGBAParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
+        //public IRGBAParameter CreateRGBAParameter(string label = "", IGroupParameter group = null)
+        //{
+        //    var param = new RGBAParameter(FIdCounter++, this);
+        //    param.Label = label;
+        //    AddParameter(param, group);
+        //    return param;
+        //}
 
-        public IGroupParameter CreateGroup(string label = "", IGroupParameter group = null)
-        {
-            var param = new GroupParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
+        //public IGroupParameter CreateGroup(string label = "", IGroupParameter group = null)
+        //{
+        //    var param = new GroupParameter(FIdCounter++, this);
+        //    param.Label = label;
+        //    AddParameter(param, group);
+        //    return param;
+        //}
 
         public void AddParameter(IParameter param, IGroupParameter group = null)
         {
