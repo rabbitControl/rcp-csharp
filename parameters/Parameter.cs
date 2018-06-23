@@ -207,15 +207,9 @@ namespace RCP.Parameter
                         //parse array definition options
                         //set array definition on array param
 
-
                         var elementType = (RcpTypes.Datatype)input.ReadU1();
                         parameter = (Parameter)RCPClient.CreateArrayParameter(id, elementType, manager);
-                        //parse options of elementType
-                        //parameter.ParseTypeDefinitionOptions(input);
-                        input.ReadU1();
-
-                        //parse options of array
-                        parameter.ParseTypeDefinitionOptions(input);
+                        parameter.TypeDefinition.ParseOptions(input);
                         break;
                     }
 
@@ -345,6 +339,8 @@ namespace RCP.Parameter
             FOrderChanged = FOrder != 0;
             FUserdataChanged = FUserdata.Length != 0;
             FUserIdChanged = FUserId != "";
+
+            TypeDefinition.ResetForInitialize();
         }
     }
 

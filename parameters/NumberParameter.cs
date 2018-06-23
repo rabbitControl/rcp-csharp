@@ -42,8 +42,6 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            TypeDefinition.ResetForInitialize();
-
             FValueChanged = !FValue.Equals(default(T));
         }
 

@@ -37,6 +37,10 @@ namespace RCP
         string Unit { get; set; }
     }
 
+    public interface IStringDefinition : IDefaultDefinition<string>
+    {
+    }
+
     public interface IParameter : IWriteable
     {
         Int16 Id { get; }
@@ -61,6 +65,10 @@ namespace RCP
     }
 
     public interface IArrayParameter<T> : IValueParameter<T>
+    {
+    }
+
+    public interface IArrayDefinition : ITypeDefinition
     {
         int[] Structure { get; set; }
     }

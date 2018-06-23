@@ -8,29 +8,52 @@ namespace RCP.Parameter
 {
     internal class StringParameter : ValueParameter<string>, IStringParameter
     {
+        public StringDefinition StringDefinition => TypeDefinition as StringDefinition;
+
         public StringParameter(Int16 id, IParameterManager manager) : 
-            base (id, RcpTypes.Datatype.String, manager)
+            base (id, manager)
         {
+            TypeDefinition = new StringDefinition();
+
             FValue = "";
-            FDefault = "";
         }
 
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();
 
-            FValueChanged = Value != "";
-            FDefaultChanged = Default != "";
+            FValueChanged = FValue != "";
         }
 
-        public override string ReadValue(KaitaiStream input)
+        protected override void WriteValue(BinaryWriter writer)
         {
-            return new RcpTypes.LongString(input).Data;
+            if (FValueChanged)
+            {
+                writer.Write((byte)RcpTypes.ParameterOptions.Value);
+                StringDefinition.WriteValue(writer, Value);
+                FValueChanged = false;
+            }
         }
 
-        public override void WriteValue(BinaryWriter writer, string value)
+        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
         {
-            RcpTypes.LongString.Write(value, writer);
+            switch (option)
+            {
+                case RcpTypes.ParameterOptions.Value:
+                    Value = StringDefinition.ReadValue(input);
+                    return true;
+            }
+
+            return false;
+        }
+
+        public override void CopyTo(IParameter other)
+        {
+            var param = other as StringParameter;
+
+            TypeDefinition.CopyTo(param.TypeDefinition);
+
+            base.CopyTo(other);
         }
     }
 }

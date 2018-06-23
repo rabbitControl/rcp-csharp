@@ -6,116 +6,134 @@ using System.Numerics;
 using Kaitai;
 
 using RCP.Protocol;
+using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    //public class ArrayDefinition<T> : DefaultDefinition<List<T>>
-    //{
-    //    public DefaultDefinition<T> Subtype { get; private set; }
-    //    public uint Length { get; private set; }
-    //    //        public T Default { get; set; }
+    public class ArrayDefinition<T, E> : DefaultDefinition<T>
+    {
+        public DefaultDefinition<E> ElementDefinition;
 
-    //    public ArrayDefinition(dynamic subtype, uint length)
-    //    : base(RcpTypes.Datatype.FixedArray)
-    //    {
-    //        Subtype = subtype;
-    //        Length = length;
-    //    }
+        protected bool FStructureChanged;
+        private int[] FStructure;
+        public int[] Structure { get { return FStructure; } set { FStructure = value; FStructureChanged = true; } }
 
-    //    public static ITypeDefinition Parse(KaitaiStream input)
-    //    {
-    //        // parse mandatory subtype
-    //        var subtypeDefinition = DefaultDefinition<T>.Parse(input);
+        public ArrayDefinition(DefaultDefinition<E> elementDefinition, int[] structure) : base(RcpTypes.Datatype.Array)
+        {
+            ElementDefinition = elementDefinition;
+            Structure = structure;
+        }
 
-    //        // read mandatory length
-    //        var length = input.ReadU4be();
+        public override void ResetForInitialize()
+        {
+            base.ResetForInitialize();
 
-    //        // create ArrayDefinition
-    //        var arrayDefinition = Create(subtypeDefinition, length);
+            FDefaultChanged = Default != null;
+        }
 
-    //        if (arrayDefinition != null)
-    //        {
-    //            arrayDefinition.ParseOptions(input);
-    //        }
+        protected override void WriteOptions(BinaryWriter writer)
+        {
+            ElementDefinition.Write(writer);
 
-    //        return arrayDefinition;
-    //    }
+            base.WriteOptions(writer);
 
-    //    private static ITypeDefinition Create(ITypeDefinition subtypeDefinition, uint length)
-    //    {
-    //        switch (subtypeDefinition.Datatype)
-    //        {
-    //            case RcpTypes.Datatype.Boolean:
-    //                return new ArrayDefinition<Boolean>(subtypeDefinition, length);
-            	
-    //        	case RcpTypes.Datatype.Enum:
-    //                return new ArrayDefinition<ushort>(subtypeDefinition, length);
+            if (FStructureChanged)
+            {
+                writer.Write((byte)RcpTypes.ArrayOptions.Structure);
+                WriteStructure(writer);
+            }
+        }
 
-    //            case RcpTypes.Datatype.Int32:
-    //                return new ArrayDefinition<int>(subtypeDefinition, length);
-                        
-    //            case RcpTypes.Datatype.Float32:
-    //                return new ArrayDefinition<float>(subtypeDefinition, length);
+        public void WriteStructure(BinaryWriter writer)
+        {
+            var rank = FStructure.Length;
 
-    //            case RcpTypes.Datatype.String:
-    //                return new ArrayDefinition<String>(subtypeDefinition, length);
+            //number of dimensions
+            writer.Write(rank, ByteOrder.BigEndian);
+            //length per dimension
+            for (int i = 0; i < rank; i++)
+                writer.Write(FStructure[i], ByteOrder.BigEndian);
+        }
 
-    //            case RcpTypes.Datatype.Rgba:
-    //                return new ArrayDefinition<Color>(subtypeDefinition, length);
+        public override void ParseOptions(KaitaiStream input)
+        {
+            ElementDefinition.ParseOptions(input);
 
-    //            case RcpTypes.Datatype.Vector2f32:
-    //                return new ArrayDefinition<Vector2>(subtypeDefinition, length);
+            while (true)
+            {
+                var code = input.ReadU1();
+                if (code == 0) // terminator
+                    break;
 
-    //            case RcpTypes.Datatype.Vector3f32:
-    //                return new ArrayDefinition<Vector3>(subtypeDefinition, length);
+                // handle option in specific implementation
+                if (!HandleOption(input, code))
+                {
+                    throw new RCPUnsupportedFeatureException();
+                }
+            }
+        }
 
-    //            //case RcpTypes.Datatype.FixedArray:
-    //            //    return new ArrayDefinition<ArrayDefinition<?>>(
-    //            //            (DefaultDefinition < ArrayDefinition <?>>)_sub_type,
-    //            //                                                   length);
+        protected override bool HandleOption(KaitaiStream input, byte code)
+        {
+            var option = (RcpTypes.ArrayOptions)code;
+            if (!Enum.IsDefined(typeof(RcpTypes.ArrayOptions), option))
+                throw new RCPDataErrorException("Arraydefinition parsing: Unknown option: " + option.ToString());
 
-    //            default:
-    //                break;
-    //        }
+            switch (option)
+            {
+                case RcpTypes.ArrayOptions.Default:
+                    FDefault = ReadValue(input);
+                    return true;
 
-    //        return null;
-    //    }
+                case RcpTypes.ArrayOptions.Structure:
+                    Structure = ReadStructure(input);
+                    return true;
+            }
 
-    //    public override List<T> ReadValue(KaitaiStream input)
-    //    {
-    //        var value = new List<T>();
-    //        for (int i = 0; i < Length; i++)
-    //            value.Add(Subtype.ReadValue(input));
+            return false;
+        }
 
-    //        return value;
-    //    }
+        private int[] ReadStructure(KaitaiStream input)
+        {
+            var rank = input.ReadS4be();
+            var dimensions = new int[rank];
 
-    //    public override void WriteValue(BinaryWriter writer, List<T> value)
-    //    {
-    //        foreach (var v in value)
-    //            Subtype.WriteValue(writer, v);
-    //    }
+            for (int i = 0; i < rank; i++)
+                dimensions[i] = input.ReadS4be();
 
-    //    public override void Write(BinaryWriter writer)
-    //    {
-    //        writer.Write((byte)Datatype);
+            return dimensions;
+        }
 
-    //        // write subtype
-    //        Subtype.Write(writer);
+        public override T ReadValue(KaitaiStream input)
+        {
+            FStructure = ReadStructure(input);
 
-    //        // write length (4byte)
-    //        writer.Write(Length, ByteOrder.BigEndian);
+            var a = Array.CreateInstance(typeof(E), FStructure[0]);
 
-    //        // write options
-    //        if (Default != null)
-    //        {
-    //            writer.Write((byte)RcpTypes.FixedArrayOptions.Default);
-    //            WriteValue(writer, Default);
-    //        }
+            //TODO: support multiple dimensions
+            for (int i = 0; i < FStructure[0]; i++)
+            {
+                a.SetValue((E)ElementDefinition.ReadValue(input), i);
+            }
 
-    //        //terminate
-    //        writer.Write((byte)0);
-    //    }
-    //}
+            return (T)(object)a;
+        }
+
+        public override void WriteValue(BinaryWriter writer, T value)
+        {
+            WriteStructure(writer);
+
+            var a = value as Array;
+            var rank = 1;//a.Rank;
+
+            //TODO: support multiple dimensions
+            for (int i = 0; i < rank; i++)
+            {
+                var l = a.GetLength(i);
+                for (int j = 0; j < l; j++)
+                    ElementDefinition.WriteValue(writer, (E)a.GetValue(j));
+            }
+        }
+    }
 }
 

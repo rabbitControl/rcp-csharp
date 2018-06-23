@@ -69,21 +69,21 @@ namespace RCP
         //    return param;
         //}
 
-        //public IStringParameter CreateStringParameter(string label = "", IGroupParameter group = null)
-        //{
-        //    var param = new StringParameter(FIdCounter++, this);
-        //    param.Label = label;
-        //    AddParameter(param, group);
-        //    return param;
-        //}
+        public IStringParameter CreateStringParameter(string label = "", IGroupParameter group = null)
+        {
+            var param = new StringParameter(FIdCounter++, this);
+            param.Label = label;
+            AddParameter(param, group);
+            return param;
+        }
 
-        //public IStringArrayParameter<T> CreateStringArrayParameter<T>(string label, params int[] structure)
-        //{
-        //    var param = new StringArrayParameter<T>(FIdCounter++, this, structure);
-        //    param.Label = label;
-        //    AddParameter(param);
-        //    return param;
-        //}
+        public IStringArrayParameter<T> CreateStringArrayParameter<T>(string label, params int[] structure)
+        {
+            var param = new StringArrayParameter<T>(FIdCounter++, this, structure);
+            param.Label = label;
+            AddParameter(param);
+            return param;
+        }
 
         //public IEnumParameter CreateEnumParameter(string label = "", IGroupParameter group = null)
         //{
@@ -140,11 +140,17 @@ namespace RCP
 		
         public Action<Exception> OnError;
 
+        public Action<string> Log;
 
         public IParameter GetParameter(Int16 id)
 		{
 			return FParams[id];
 		}
+		
+		//public IEnumerable<IParameter> GetParametersByParent(Int16 id)
+		//{
+		//	return FParams.Values.Where(p => p.Parent.HasValue ? p.Parent.Value == id : false);
+		//}
 
         public int ConnectionCount => FTransporters.Sum(t => t.ConnectionCount);
 		
@@ -181,6 +187,7 @@ namespace RCP
 		        switch (packet.Command)
 		        {
 			        case RcpTypes.Command.Update:
+                        Log?.Invoke("received update");
                         if (FParams.ContainsKey(packet.Data.Id))
                         {
                             (packet.Data as Parameter.Parameter).CopyTo(FParams[packet.Data.Id]);
@@ -197,6 +204,7 @@ namespace RCP
                         break;
 
                     case RcpTypes.Command.Initialize:
+                        Log?.Invoke("received init");
 				        //client requests all parameters
 				        foreach (var param in FParams.Values)
                         {
@@ -217,6 +225,7 @@ namespace RCP
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
             {
+                Log?.Invoke("sending to multiple");
                 packet.Write(writer);
                 var bytes = stream.ToArray();
             	foreach (var transporter in FTransporters)
@@ -229,6 +238,7 @@ namespace RCP
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
             {
+                Log?.Invoke("sending to one");
                 packet.Write(writer);
                 var bytes = stream.ToArray();
                 foreach (var transporter in FTransporters)

@@ -11,27 +11,32 @@ namespace RCP.Parameter
     {
         protected bool FMinimumChanged;
         private T FMinimum;
-        public T Minimum { get { return FMinimum; } set { FMinimum = value; FMinimumChanged = true; } }
+        public T Minimum { get { return FMinimum; } set { FMinimumChanged = !FMinimum.Equals(value); FMinimum = value; } }
 
         protected bool FMaximumChanged;
         private T FMaximum;
-        public T Maximum { get { return FMaximum; } set { FMaximum = value; FMaximumChanged = true; } }
+        public T Maximum { get { return FMaximum; } set { FMaximumChanged = !FMaximum.Equals(value); FMaximum = value; } }
 
         protected bool FMultipleOfChanged;
         protected T FMultipleOf;
-        public T MultipleOf { get { return FMultipleOf; } set { FMultipleOf = value; FMultipleOfChanged = true; } }
+        public T MultipleOf { get { return FMultipleOf; } set { FMultipleOfChanged = !FMultipleOf.Equals(value); FMultipleOf = value; } }
 
         private bool FScaleChanged;
         private RcpTypes.NumberScale FScale;
-        public RcpTypes.NumberScale Scale { get { return FScale; } set { FScale = value; FScaleChanged = true; } }
+        public RcpTypes.NumberScale Scale { get { return FScale; } set { FScaleChanged = !FScale.Equals(value); FScale = value; } }
 
         private bool FUnitChanged;
         private string FUnit = "";
-        public string Unit { get { return FUnit; } set { FUnit = value; FUnitChanged = true; } }
+        public string Unit { get { return FUnit; } set { FUnitChanged = !FUnit.Equals(value); FUnit = value; } }
 
         public NumberDefinition(RcpTypes.Datatype datatype)
         : base(datatype)
         { }
+
+        public override bool AnyChanged()
+        {
+            return FMinimumChanged || FMaximumChanged || FMultipleOfChanged || FScaleChanged || FUnitChanged;
+        }
 
         public override void ResetForInitialize()
         {
@@ -121,11 +126,6 @@ namespace RCP.Parameter
             }
 
             return false;
-        }
-
-        public override bool AnyChanged()
-        {
-            return FMinimumChanged || FMaximumChanged || FMultipleOfChanged || FScaleChanged || FUnitChanged;
         }
 
         public override void CopyTo(ITypeDefinition other)

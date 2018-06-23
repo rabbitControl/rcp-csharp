@@ -137,7 +137,10 @@
     <Compile Include="model\Interfaces.cs" />
     <Compile Include="model\Widget.cs" />
     <Compile Include="model\Model.cs" />
+    <Compile Include="parameters\ArrayParameter.cs" />
     <Compile Include="parameters\GroupParameter.cs" />
+    <Compile Include="parameters\StringArrayParameter.cs" />
+    <Compile Include="parameters\StringParameter.cs" />
     <Compile Include="protocol\Packet.cs" />
     <Compile Include="parameters\Parameter.cs" />
     <Compile Include="parameters\NumberParameter.cs" />
@@ -155,6 +158,7 @@
     <Compile Include="typedefinitions\Float32Definition.cs" />
     <Compile Include="typedefinitions\Integer32Definition.cs" />
     <Compile Include="typedefinitions\NumberDefinition.cs" />
+    <Compile Include="typedefinitions\StringDefinition.cs" />
     <Compile Include="typedefinitions\TypeDefinition.cs" />
   </ItemGroup>
   <ItemGroup>

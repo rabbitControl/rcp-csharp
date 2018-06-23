@@ -85,8 +85,8 @@ namespace RCP
                 case RcpTypes.Datatype.Float32:
                     return new NumberParameter<float>(id, manager);
 
-                //case RcpTypes.Datatype.String:
-                //    return new StringParameter(id, manager);
+                case RcpTypes.Datatype.String:
+                    return new StringParameter(id, manager);
 
                 //case RcpTypes.Datatype.Uri:
                 //    return new UriParameter(id, manager);
@@ -113,8 +113,8 @@ namespace RCP
         {
             switch (elementType)
             {
-                //case RcpTypes.Datatype.String:
-                //    return new StringArrayParameter<string[]>(id, manager);
+                case RcpTypes.Datatype.String:
+                    return new StringArrayParameter<string[]>(id, manager);
 
                 default: throw new RCPUnsupportedFeatureException();
             }

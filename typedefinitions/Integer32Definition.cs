@@ -9,7 +9,11 @@ namespace RCP.Parameter
     {
         public Integer32Definition()
         : base(RcpTypes.Datatype.Int32)
-        { }
+        {
+            Minimum = int.MinValue;
+            Maximum = int.MaxValue;
+            MultipleOf = 1;
+        }
 
         public override void ResetForInitialize()
         {
@@ -17,8 +21,8 @@ namespace RCP.Parameter
 
             FDefaultChanged = Default != 0;
 
-            FMinimumChanged = Minimum != -99999;
-            FMaximumChanged = Maximum != 99999;
+            FMinimumChanged = Minimum != int.MinValue;
+            FMaximumChanged = Maximum != int.MaxValue;
             FMultipleOfChanged = MultipleOf != 1;
         }
 

@@ -8,75 +8,42 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    internal class StringArrayParameter<T> : ArrayParameter<T>, IStringArrayParameter<T>
+    internal class StringArrayParameter<T> : ArrayParameter<T, string>, IStringArrayParameter<T>
     {
+        public StringDefinition StringDefinition => ArrayDefinition.ElementDefinition as StringDefinition;
+
         public StringArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
             base(id, RcpTypes.Datatype.String, manager, structure)
         {
+            TypeDefinition = new ArrayDefinition<T, string>(new StringDefinition(), structure);
         }
 
-        public override T ReadValue(KaitaiStream input)
+        public override void ResetForInitialize()
         {
-            var dimCount = input.ReadS4be();
-            var elementCount = 0;
-            var dimensions = new int[dimCount];
-            for (int i = 0; i < dimCount; i++)
-            {
-                dimensions[i] = input.ReadS4be();
-                elementCount += dimensions[i];
-            }
+            base.ResetForInitialize();
 
-            var a = Array.CreateInstance(typeof(string), dimensions);
-
-            //TODO: support multiple dimensions
-            for (int i=0; i<elementCount; i++)
-            {
-                a.SetValue(new RcpTypes.LongString(input).Data, i);
-            }
-
-            return (T)(object)a;
+            //FValueChanged = FValue != "";
         }
 
-        public override void WriteValue(BinaryWriter writer, T value)
+        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
         {
-            base.WriteValue(writer, value);            
-
-            var a = value as Array;
-            var rank = 1;//a.Rank;
-
-            //TODO: support multiple dimensions
-            for (int i=0; i<rank; i++)
+            switch (option)
             {
-                var l = a.GetLength(i);
-                for (int j=0; j<l; j++)
-                    RcpTypes.LongString.Write((string)a.GetValue(j), writer);
+                case RcpTypes.ParameterOptions.Value:
+                    Value = ArrayDefinition.ReadValue(input);
+                    return true;
             }
+
+            return false;
         }
 
-        //protected override void WriteTypeDefinitionOptions(BinaryWriter writer)
-        //{
-        //    writer.Write((byte)FElementType);
-        //    base.WriteTypeDefinitionOptions(writer);
-        //    writer.Write((byte)0);
+        public override void CopyTo(IParameter other)
+        {
+            var param = other as StringParameter;
 
-        //    // write length (4byte)
-        //    writer.Write(FValue.Length, ByteOrder.BigEndian);
-        //}
+            TypeDefinition.CopyTo(param.TypeDefinition);
 
-        //protected override bool HandleTypeDefinitionOption(KaitaiStream input, byte code)
-        //{
-        //    var option = (RcpTypes.ArrayOptions)code;
-        //    if (!Enum.IsDefined(typeof(RcpTypes.ArrayOptions), option))
-        //        throw new RCPDataErrorException("Arraydefinition parsing: Unknown option: " + option.ToString());
-
-        //    switch (option)
-        //    {
-        //        case RcpTypes.ArrayOptions.Default:
-        //            Default = ReadValue(input);
-        //            return true;
-        //    }
-
-        //    return false;
-        //}
+            base.CopyTo(other);
+        }
     }
 }

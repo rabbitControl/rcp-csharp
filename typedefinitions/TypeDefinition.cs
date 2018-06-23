@@ -15,8 +15,11 @@ namespace RCP.Parameter
         {
             Datatype = datatype;
         }
+        
+        public abstract void CopyTo(ITypeDefinition other);
 
-        public abstract void ResetForInitialize();
+        public virtual void ResetForInitialize()
+        { }
 
         public virtual void Write(BinaryWriter writer)
         {
@@ -29,6 +32,11 @@ namespace RCP.Parameter
             writer.Write((byte)0);
         }
 
+        public virtual bool AnyChanged()
+        {
+            return false;
+        }
+
         protected virtual void WriteOptions(BinaryWriter writer)
         { }
 
@@ -37,7 +45,7 @@ namespace RCP.Parameter
             return false;
         }
 
-        public void ParseOptions(KaitaiStream input)
+        public virtual void ParseOptions(KaitaiStream input)
         {
             while (true)
             {
@@ -52,17 +60,17 @@ namespace RCP.Parameter
                 }
             }
         }
-
-        public abstract bool AnyChanged();
-        
-        public abstract void CopyTo(ITypeDefinition other);
     }
 
     public abstract class DefaultDefinition<T>: TypeDefinition, IDefaultDefinition<T>
     {
         protected bool FDefaultChanged;
-        private T FDefault;
-        public T Default { get { return FDefault; } set { FDefault = value; FDefaultChanged = true; } }
+        protected T FDefault;
+        public T Default { get { return FDefault; }
+            set {
+                FDefaultChanged = !FDefault?.Equals(value) ?? value != null;
+                FDefault = value;
+            } }
 
         public DefaultDefinition(RcpTypes.Datatype datatype) : base(datatype)
         { }
