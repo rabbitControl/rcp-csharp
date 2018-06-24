@@ -138,9 +138,14 @@
     <Compile Include="model\Widget.cs" />
     <Compile Include="model\Model.cs" />
     <Compile Include="parameters\ArrayParameter.cs" />
+    <Compile Include="parameters\BooleanParameter.cs" />
+    <Compile Include="parameters\EnumParameter.cs" />
     <Compile Include="parameters\GroupParameter.cs" />
+    <Compile Include="parameters\RGBAParameter.cs" />
+    <Compile Include="parameters\NumberArrayParameter.cs" />
     <Compile Include="parameters\StringArrayParameter.cs" />
     <Compile Include="parameters\StringParameter.cs" />
+    <Compile Include="parameters\UriParameter.cs" />
     <Compile Include="protocol\Packet.cs" />
     <Compile Include="parameters\Parameter.cs" />
     <Compile Include="parameters\NumberParameter.cs" />
@@ -156,8 +161,15 @@
     <Compile Include="transport\UDPTransporter.cs" />
     <Compile Include="transport\WebsocketServerTransporter.cs" />
     <Compile Include="typedefinitions\Float32Definition.cs" />
+    <Compile Include="typedefinitions\Vector4f32Definition.cs" />
+    <Compile Include="typedefinitions\Vector3f32Definition.cs" />
+    <Compile Include="typedefinitions\Vector2f32Definition.cs" />
     <Compile Include="typedefinitions\Integer32Definition.cs" />
+    <Compile Include="typedefinitions\EnumDefinition.cs" />
+    <Compile Include="typedefinitions\BooleanDefinition.cs" />
+    <Compile Include="typedefinitions\UriDefinition.cs" />
     <Compile Include="typedefinitions\NumberDefinition.cs" />
+    <Compile Include="typedefinitions\RGBADefinition.cs" />
     <Compile Include="typedefinitions\StringDefinition.cs" />
     <Compile Include="typedefinitions\TypeDefinition.cs" />
   </ItemGroup>

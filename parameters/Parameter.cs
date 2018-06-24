@@ -299,6 +299,8 @@ namespace RCP.Parameter
 
         public virtual void CopyTo(IParameter other)
         {
+            TypeDefinition.CopyTo(other.TypeDefinition);
+
             if (FParentIdChanged)
                 FParentId = other.ParentId;
 
@@ -372,6 +374,7 @@ namespace RCP.Parameter
                 valueParameter.ValueUpdated?.Invoke(other, FValue);
             }
 
+            //last, because this also fires the Update event
             base.CopyTo(other);
         }
     }

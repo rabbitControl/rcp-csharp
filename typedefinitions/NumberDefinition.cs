@@ -119,10 +119,6 @@ namespace RCP.Parameter
                 case RcpTypes.NumberOptions.Unit:
                     Unit = new RcpTypes.TinyString(input).Data;
                     return true;
-
-                    //            	default:
-                    //                	// not a number data id!!
-                    //                	throw new RCPDataErrorException();
             }
 
             return false;

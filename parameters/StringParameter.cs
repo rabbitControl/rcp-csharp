@@ -46,14 +46,5 @@ namespace RCP.Parameter
 
             return false;
         }
-
-        public override void CopyTo(IParameter other)
-        {
-            var param = other as StringParameter;
-
-            TypeDefinition.CopyTo(param.TypeDefinition);
-
-            base.CopyTo(other);
-        }
     }
 }

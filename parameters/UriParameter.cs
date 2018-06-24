@@ -3,32 +3,25 @@ using Kaitai;
 
 using RCP.Protocol;
 using System.IO;
-using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
     internal class UriParameter : ValueParameter<string>, IUriParameter
     {
-        private bool FSchemaChanged;
-        private string FSchema;
-        public string Schema { get { return FSchema; } set { FSchema = value; FSchemaChanged = true; SetDirty(); } }
+        public UriDefinition UriDefinition => TypeDefinition as UriDefinition;
 
-        private bool FFilterChanged;
-        private string FFilter;
-        public string Filter { get { return FFilter; } set { FFilter = value; FFilterChanged = true; SetDirty(); } }
+        public string Schema { get { return UriDefinition.Schema; } set { UriDefinition.Schema = value; SetDirty(); } }
+        public string Filter { get { return UriDefinition.Filter; } set { UriDefinition.Filter = value; SetDirty(); } }
 
         public UriParameter(Int16 id, IParameterManager manager) : 
-            base (id, RcpTypes.Datatype.Uri, manager)
+            base (id, manager)
         {
-            FValue = "";
-            FDefault = "";
-            FSchema = "file";
-            FFilter = "";
-        }
+            TypeDefinition = new UriDefinition();
 
-        protected override bool AnyChanged()
-        {
-            return base.AnyChanged() || FSchemaChanged || FFilterChanged;
+            Value = "";
+            Default = "";
+            Schema = "file";
+            Filter = "";
         }
 
         public override void ResetForInitialize()
@@ -36,71 +29,28 @@ namespace RCP.Parameter
             base.ResetForInitialize();
 
             FValueChanged = Value != "";
-            FDefaultChanged = Default != "";
-            FSchemaChanged = FSchema != "";
-            FFilterChanged = FFilter != "";
         }
 
-        public override string ReadValue(KaitaiStream input)
+        protected override void WriteValue(BinaryWriter writer)
         {
-            return new RcpTypes.LongString(input).Data;
-        }
-
-        public override void WriteValue(BinaryWriter writer, string value)
-        {
-            RcpTypes.LongString.Write(value, writer);
-        }
-
-        protected override void WriteTypeDefinitionOptions(BinaryWriter writer)
-        {
-            base.WriteTypeDefinitionOptions(writer);
-
-            if (FSchemaChanged)
+            if (FValueChanged)
             {
-                writer.Write((byte)RcpTypes.UriOptions.Schema);
-                writer.Write(Schema);
-                FSchemaChanged = false;
-            }
-
-            if (FFilterChanged)
-            {
-                writer.Write((byte)RcpTypes.UriOptions.Filter);
-                writer.Write(Filter);
-                FFilterChanged = false;
+                writer.Write((byte)RcpTypes.ParameterOptions.Value);
+                UriDefinition.WriteValue(writer, Value);
+                FValueChanged = false;
             }
         }
 
-        protected override bool HandleTypeDefinitionOption(KaitaiStream input, byte code)
+        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
         {
-            var option = (RcpTypes.UriOptions)code;
-            if (!Enum.IsDefined(typeof(RcpTypes.UriOptions), option))
-                throw new RCPDataErrorException("UriDefinition parsing: Unknown option: " + option.ToString());
-
             switch (option)
             {
-                case RcpTypes.UriOptions.Schema:
-                    Schema = new RcpTypes.TinyString(input).Data;
-                    return true;
-
-                case RcpTypes.UriOptions.Filter:
-                    Filter = new RcpTypes.TinyString(input).Data;
+                case RcpTypes.ParameterOptions.Value:
+                    Value = UriDefinition.ReadValue(input);
                     return true;
             }
 
             return false;
-        }
-
-        public override void CopyTo(IParameter other)
-        {
-            var param = other as UriParameter;
-
-            if (FSchemaChanged)
-                param.Schema = FSchema;
-
-            if (FFilterChanged)
-                param.Filter = FFilter;
-
-            base.CopyTo(other);
         }
     }
 }

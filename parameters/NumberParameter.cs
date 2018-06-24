@@ -5,6 +5,7 @@ using Kaitai;
 using RCP.Protocol;
 using RCP;
 using RCP.Exceptions;
+using System.Numerics;
 
 namespace RCP.Parameter
 {
@@ -25,17 +26,12 @@ namespace RCP.Parameter
                 TypeDefinition = new Float32Definition() as NumberDefinition<T>;
             else if (typeof(T) == typeof(int))
                 TypeDefinition = new Integer32Definition() as NumberDefinition<T>;
-            //else if (typeof(T) == typeof(Vector2))
-            //    param = new Vector2f32Parameter(FIdCounter++, this);
-            //else if (typeof(T) == typeof(Vector3))
-            //    param = new Vector3f32Parameter(FIdCounter++, this);
-
-            //TypeDefinition = new Integer32Definition() as NumberDefinition<T>;
-        }
-
-        protected override bool AnyChanged()
-        {
-            return base.AnyChanged() || TypeDefinition.AnyChanged();
+            else if (typeof(T) == typeof(Vector2))
+                TypeDefinition = new Vector2f32Definition() as NumberDefinition<T>;
+            else if (typeof(T) == typeof(Vector3))
+                TypeDefinition = new Vector3f32Definition() as NumberDefinition<T>;
+            else if (typeof(T) == typeof(Vector4))
+                TypeDefinition = new Vector4f32Definition() as NumberDefinition<T>;
         }
 
         public override void ResetForInitialize()
@@ -65,15 +61,6 @@ namespace RCP.Parameter
             }
 
             return false;
-        }
-
-        public override void CopyTo(IParameter other)
-        {
-            var param = other as NumberParameter<T>;
-
-            TypeDefinition.CopyTo(param.TypeDefinition);
-
-            base.CopyTo(other);
         }
     }
 }

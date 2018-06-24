@@ -73,11 +73,11 @@ namespace RCP
         {
             switch (datatype)
             {
-                //case RcpTypes.Datatype.Boolean:
-                //    return new BooleanParameter(id, manager);
+                case RcpTypes.Datatype.Boolean:
+                    return new BooleanParameter(id, manager);
 
-                //case RcpTypes.Datatype.Enum:
-                //    return new EnumParameter(id, manager);
+                case RcpTypes.Datatype.Enum:
+                    return new EnumParameter(id, manager);
 
                 case RcpTypes.Datatype.Int32:
                     return new NumberParameter<int>(id, manager);
@@ -88,23 +88,25 @@ namespace RCP
                 case RcpTypes.Datatype.String:
                     return new StringParameter(id, manager);
 
-                //case RcpTypes.Datatype.Uri:
-                //    return new UriParameter(id, manager);
+                case RcpTypes.Datatype.Uri:
+                    return new UriParameter(id, manager);
 
-                //case RcpTypes.Datatype.Rgba:
-                //    return new RGBAParameter(id, manager);
+                case RcpTypes.Datatype.Rgba:
+                    return new RGBAParameter(id, manager);
 
-                //case RcpTypes.Datatype.Vector2f32:
-                //    return new Vector2f32Parameter(id, manager);
+                case RcpTypes.Datatype.Vector2f32:
+                    return new NumberParameter<Vector2>(id, manager);
 
-                //case RcpTypes.Datatype.Vector3f32:
-                //    return new Vector3f32Parameter(id, manager);
+                case RcpTypes.Datatype.Vector3f32:
+                    return new NumberParameter<Vector3>(id, manager);
+
+                case RcpTypes.Datatype.Vector4f32:
+                    return new NumberParameter<Vector4>(id, manager);
 
                 //case RcpTypes.Datatype.Group:
                 //    return new GroupParameter(id, manager);
 
                 default: throw new RCPUnsupportedFeatureException();
-                    //group
                     //array
             }
         }
@@ -115,6 +117,18 @@ namespace RCP
             {
                 case RcpTypes.Datatype.String:
                     return new StringArrayParameter<string[]>(id, manager);
+
+                case RcpTypes.Datatype.Int32:
+                    return new NumberArrayParameter<int[], int>(id, manager);
+
+                case RcpTypes.Datatype.Float32:
+                    return new NumberArrayParameter<float[], float>(id, manager);
+
+                case RcpTypes.Datatype.Vector2f32:
+                    return new NumberArrayParameter<Vector2[], Vector2>(id, manager);
+
+                case RcpTypes.Datatype.Vector3f32:
+                    return new NumberArrayParameter<Vector3[], Vector3>(id, manager);
 
                 default: throw new RCPUnsupportedFeatureException();
             }

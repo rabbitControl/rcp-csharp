@@ -8,26 +8,41 @@ namespace RCP.Parameter
 {
     internal class BooleanParameter : ValueParameter<bool>, IBooleanParameter
     {
+        public BooleanDefinition BooleanDefinition => TypeDefinition as BooleanDefinition;
+
         public BooleanParameter(Int16 id, IParameterManager manager) : 
-            base (id, RcpTypes.Datatype.Boolean, manager)
-        { }
+            base (id, manager)
+        {
+            TypeDefinition = new BooleanDefinition();
+        }
 
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();
 
             FValueChanged = Value != false;
-            FDefaultChanged = Default != false;
         }
 
-        public override bool ReadValue(KaitaiStream input)
+        protected override void WriteValue(BinaryWriter writer)
         {
-            return input.ReadU1() > 0;
+            if (FValueChanged)
+            {
+                writer.Write((byte)RcpTypes.ParameterOptions.Value);
+                BooleanDefinition.WriteValue(writer, Value);
+                FValueChanged = false;
+            }
         }
 
-        public override void WriteValue(BinaryWriter writer, bool value)
+        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
         {
-            writer.Write(value, ByteOrder.BigEndian);
+            switch (option)
+            {
+                case RcpTypes.ParameterOptions.Value:
+                    Value = BooleanDefinition.ReadValue(input);
+                    return true;
+            }
+
+            return false;
         }
     }
 }

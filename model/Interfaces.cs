@@ -28,6 +28,10 @@ namespace RCP
         void WriteValue(BinaryWriter writer, T value);
     }
 
+    public interface IBoolDefinition : IDefaultDefinition<bool>
+    {
+    }
+
     public interface INumberDefinition<T> : IDefaultDefinition<T> where T : struct
     {
         T Minimum { get; set; }
@@ -39,6 +43,26 @@ namespace RCP
 
     public interface IStringDefinition : IDefaultDefinition<string>
     {
+    }
+
+    public interface IRGBADefinition : IDefaultDefinition<Color>
+    {
+    }
+
+    public interface IUriDefinition : IDefaultDefinition<string>
+    {
+        string Schema { get; set; }
+        string Filter { get; set; }
+    }
+
+    public interface IEnumDefinition : IDefaultDefinition<string>
+    {
+        string[] Entries { get; set; }
+    }
+
+    public interface IArrayDefinition : ITypeDefinition
+    {
+        int[] Structure { get; set; }
     }
 
     public interface IParameter : IWriteable
@@ -64,17 +88,17 @@ namespace RCP
         event EventHandler<T> ValueUpdated;
     }
 
-    public interface IArrayParameter<T> : IValueParameter<T>
-    {
-    }
-
-    public interface IArrayDefinition : ITypeDefinition
-    {
-        int[] Structure { get; set; }
-    }
-
     public interface IBooleanParameter : IValueParameter<bool>
     {
+    }
+
+    public interface INumberParameter<T> : IValueParameter<T> where T : struct
+    {
+        T Minimum { get; set; }
+        T Maximum { get; set; }
+        T MultipleOf { get; set; }
+        RcpTypes.NumberScale Scale { get; set; }
+        string Unit { get; set; }
     }
 
     public interface IEnumParameter : IValueParameter<string>
@@ -83,10 +107,6 @@ namespace RCP
     }
 
     public interface IStringParameter : IValueParameter<string>
-    {
-    }
-
-    public interface IStringArrayParameter<T> : IArrayParameter<T> 
     {
     }
 
@@ -100,13 +120,16 @@ namespace RCP
     {
     }
 
-    public interface INumberParameter<T> : IValueParameter<T> where T : struct
+    public interface IArrayParameter<T> : IValueParameter<T>
     {
-        T Minimum { get; set; }
-        T Maximum { get; set; }
-        T MultipleOf { get; set; }
-        RcpTypes.NumberScale Scale { get; set; }
-        string Unit { get; set; }
+    }
+
+    public interface INumberArrayParameter<T, E> : IArrayParameter<T>
+    {
+    }
+
+    public interface IStringArrayParameter<T> : IArrayParameter<T> 
+    {
     }
 
     public interface IGroupParameter: IParameter

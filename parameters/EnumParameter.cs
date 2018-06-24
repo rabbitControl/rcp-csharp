@@ -10,17 +10,15 @@ namespace RCP.Parameter
 {
     internal class EnumParameter : ValueParameter<string>, IEnumParameter
     {
-        private bool FEntriesChanged;
-        private string[] FEntries;
-        public string[] Entries { get { return FEntries; } set { FEntries = value; FEntriesChanged = true; SetDirty(); } }
+        public EnumDefinition EnumDefinition => TypeDefinition as EnumDefinition;
+
+        public string[] Entries { get { return EnumDefinition.Entries; } set { EnumDefinition.Entries = value; SetDirty(); } }
+        public bool MultiSelect { get { return EnumDefinition.MultiSelect; } set { EnumDefinition.MultiSelect = value; SetDirty(); } }
 
         public EnumParameter(Int16 id, IParameterManager manager) : 
-            base (id, RcpTypes.Datatype.Enum, manager)
-        { }
-
-        protected override bool AnyChanged()
+            base (id, manager)
         {
-            return base.AnyChanged() || FEntriesChanged;
+            TypeDefinition = new EnumDefinition();
         }
 
         public override void ResetForInitialize()
@@ -28,63 +26,28 @@ namespace RCP.Parameter
             base.ResetForInitialize();
 
             FValueChanged = Value != "";
-            FDefaultChanged = Default != "";
-            FEntriesChanged = FEntries.Length != 0;
         }
 
-        public override string ReadValue(KaitaiStream input)
+        protected override void WriteValue(BinaryWriter writer)
         {
-            return new RcpTypes.TinyString(input).Data;
-        }
-
-        public override void WriteValue(BinaryWriter writer, string value)
-        {
-            RcpTypes.TinyString.Write(value, writer);
-        }
-
-        protected override void WriteTypeDefinitionOptions(BinaryWriter writer)
-        {
-            base.WriteTypeDefinitionOptions(writer);
-
-            if (FEntriesChanged)
+            if (FValueChanged)
             {
-                writer.Write((byte)RcpTypes.EnumOptions.Entries);
-                foreach (var entry in Entries)
-                    RcpTypes.TinyString.Write(entry, writer);
-                writer.Write((byte)0);
-
-                FEntriesChanged = false;
+                writer.Write((byte)RcpTypes.ParameterOptions.Value);
+                EnumDefinition.WriteValue(writer, Value);
+                FValueChanged = false;
             }
         }
 
-        protected override bool HandleTypeDefinitionOption(KaitaiStream input, byte code)
+        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
         {
-            var option = (RcpTypes.EnumOptions)code;
-            if (!Enum.IsDefined(typeof(RcpTypes.EnumOptions), option))
-                throw new RCPDataErrorException("EnumDefinition parsing: Unknown option: " + option.ToString());
-
             switch (option)
             {
-                case RcpTypes.EnumOptions.Entries:
-                    var entries = new List<string>();
-                    while (input.PeekChar() > 0)
-                        entries.Add(new RcpTypes.TinyString(input).Data);
-                    input.ReadByte(); //0 terminator
-                    Entries = entries.ToArray();
+                case RcpTypes.ParameterOptions.Value:
+                    Value = EnumDefinition.ReadValue(input);
                     return true;
             }
 
             return false;
-        }
-
-        public override void CopyTo(IParameter other)
-        {
-            var param = other as EnumParameter;
-
-            if (FEntriesChanged)
-                param.Entries = FEntries;
-
-            base.CopyTo(other);
         }
     }
 }

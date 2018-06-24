@@ -9,33 +9,43 @@ namespace RCP.Parameter
 {
     internal class RGBAParameter : ValueParameter<Color>, IRGBAParameter
     {
-		public RGBAParameter(Int16 id, IParameterManager manager) : 
-            base (id, RcpTypes.Datatype.Rgba, manager)
-        { }
+        public RGBADefinition RGBADefinition => TypeDefinition as RGBADefinition;
+
+        public RGBAParameter(Int16 id, IParameterManager manager) : 
+            base (id, manager)
+        {
+            TypeDefinition = new RGBADefinition();
+
+            FValue = Color.Black;
+        }
 
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();
 
             FValueChanged = Value != Color.Black;
-            FDefaultChanged = Default != Color.Black;
         }
 
-        public override Color ReadValue(KaitaiStream input)
+        protected override void WriteValue(BinaryWriter writer)
         {
-            var a = input.ReadU1();
-            var b = input.ReadU1();
-            var g = input.ReadU1();
-            var r = input.ReadU1();
-            return Color.FromArgb(a, r, g, b);
+            if (FValueChanged)
+            {
+                writer.Write((byte)RcpTypes.ParameterOptions.Value);
+                RGBADefinition.WriteValue(writer, Value);
+                FValueChanged = false;
+            }
         }
 
-        public override void WriteValue(BinaryWriter writer, Color value)
+        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
         {
-            writer.Write((byte)value.A);
-            writer.Write((byte)value.B);
-            writer.Write((byte)value.G);
-            writer.Write((byte)value.R);
+            switch (option)
+            {
+                case RcpTypes.ParameterOptions.Value:
+                    Value = RGBADefinition.ReadValue(input);
+                    return true;
+            }
+
+            return false;
         }
     }
 }
