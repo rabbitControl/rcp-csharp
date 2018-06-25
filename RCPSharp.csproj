@@ -161,6 +161,7 @@
     <Compile Include="transport\UDPTransporter.cs" />
     <Compile Include="transport\WebsocketServerTransporter.cs" />
     <Compile Include="typedefinitions\Float32Definition.cs" />
+    <Compile Include="typedefinitions\GroupDefinition.cs" />
     <Compile Include="typedefinitions\Vector4f32Definition.cs" />
     <Compile Include="typedefinitions\Vector3f32Definition.cs" />
     <Compile Include="typedefinitions\Vector2f32Definition.cs" />

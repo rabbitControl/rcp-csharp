@@ -103,8 +103,8 @@ namespace RCP
                 case RcpTypes.Datatype.Vector4f32:
                     return new NumberParameter<Vector4>(id, manager);
 
-                //case RcpTypes.Datatype.Group:
-                //    return new GroupParameter(id, manager);
+                case RcpTypes.Datatype.Group:
+                    return new GroupParameter(id, manager);
 
                 default: throw new RCPUnsupportedFeatureException();
                     //array

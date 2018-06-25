@@ -90,13 +90,13 @@ namespace RCP
             return param;
         }
 
-        //public IGroupParameter CreateGroup(string label = "", IGroupParameter group = null)
-        //{
-        //    var param = new GroupParameter(FIdCounter++, this);
-        //    param.Label = label;
-        //    AddParameter(param, group);
-        //    return param;
-        //}
+        public IGroupParameter CreateGroup(string label = "", IGroupParameter group = null)
+        {
+            var param = new GroupParameter(FIdCounter++, this);
+            param.Label = label;
+            AddParameter(param, group);
+            return param;
+        }
 
         public void AddParameter(IParameter param, IGroupParameter group = null)
         {
