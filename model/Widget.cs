@@ -74,9 +74,9 @@ namespace RCP.Protocol
                         break;
                     }
 
-                case RcpTypes.Widgettype.Endless:
+                case RcpTypes.Widgettype.Numberbox:
                     {
-                        widget = new EndlessWidget();
+                        widget = new NumberboxWidget();
                         break;
                     }
             }
@@ -114,10 +114,10 @@ namespace RCP.Protocol
         { }
     }
 
-    public class EndlessWidget : Widget
+    public class NumberboxWidget : Widget
     {
-        public EndlessWidget()
-        : base(RcpTypes.Widgettype.Endless)
+        public NumberboxWidget()
+        : base(RcpTypes.Widgettype.Numberbox)
         { }
     }
 }
