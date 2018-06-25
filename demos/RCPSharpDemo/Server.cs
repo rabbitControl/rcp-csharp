@@ -34,39 +34,54 @@ namespace RCPSharpDemo
         
         private void button1_Click(object sender, System.EventArgs e)
         {
-            var group = FRabbit.CreateGroup();
-            group.Label = "foo";
+            var group = FRabbit.CreateGroup("foo");
 
-            var param = FRabbit.CreateNumberParameter<float>();
-            param.Label = "My Flöat: " + param.Id;
+            var param = FRabbit.CreateNumberParameter<float>("my float", group);
             param.Order = param.Id;
-            param.Widget = new SliderWidget();
-            param.Value = 2.5f;
+            //param.Widget = new SliderWidget();
+            param.Default = 7.0f;
+            param.Value = 2.0f;
             param.Minimum = -10.0f;
             param.Maximum = 10.0f;
-            param.ValueUpdated += Param_ValueUpdated;
-            group.AddParameter(param);
+            //param.ValueUpdated += Param_ValueUpdated;
 
-            var nt = FRabbit.CreateNumberParameter<int>();
-            nt.Label = "integer";
-            nt.Value = 7;
-            nt.Minimum = -10;
-            nt.Maximum = 10;
-            group.AddParameter(nt);
+            var nt = FRabbit.CreateNumberParameter<int>("my int", group);
+            nt.Value = 3;
+            nt.Minimum = -5;
+            nt.Maximum = 5;
 
-            var str = FRabbit.CreateStringParameter();
-            str.Label = "string";
+            var enm = FRabbit.CreateEnumParameter("my enum", group);
+            enm.Entries = new string[3] { "aber", "biber", "zebra" };
+            enm.Default = "biber";
+            enm.Value = "zebra";
+            //enm.ValueUpdated += Enm_ValueUpdated;
+
+            var str = FRabbit.CreateStringParameter("my string", group);
             str.Value = "foobar";
-            group.AddParameter(str);
 
-            var clr = FRabbit.CreateRGBAParameter();
-            clr.Label = "color";
+            var clr = FRabbit.CreateRGBAParameter("ma color", group);
             clr.Value = Color.Red;
-            group.AddParameter(clr);
 
-            FRabbit.Root.AddParameter(group);
+            var strarr = FRabbit.CreateStringArrayParameter<string[]>("my string array", 3);
+            strarr.Default = new string[3] { "a", "b", "c" };
+            strarr.Value = new string[3] { "aa", "bv", "cc" };
+
+            var intarr = FRabbit.CreateNumberArrayParameter<int[], int>("my int array", 3);
+            intarr.Default = new int[3] { 1, 2, 4 };
+            intarr.Value = new int[3] { 4, 5, 6 };
 
             FRabbit.Update();
+
+            //enm.Value = "biber";
+            //FRabbit.Update();
+
+            //enm.Value = "aber";
+            //FRabbit.Update();
+        }
+
+        private void Enm_ValueUpdated(object sender, string e)
+        {
+            label1.Text = e.ToString();
         }
 
         private void Param_ValueUpdated(object sender, float e)
