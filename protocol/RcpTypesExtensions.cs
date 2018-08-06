@@ -10,10 +10,15 @@ namespace RCP.Protocol
         {
             public static void Write(string text, BinaryWriter writer)
             {
-                var bytes = Encoding.UTF8.GetBytes(text);
-                var length = (byte)Math.Min(byte.MaxValue, bytes.Length);
-                writer.Write(length);
-                writer.Write(bytes, 0, length);
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    var bytes = Encoding.UTF8.GetBytes(text);
+                    var length = (byte)Math.Min(byte.MaxValue, bytes.Length);
+                    writer.Write(length);
+                    writer.Write(bytes, 0, length);
+                }
+                else
+                    writer.Write(0);
             }
         }
     }
@@ -24,10 +29,15 @@ namespace RCP.Protocol
         {
             public static void Write(string text, BinaryWriter writer)
             {
-                var bytes = Encoding.UTF8.GetBytes(text);
-                var length = (ushort)Math.Min(ushort.MaxValue, bytes.Length);
-                writer.Write(length, ByteOrder.BigEndian);
-                writer.Write(bytes, 0, length);
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    var bytes = Encoding.UTF8.GetBytes(text);
+                    var length = (ushort)Math.Min(ushort.MaxValue, bytes.Length);
+                    writer.Write(length, ByteOrder.BigEndian);
+                    writer.Write(bytes, 0, length);
+                }
+                else
+                    writer.Write(0);
             }
         }
     }
@@ -38,10 +48,15 @@ namespace RCP.Protocol
         {
             public static void Write(string text, BinaryWriter writer)
             {
-                var bytes = Encoding.UTF8.GetBytes(text);
-                var length = (int)Math.Min(int.MaxValue, bytes.Length);
-                writer.Write(length, ByteOrder.BigEndian);
-                writer.Write(bytes, 0, length);
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    var bytes = Encoding.UTF8.GetBytes(text);
+                    var length = (int)Math.Min(int.MaxValue, bytes.Length);
+                    writer.Write(length, ByteOrder.BigEndian);
+                    writer.Write(bytes, 0, length);
+                }
+                else
+                    writer.Write(0);
             }
         }
     }
