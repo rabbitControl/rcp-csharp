@@ -143,6 +143,10 @@
     <Compile Include="parameters\GroupParameter.cs" />
     <Compile Include="parameters\RGBAParameter.cs" />
     <Compile Include="parameters\NumberArrayParameter.cs" />
+    <Compile Include="parameters\BooleanArrayParameter.cs" />
+    <Compile Include="parameters\EnumArrayParameter.cs" />
+    <Compile Include="parameters\RGBAArrayParameter.cs" />
+    <Compile Include="parameters\UriArrayParameter.cs" />
     <Compile Include="parameters\StringArrayParameter.cs" />
     <Compile Include="parameters\StringParameter.cs" />
     <Compile Include="parameters\UriParameter.cs" />

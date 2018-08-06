@@ -8,14 +8,14 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    internal class StringArrayParameter : ArrayParameter<string[], string>, IStringArrayParameter
+    internal class BooleanArrayParameter : ArrayParameter<bool[], bool>, IBooleanArrayParameter
     {
-        public StringDefinition StringDefinition => ArrayDefinition.ElementDefinition as StringDefinition;
+        public BooleanDefinition BooleanDefinition => ArrayDefinition.ElementDefinition as BooleanDefinition;
 
-        public StringArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
+        public BooleanArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
             base(id, RcpTypes.Datatype.String, manager, structure)
         {
-            TypeDefinition = new ArrayDefinition<string[], string>(new StringDefinition(), structure);
+            TypeDefinition = new ArrayDefinition<bool[], bool>(new BooleanDefinition(), structure);
         }
 
         public override void ResetForInitialize()

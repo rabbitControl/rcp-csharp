@@ -8,14 +8,14 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    internal class StringArrayParameter : ArrayParameter<string[], string>, IStringArrayParameter
+    internal class EnumArrayParameter : ArrayParameter<string[], string>, IEnumArrayParameter
     {
-        public StringDefinition StringDefinition => ArrayDefinition.ElementDefinition as StringDefinition;
+        public EnumDefinition EnumDefinition => ArrayDefinition.ElementDefinition as EnumDefinition;
 
-        public StringArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
+        public EnumArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
             base(id, RcpTypes.Datatype.String, manager, structure)
         {
-            TypeDefinition = new ArrayDefinition<string[], string>(new StringDefinition(), structure);
+            TypeDefinition = new ArrayDefinition<string[], string>(new EnumDefinition(), structure);
         }
 
         public override void ResetForInitialize()

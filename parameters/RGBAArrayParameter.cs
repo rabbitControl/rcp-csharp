@@ -5,17 +5,18 @@ using Kaitai;
 using RCP;
 using RCP.Protocol;
 using RCP.Exceptions;
+using System.Drawing;
 
 namespace RCP.Parameter
 {
-    internal class StringArrayParameter : ArrayParameter<string[], string>, IStringArrayParameter
+    internal class RGBAArrayParameter : ArrayParameter<Color[], Color>, IRGBAArrayParameter
     {
-        public StringDefinition StringDefinition => ArrayDefinition.ElementDefinition as StringDefinition;
+        public RGBADefinition RGBADefinition => ArrayDefinition.ElementDefinition as RGBADefinition;
 
-        public StringArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
+        public RGBAArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
             base(id, RcpTypes.Datatype.String, manager, structure)
         {
-            TypeDefinition = new ArrayDefinition<string[], string>(new StringDefinition(), structure);
+            TypeDefinition = new ArrayDefinition<Color[], Color>(new RGBADefinition(), structure);
         }
 
         public override void ResetForInitialize()

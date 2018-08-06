@@ -8,14 +8,14 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    internal class StringArrayParameter : ArrayParameter<string[], string>, IStringArrayParameter
+    internal class UriArrayParameter : ArrayParameter<string[], string>, IUriArrayParameter
     {
-        public StringDefinition StringDefinition => ArrayDefinition.ElementDefinition as StringDefinition;
+        public UriDefinition UriDefinition => ArrayDefinition.ElementDefinition as UriDefinition;
 
-        public StringArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
+        public UriArrayParameter(Int16 id, IParameterManager manager, params int[] structure) : 
             base(id, RcpTypes.Datatype.String, manager, structure)
         {
-            TypeDefinition = new ArrayDefinition<string[], string>(new StringDefinition(), structure);
+            TypeDefinition = new ArrayDefinition<string[], string>(new UriDefinition(), structure);
         }
 
         public override void ResetForInitialize()

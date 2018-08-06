@@ -116,7 +116,7 @@ namespace RCP
             switch (elementType)
             {
                 case RcpTypes.Datatype.String:
-                    return new StringArrayParameter<string[]>(id, manager);
+                    return new StringArrayParameter(id, manager);
 
                 case RcpTypes.Datatype.Int32:
                     return new NumberArrayParameter<int[], int>(id, manager);
@@ -129,6 +129,18 @@ namespace RCP
 
                 case RcpTypes.Datatype.Vector3f32:
                     return new NumberArrayParameter<Vector3[], Vector3>(id, manager);
+
+                case RcpTypes.Datatype.Boolean:
+                    return new BooleanArrayParameter(id, manager);
+
+                case RcpTypes.Datatype.Enum:
+                    return new EnumArrayParameter(id, manager);
+
+                case RcpTypes.Datatype.Rgba:
+                    return new RGBAArrayParameter(id, manager);
+
+                case RcpTypes.Datatype.Uri:
+                    return new UriArrayParameter(id, manager);
 
                 default: throw new RCPUnsupportedFeatureException();
             }

@@ -41,6 +41,23 @@ namespace RCP
             base.Dispose();
 		}
 
+        public IBooleanParameter CreateBooleanParameter(string label = "", IGroupParameter group = null)
+        {
+            var param = new BooleanParameter(FIdCounter++, this);
+            param.Label = label;
+            AddParameter(param, group);
+
+            return param;
+        }
+
+        public IBooleanArrayParameter CreateBooleanArrayParameter(string label, params int[] structure)
+        {
+            var param = new BooleanArrayParameter(FIdCounter++, this, structure);
+            param.Label = label;
+            AddParameter(param);
+            return param;
+        }
+
         public INumberParameter<T> CreateNumberParameter<T>(string label = "", IGroupParameter group = null) where T: struct
         {
             var param = new NumberParameter<T>(FIdCounter++, this);
@@ -66,9 +83,25 @@ namespace RCP
             return param;
         }
 
-        public IStringArrayParameter<T> CreateStringArrayParameter<T>(string label, params int[] structure)
+        public IStringArrayParameter CreateStringArrayParameter(string label, params int[] structure)
         {
-            var param = new StringArrayParameter<T>(FIdCounter++, this, structure);
+            var param = new StringArrayParameter(FIdCounter++, this, structure);
+            param.Label = label;
+            AddParameter(param);
+            return param;
+        }
+
+        public IUriParameter CreateUriParameter(string label = "", IGroupParameter group = null)
+        {
+            var param = new UriParameter(FIdCounter++, this);
+            param.Label = label;
+            AddParameter(param, group);
+            return param;
+        }
+
+        public IUriArrayParameter CreateUriArrayParameter(string label, params int[] structure)
+        {
+            var param = new UriArrayParameter(FIdCounter++, this, structure);
             param.Label = label;
             AddParameter(param);
             return param;
@@ -82,11 +115,27 @@ namespace RCP
             return param;
         }
 
+        public IEnumArrayParameter CreateEnumArrayParameter(string label, params int[] structure)
+        {
+            var param = new EnumArrayParameter(FIdCounter++, this, structure);
+            param.Label = label;
+            AddParameter(param);
+            return param;
+        }
+
         public IRGBAParameter CreateRGBAParameter(string label = "", IGroupParameter group = null)
         {
             var param = new RGBAParameter(FIdCounter++, this);
             param.Label = label;
             AddParameter(param, group);
+            return param;
+        }
+
+        public IRGBAArrayParameter CreateRGBAArrayParameter(string label, params int[] structure)
+        {
+            var param = new RGBAArrayParameter(FIdCounter++, this, structure);
+            param.Label = label;
+            AddParameter(param);
             return param;
         }
 

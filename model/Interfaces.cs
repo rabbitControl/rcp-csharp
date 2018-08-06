@@ -62,6 +62,7 @@ namespace RCP
 
     public interface IArrayDefinition : ITypeDefinition
     {
+        RcpTypes.Datatype ElementType { get; }
         int[] Structure { get; set; }
     }
 
@@ -124,11 +125,27 @@ namespace RCP
     {
     }
 
+    public interface IBooleanArrayParameter : IArrayParameter<bool[]>
+    {
+    }
+
     public interface INumberArrayParameter<T, E> : IArrayParameter<T>
     {
     }
 
-    public interface IStringArrayParameter<T> : IArrayParameter<T> 
+    public interface IStringArrayParameter : IArrayParameter<string[]> 
+    {
+    }
+
+    public interface IEnumArrayParameter : IArrayParameter<string[]>
+    {
+    }
+
+    public interface IRGBAArrayParameter : IArrayParameter<Color[]>
+    {
+    }
+
+    public interface IUriArrayParameter : IArrayParameter<string[]>
     {
     }
 

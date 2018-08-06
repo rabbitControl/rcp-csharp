@@ -10,13 +10,15 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    public class ArrayDefinition<T, E> : DefaultDefinition<T>
+    public class ArrayDefinition<T, E> : DefaultDefinition<T>, IArrayDefinition
     {
         public DefaultDefinition<E> ElementDefinition;
 
         protected bool FStructureChanged;
         private int[] FStructure;
         public int[] Structure { get { return FStructure; } set { FStructure = value; FStructureChanged = true; } }
+
+        public RcpTypes.Datatype ElementType => ElementDefinition.Datatype;
 
         public ArrayDefinition(DefaultDefinition<E> elementDefinition, int[] structure) : base(RcpTypes.Datatype.Array)
         {
