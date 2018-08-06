@@ -62,6 +62,7 @@ namespace RCP
 
     public interface IArrayDefinition : ITypeDefinition
     {
+        ITypeDefinition ElementDefinition { get; }
         RcpTypes.Datatype ElementType { get; }
         int[] Structure { get; set; }
     }

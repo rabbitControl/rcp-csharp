@@ -12,17 +12,18 @@ namespace RCP.Parameter
 {
     public class ArrayDefinition<T, E> : DefaultDefinition<T>, IArrayDefinition
     {
-        public DefaultDefinition<E> ElementDefinition;
-
         protected bool FStructureChanged;
         private int[] FStructure;
         public int[] Structure { get { return FStructure; } set { FStructure = value; FStructureChanged = true; } }
 
-        public RcpTypes.Datatype ElementType => ElementDefinition.Datatype;
+        public RcpTypes.Datatype ElementType => FElementDefinition.Datatype;
+
+        private IDefaultDefinition<E> FElementDefinition;
+        public ITypeDefinition ElementDefinition => FElementDefinition; 
 
         public ArrayDefinition(DefaultDefinition<E> elementDefinition, int[] structure) : base(RcpTypes.Datatype.Array)
         {
-            ElementDefinition = elementDefinition;
+            FElementDefinition = elementDefinition;
             Structure = structure;
         }
 
@@ -35,7 +36,7 @@ namespace RCP.Parameter
 
         protected override void WriteOptions(BinaryWriter writer)
         {
-            ElementDefinition.Write(writer);
+            FElementDefinition.Write(writer);
 
             base.WriteOptions(writer);
 
@@ -59,7 +60,7 @@ namespace RCP.Parameter
 
         public override void ParseOptions(KaitaiStream input)
         {
-            ElementDefinition.ParseOptions(input);
+            FElementDefinition.ParseOptions(input);
 
             while (true)
             {
@@ -115,7 +116,7 @@ namespace RCP.Parameter
             //TODO: support multiple dimensions
             for (int i = 0; i < FStructure[0]; i++)
             {
-                a.SetValue((E)ElementDefinition.ReadValue(input), i);
+                a.SetValue((E)FElementDefinition.ReadValue(input), i);
             }
 
             return (T)(object)a;
@@ -133,7 +134,7 @@ namespace RCP.Parameter
             {
                 var l = a.GetLength(i);
                 for (int j = 0; j < l; j++)
-                    ElementDefinition.WriteValue(writer, (E)a.GetValue(j));
+                    FElementDefinition.WriteValue(writer, (E)a.GetValue(j));
             }
         }
     }
