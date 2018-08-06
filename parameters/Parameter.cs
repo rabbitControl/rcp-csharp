@@ -301,27 +301,27 @@ namespace RCP.Parameter
         {
             TypeDefinition.CopyTo(other.TypeDefinition);
 
-            if (FParentIdChanged)
-                FParentId = other.ParentId;
+            //if (FParentIdChanged)
+            //    other.ParentId = FParentId;
 
             //TODO: language specific copy
             //if (FLabelChanged)
             //    other.Label = FLabel;
 
             //if (FDescriptionChanged)
-            //    FDescription = other.Description;
+            //    other.Description = FDescription;
 
             if (FTagsChanged)
-                FTags = other.Tags;
+                other.Tags = FTags;
 
             if (FOrderChanged)
-                FOrder = other.Order;
+                other.Order = FOrder;
 
             if (FUserdataChanged)
-                FUserdata = other.Userdata;
+                other.Userdata = FUserdata;
 
             if (FUserIdChanged)
-                FUserId = other.UserId;
+                other.UserId = FUserId;
 
             if (AnyChanged())
                 (other as Parameter).Updated?.Invoke(other, null);
