@@ -250,6 +250,8 @@ namespace RCP.Parameter
                         {
                             var language = new string(input.ReadChars(3));
                             FLabels.Add(language, new RcpTypes.TinyString(input).Data);
+                            FLabelChanged = true;
+                            SetDirty();
                         }
                         input.ReadByte(); //0 terminator
                         break;
@@ -259,6 +261,8 @@ namespace RCP.Parameter
                         {
                             var language = new string(input.ReadChars(3));
                             FDescriptions.Add(language, new RcpTypes.ShortString(input).Data);
+                            FDescriptionChanged = true;
+                            SetDirty();
                         }
                         input.ReadByte(); //0 terminator
                         break;
@@ -305,11 +309,11 @@ namespace RCP.Parameter
             //    other.ParentId = FParentId;
 
             //TODO: language specific copy
-            //if (FLabelChanged)
-            //    other.Label = FLabel;
+            if (FLabelChanged)
+                other.Label = FLabels["any"];
 
-            //if (FDescriptionChanged)
-            //    other.Description = FDescription;
+            if (FDescriptionChanged)
+                other.Description = FDescriptions["any"];
 
             if (FTagsChanged)
                 other.Tags = FTags;

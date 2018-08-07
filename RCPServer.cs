@@ -284,15 +284,6 @@ namespace RCP
             }
 		}
         #endregion
-
-        //public void WriteValue(this float value, BinaryWriter writer)
-        //{
-        //    writer.Write(value, ByteOrder.BigEndian);
-        //}
-
-        //public float ReadValue(this float , KaitaiStream input)
-        //{
-        //    return input.ReadF4be();
-        //}        
+    
     }
 }
