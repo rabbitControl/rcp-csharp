@@ -18,7 +18,7 @@ namespace RCP.Protocol
                     writer.Write(bytes, 0, length);
                 }
                 else
-                    writer.Write(0);
+                    writer.Write((byte)0);
             }
         }
     }
@@ -37,7 +37,7 @@ namespace RCP.Protocol
                     writer.Write(bytes, 0, length);
                 }
                 else
-                    writer.Write(0);
+                    writer.Write((byte)0);
             }
         }
     }
@@ -56,7 +56,7 @@ namespace RCP.Protocol
                     writer.Write(bytes, 0, length);
                 }
                 else
-                    writer.Write(0);
+                    writer.Write((byte)0);
             }
         }
     }
