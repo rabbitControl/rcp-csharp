@@ -305,8 +305,8 @@ namespace RCP.Parameter
         {
             TypeDefinition.CopyTo(other.TypeDefinition);
 
-            //if (FParentIdChanged)
-            //    other.ParentId = FParentId;
+            if (FParentIdChanged)
+                (other as Parameter).ParentId = FParentId;
 
             //TODO: language specific copy
             if (FLabelChanged)
