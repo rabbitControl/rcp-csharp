@@ -182,7 +182,10 @@ namespace RCP
 
         public IParameter GetParameter(Int16 id)
 		{
-			return FParams[id];
+            if (FParams.ContainsKey(id))
+                return FParams[id];
+            else
+                return null;
 		}
 		
 		//public IEnumerable<IParameter> GetParametersByParent(Int16 id)
