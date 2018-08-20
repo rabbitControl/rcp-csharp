@@ -16,7 +16,7 @@ namespace RCP.Parameter
 
         public override void CopyTo(ITypeDefinition other)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }
