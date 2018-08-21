@@ -18,12 +18,13 @@ namespace RCP
         void ParseOptions(Kaitai.KaitaiStream input);
         void ResetForInitialize();
         bool AnyChanged();
-        void CopyTo(ITypeDefinition other);
+        void CopyFrom(ITypeDefinition other);
     }
 
     public interface IDefaultDefinition<T> : ITypeDefinition
     {
         T Default { get; set; }
+        bool DefaultChanged { get; }
         T ReadValue(Kaitai.KaitaiStream input);
         void WriteValue(BinaryWriter writer, T value);
     }
@@ -35,14 +36,21 @@ namespace RCP
     public interface INumberDefinition<T> : IDefaultDefinition<T> where T : struct
     {
         T Minimum { get; set; }
+        bool MinimumChanged { get; }
         T Maximum { get; set; }
+        bool MaximumChanged { get; }
         T MultipleOf { get; set; }
+        bool MultipleOfChanged { get; }
         RcpTypes.NumberScale Scale { get; set; }
+        bool ScaleChanged { get; }
         string Unit { get; set; }
+        bool UnitChanged { get; }
     }
 
     public interface IStringDefinition : IDefaultDefinition<string>
     {
+        string RegularExpression { get; set; }
+        bool RegularExpressionChanged { get; }
     }
 
     public interface IRGBADefinition : IDefaultDefinition<Color>
@@ -52,12 +60,17 @@ namespace RCP
     public interface IUriDefinition : IDefaultDefinition<string>
     {
         string Schema { get; set; }
+        bool SchemaChanged { get; }
         string Filter { get; set; }
+        bool FilterChanged { get; }
     }
 
     public interface IEnumDefinition : IDefaultDefinition<string>
     {
         string[] Entries { get; set; }
+        bool EntriesChanged { get; }
+        bool MultiSelect { get; set; }
+        bool MultiSelectChanged { get; }
     }
 
     public interface IArrayDefinition : ITypeDefinition
@@ -72,20 +85,30 @@ namespace RCP
         Int16 Id { get; }
         ITypeDefinition TypeDefinition { get; }
         string Label { get; set; }
+        bool LabelChanged { get; }
         string Description { get; set; }
+        bool DescriptionChanged { get; }
         string Tags { get; set; }
+        bool TagsChanged { get; }
         int Order { get; set; }
+        bool OrderChanged { get; }
         Int16 ParentId { get; }
+        bool ParentIdChanged { get; }
         Widget Widget { get; set; }
+        bool WidgetChanged { get; }
         byte[] Userdata { get; set; }
+        bool UserdataChanged { get; }
         string UserId { get; set; }
+        bool UserIdChanged { get; }
 
+        bool AnyChanged { get; }
         event EventHandler Updated;
     }
 
     public interface IValueParameter<T>: IParameter
     {
         T Value { get; set; }
+        bool ValueChanged { get; }
         T Default { get; set; }
         event EventHandler<T> ValueUpdated;
     }

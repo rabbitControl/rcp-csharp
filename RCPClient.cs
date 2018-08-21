@@ -58,8 +58,8 @@ namespace RCP
 
         public override void Update()
         {
-            foreach (var param in FDirtyParams)
-                SendPacket(Pack(RcpTypes.Command.Update, param));
+            foreach (var id in FDirtyParamIds)
+                SendPacket(Pack(RcpTypes.Command.Update, FParams[id]));
 
             base.Update();
         }
@@ -170,7 +170,7 @@ namespace RCP
 			{
 				case RcpTypes.Command.Update:
                     if (FParams.ContainsKey(packet.Data.Id))
-                        (packet.Data as Parameter.Parameter).CopyTo(FParams[packet.Data.Id]);
+                        (FParams[packet.Data.Id] as Parameter.Parameter).CopyFrom(packet.Data);
                     else
                     {
                         FParams.Add(packet.Data.Id, packet.Data);

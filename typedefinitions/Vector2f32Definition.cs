@@ -20,11 +20,11 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FDefaultChanged = Default != new Vector2(0, 0);
+            DefaultChanged = Default != new Vector2(0, 0);
 
-            FMinimumChanged = Minimum != new Vector2(float.MinValue, float.MinValue);
-            FMaximumChanged = Maximum != new Vector2(float.MaxValue, float.MaxValue);
-            FMultipleOfChanged = MultipleOf != new Vector2(0.01f, 0.01f);
+            MinimumChanged = Minimum != new Vector2(float.MinValue, float.MinValue);
+            MaximumChanged = Maximum != new Vector2(float.MaxValue, float.MaxValue);
+            MultipleOfChanged = MultipleOf != new Vector2(0.01f, 0.01f);
         }
 
         public override Vector2 ReadValue(KaitaiStream input)

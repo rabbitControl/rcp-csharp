@@ -9,25 +9,25 @@ namespace RCP.Parameter
 {
     public abstract class NumberDefinition<T> : DefaultDefinition<T>, INumberDefinition<T> where T: struct
     {
-        protected bool FMinimumChanged;
+        public bool MinimumChanged { get; protected set; }
         private T FMinimum;
-        public T Minimum { get { return FMinimum; } set { FMinimumChanged = !FMinimum.Equals(value); FMinimum = value; } }
+        public T Minimum { get { return FMinimum; } set { MinimumChanged = !FMinimum.Equals(value); FMinimum = value; } }
 
-        protected bool FMaximumChanged;
+        public bool MaximumChanged { get; protected set; }
         private T FMaximum;
-        public T Maximum { get { return FMaximum; } set { FMaximumChanged = !FMaximum.Equals(value); FMaximum = value; } }
+        public T Maximum { get { return FMaximum; } set { MaximumChanged = !FMaximum.Equals(value); FMaximum = value; } }
 
-        protected bool FMultipleOfChanged;
+        public bool MultipleOfChanged { get; protected set; }
         protected T FMultipleOf;
-        public T MultipleOf { get { return FMultipleOf; } set { FMultipleOfChanged = !FMultipleOf.Equals(value); FMultipleOf = value; } }
+        public T MultipleOf { get { return FMultipleOf; } set { MultipleOfChanged = !FMultipleOf.Equals(value); FMultipleOf = value; } }
 
-        private bool FScaleChanged;
+        public bool ScaleChanged { get; protected set; }
         private RcpTypes.NumberScale FScale;
-        public RcpTypes.NumberScale Scale { get { return FScale; } set { FScaleChanged = !FScale.Equals(value); FScale = value; } }
+        public RcpTypes.NumberScale Scale { get { return FScale; } set { ScaleChanged = !FScale.Equals(value); FScale = value; } }
 
-        private bool FUnitChanged;
+        public bool UnitChanged { get; protected set; }
         private string FUnit = "";
-        public string Unit { get { return FUnit; } set { FUnitChanged = !FUnit.Equals(value); FUnit = value; } }
+        public string Unit { get { return FUnit; } set { UnitChanged = !FUnit.Equals(value); FUnit = value; } }
 
         public NumberDefinition(RcpTypes.Datatype datatype)
         : base(datatype)
@@ -35,52 +35,52 @@ namespace RCP.Parameter
 
         public override bool AnyChanged()
         {
-            return FMinimumChanged || FMaximumChanged || FMultipleOfChanged || FScaleChanged || FUnitChanged;
+            return base.AnyChanged() || MinimumChanged || MaximumChanged || MultipleOfChanged || ScaleChanged || UnitChanged;
         }
 
         public override void ResetForInitialize()
         {
-            FScaleChanged = FScale != RcpTypes.NumberScale.Linear;
-            FUnitChanged = FUnit != "";
+            ScaleChanged = FScale != RcpTypes.NumberScale.Linear;
+            UnitChanged = FUnit != "";
         }
 
         protected override void WriteOptions(BinaryWriter writer)
         {
             base.WriteOptions(writer);
 
-            if (FMinimumChanged)
+            if (MinimumChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Minimum);
                 WriteValue(writer, Minimum);
-                FMinimumChanged = false;
+                MinimumChanged = false;
             }
 
-            if (FMaximumChanged)
+            if (MaximumChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Maximum);
                 WriteValue(writer, Maximum);
-                FMaximumChanged = false;
+                MaximumChanged = false;
             }
 
-            if (FMultipleOfChanged)
+            if (MultipleOfChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Multipleof);
                 WriteValue(writer, MultipleOf);
-                FMultipleOfChanged = false;
+                MultipleOfChanged = false;
             }
 
-            if (FScaleChanged)
+            if (ScaleChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Scale);
                 writer.Write((byte)Scale);
-                FScaleChanged = false;
+                ScaleChanged = false;
             }
 
-            if (FUnitChanged)
+            if (UnitChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Unit);
                 writer.Write(Unit);
-                FUnitChanged = false;
+                UnitChanged = false;
             }
         }
 
@@ -124,26 +124,26 @@ namespace RCP.Parameter
             return false;
         }
 
-        public override void CopyTo(ITypeDefinition other)
+        public override void CopyFrom(ITypeDefinition other)
         {
-            base.CopyTo(other);
+            base.CopyFrom(other);
 
-            var otherNumber = other as NumberDefinition<T>;
+            var otherNumber = other as INumberDefinition<T>;
 
-            if (FMinimumChanged)
-                otherNumber.Minimum = FMinimum;
+            if (otherNumber.MinimumChanged)
+                FMinimum = otherNumber.Minimum;
 
-            if (FMaximumChanged)
-                otherNumber.Maximum = FMaximum;
+            if (otherNumber.MaximumChanged)
+                FMaximum = otherNumber.Maximum;
 
-            if (FMultipleOfChanged)
-                otherNumber.MultipleOf = FMultipleOf;
+            if (otherNumber.MultipleOfChanged)
+                FMultipleOf = otherNumber.MultipleOf;
 
-            if (FScaleChanged)
-                otherNumber.Scale = FScale;
+            if (otherNumber.ScaleChanged)
+                FScale = otherNumber.Scale;
 
-            if (FUnitChanged)
-                otherNumber.Unit = FUnit;
+            if (otherNumber.UnitChanged)
+                FUnit = otherNumber.Unit;
         }
     }
 }

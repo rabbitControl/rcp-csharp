@@ -20,16 +20,16 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FValueChanged = Value != false;
+            ValueChanged = Value != false;
         }
 
         protected override void WriteValue(BinaryWriter writer)
         {
-            if (FValueChanged)
+            if (ValueChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Value);
                 BooleanDefinition.WriteValue(writer, Value);
-                FValueChanged = false;
+                ValueChanged = false;
             }
         }
 

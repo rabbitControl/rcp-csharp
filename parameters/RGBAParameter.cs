@@ -23,16 +23,16 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FValueChanged = Value != Color.Black;
+            ValueChanged = Value != Color.Black;
         }
 
         protected override void WriteValue(BinaryWriter writer)
         {
-            if (FValueChanged)
+            if (ValueChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Value);
                 RGBADefinition.WriteValue(writer, Value);
-                FValueChanged = false;
+                ValueChanged = false;
             }
         }
 

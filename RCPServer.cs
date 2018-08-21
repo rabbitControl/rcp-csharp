@@ -170,8 +170,8 @@ namespace RCP
                 SendToMultiple(Pack(RcpTypes.Command.Remove, param));
             FParamsToRemove.Clear();
 
-            foreach (var param in FDirtyParams)
-                SendToMultiple(Pack(RcpTypes.Command.Update, param));
+            foreach (var id in FDirtyParamIds)
+                SendToMultiple(Pack(RcpTypes.Command.Update, FParams[id]));
 
             base.Update();
         }
@@ -223,7 +223,7 @@ namespace RCP
 		{
 			try
             {
-			    var packet = Packet.Parse(new KaitaiStream(bytes), this);
+			    var packet = Packet.Parse(new KaitaiStream(bytes), null);
 				//MessageBox.Show(packet.Command.ToString());
 		        switch (packet.Command)
 		        {
@@ -231,7 +231,7 @@ namespace RCP
                         Log?.Invoke("received update");
                         if (FParams.ContainsKey(packet.Data.Id))
                         {
-                            (packet.Data as Parameter.Parameter).CopyTo(FParams[packet.Data.Id]);
+                            (FParams[packet.Data.Id] as Parameter.Parameter).CopyFrom(packet.Data);
                             SendToMultiple(packet, senderId);
                         }
 				        break;

@@ -19,7 +19,7 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FDefaultChanged = Default != Color.Black;
+            DefaultChanged = Default != Color.Black;
         }
 
         public override Color ReadValue(KaitaiStream input)

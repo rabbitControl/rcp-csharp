@@ -13,9 +13,6 @@ namespace RCP.Parameter
 
     internal abstract class Parameter : IParameter, IWriteable
     {
-        private Dictionary<string, string> FLabels = new Dictionary<string, string>();
-        private Dictionary<string, string> FDescriptions = new Dictionary<string, string>();
-
         protected IParameterManager FManager;
 
         public event EventHandler Updated;
@@ -24,32 +21,35 @@ namespace RCP.Parameter
 
         public ITypeDefinition TypeDefinition { get; set; }
 
-        private bool FParentIdChanged;
+        public bool ParentIdChanged { get; private set; }
         private Int16 FParentId;
-        public Int16 ParentId { get { return FParentId; } set { FParentId = value; FParentIdChanged = true; SetDirty(); } }
+        public Int16 ParentId { get { return FParentId; } set { FParentId = value; ParentIdChanged = true; SetDirty(); } }
 
-        private bool FLabelChanged;
-        public string Label { get { return FLabels.ContainsKey("any") ? FLabels["any"] : ""; } set { FLabels["any"] = value; FLabelChanged = true; SetDirty(); } }
+        public bool LabelChanged { get; private set; }
+        private Dictionary<string, string> FLabels = new Dictionary<string, string>();
+        public string Label { get { return FLabels.ContainsKey("any") ? FLabels["any"] : ""; } set { FLabels["any"] = value; LabelChanged = true; SetDirty(); } }
 
-        private bool FDescriptionChanged;
-        public string Description { get { return FDescriptions.ContainsKey("any") ? FDescriptions["any"] : ""; } set { FDescriptions["any"] = value; FDescriptionChanged = true; SetDirty(); } }
+        public bool DescriptionChanged { get; private set; }
+        private Dictionary<string, string> FDescriptions = new Dictionary<string, string>();
+        public string Description { get { return FDescriptions.ContainsKey("any") ? FDescriptions["any"] : ""; } set { FDescriptions["any"] = value; DescriptionChanged = true; SetDirty(); } }
 
-        private bool FTagsChanged;
+        public bool TagsChanged { get; private set; }
         private string FTags = "";
-        public string Tags { get { return FTags; } set { FTags = value; FTagsChanged = true; SetDirty(); } }
+        public string Tags { get { return FTags; } set { FTags = value; TagsChanged = true; SetDirty(); } }
 
-        private bool FOrderChanged;
+        public bool OrderChanged { get; private set; }
         private int FOrder;
-        public int Order { get { return FOrder; } set { FOrder = value; FOrderChanged = true; SetDirty(); } }
+        public int Order { get { return FOrder; } set { FOrder = value; OrderChanged = true; SetDirty(); } }
 
-        private bool FUserdataChanged;
+        public bool UserdataChanged { get; private set; }
         private byte[] FUserdata = new byte[0];
-        public byte[] Userdata { get { return FUserdata; } set { FUserdata = value; FUserdataChanged = true; SetDirty(); } }
+        public byte[] Userdata { get { return FUserdata; } set { FUserdata = value; UserdataChanged = true; SetDirty(); } }
 
-        private bool FUserIdChanged;
+        public bool UserIdChanged { get; private set; }
         private string FUserId = "";
-        public string UserId { get { return FUserId; } set { FUserId = value; FUserIdChanged = true; SetDirty(); } }
+        public string UserId { get { return FUserId; } set { FUserId = value; UserIdChanged = true; SetDirty(); } }
 
+        public bool WidgetChanged { get; private set; }
         public Widget Widget { get; set; }
 
         public Parameter(Int16 id, IParameterManager manager)
@@ -74,7 +74,7 @@ namespace RCP.Parameter
         public void SetLanguageLabel(string iso639_3, string label)
         {
             FLabels[iso639_3] = label;
-            FLabelChanged = true;
+            LabelChanged = true;
         }
 
         public void RemoveLanguageLabel(string iso639_3)
@@ -82,14 +82,14 @@ namespace RCP.Parameter
             if (FLabels.ContainsKey(iso639_3))
             {
                 FLabels.Remove(iso639_3);
-                FLabelChanged = true;
+                LabelChanged = true;
             }
         }
 
         public void SetLanguageDescription(string iso639_3, string description)
         {
             FDescriptions[iso639_3] = description;
-            FDescriptionChanged = true;
+            DescriptionChanged = true;
         }
 
         public void RemoveLanguageDescription(string iso639_3)
@@ -97,7 +97,7 @@ namespace RCP.Parameter
             if (FDescriptions.ContainsKey(iso639_3))
             {
                 FDescriptions.Remove(iso639_3);
-                FDescriptionChanged = true;
+                DescriptionChanged = true;
             }
         }
 
@@ -111,7 +111,7 @@ namespace RCP.Parameter
             //optional
             WriteValue(writer);
 
-            if (FLabelChanged)
+            if (LabelChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Label);
                 foreach (var language in FLabels.Keys)
@@ -120,10 +120,10 @@ namespace RCP.Parameter
                     RcpTypes.TinyString.Write(FLabels[language], writer);
                 }
                 writer.Write((byte)0);
-                FLabelChanged = false;
+                LabelChanged = false;
             }
 
-            if (FDescriptionChanged)
+            if (DescriptionChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Description);
                 foreach (var language in FDescriptions.Keys)
@@ -132,28 +132,28 @@ namespace RCP.Parameter
                     RcpTypes.ShortString.Write(FDescriptions[language], writer);
                 }
                 writer.Write((byte)0);
-                FDescriptionChanged = false;
+                DescriptionChanged = false;
             }
 
-            if (FTagsChanged)
+            if (TagsChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Tags);
                 RcpTypes.TinyString.Write(Tags, writer);
-                FTagsChanged = false;
+                TagsChanged = false;
             }
 
-            if (FOrderChanged)
+            if (OrderChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Order);
                 writer.Write(Order, ByteOrder.BigEndian);
-                FOrderChanged = false;
+                OrderChanged = false;
             }
 
-            if (FParentIdChanged)
+            if (ParentIdChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Parentid);
                 writer.Write(ParentId, ByteOrder.BigEndian);
-                FParentIdChanged = false;
+                ParentIdChanged = false;
             }
 
             if (Widget != null)
@@ -162,19 +162,19 @@ namespace RCP.Parameter
                 Widget.Write(writer);
             }
 
-            if (FUserdataChanged)
+            if (UserdataChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Userdata);
                 writer.Write(Userdata.Length, ByteOrder.BigEndian);
                 writer.Write(Userdata);
-                FUserdataChanged = false;
+                UserdataChanged = false;
             }
 
-            if (FUserIdChanged)
+            if (UserIdChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Userid);
                 RcpTypes.TinyString.Write(UserId, writer);
-                FUserIdChanged = false;
+                UserIdChanged = false;
             }
 
             //terminate
@@ -250,7 +250,7 @@ namespace RCP.Parameter
                         {
                             var language = new string(input.ReadChars(3));
                             FLabels.Add(language, new RcpTypes.TinyString(input).Data);
-                            FLabelChanged = true;
+                            LabelChanged = true;
                             SetDirty();
                         }
                         input.ReadByte(); //0 terminator
@@ -261,7 +261,7 @@ namespace RCP.Parameter
                         {
                             var language = new string(input.ReadChars(3));
                             FDescriptions.Add(language, new RcpTypes.ShortString(input).Data);
-                            FDescriptionChanged = true;
+                            DescriptionChanged = true;
                             SetDirty();
                         }
                         input.ReadByte(); //0 terminator
@@ -301,50 +301,47 @@ namespace RCP.Parameter
             }
         }
 
-        public virtual void CopyTo(IParameter other)
+        public virtual void CopyFrom(IParameter other)
         {
-            TypeDefinition.CopyTo(other.TypeDefinition);
+            TypeDefinition.CopyFrom(other.TypeDefinition);
 
-            if (FParentIdChanged)
-                (other as Parameter).ParentId = FParentId;
+            if (other.ParentIdChanged)
+                FParentId = other.ParentId;
 
             //TODO: language specific copy
-            if (FLabelChanged)
-                other.Label = FLabels["any"];
+            if (other.LabelChanged)
+                FLabels["any"] = other.Label;
 
-            if (FDescriptionChanged)
-                other.Description = FDescriptions["any"];
+            if (other.DescriptionChanged)
+                FDescriptions["any"] = other.Description;
 
-            if (FTagsChanged)
-                other.Tags = FTags;
+            if (other.TagsChanged)
+                FTags = other.Tags;
 
-            if (FOrderChanged)
-                other.Order = FOrder;
+            if (other.OrderChanged)
+                FOrder = other.Order;
 
-            if (FUserdataChanged)
-                other.Userdata = FUserdata;
+            if (other.UserdataChanged)
+                FUserdata = other.Userdata;
 
-            if (FUserIdChanged)
-                other.UserId = FUserId;
+            if (other.UserIdChanged)
+                FUserId = other.UserId;
 
-            if (AnyChanged())
-                (other as Parameter).Updated?.Invoke(other, null);
+            if (other.AnyChanged)
+                Updated?.Invoke(this, null);
         }
 
-        protected virtual bool AnyChanged()
-        {
-            return TypeDefinition.AnyChanged() || FParentIdChanged || FLabelChanged || FDescriptionChanged || FTagsChanged || FOrderChanged || FUserdataChanged || FUserIdChanged;
-        }
+        public virtual bool AnyChanged => TypeDefinition.AnyChanged() || ParentIdChanged || LabelChanged || DescriptionChanged || TagsChanged || OrderChanged || UserdataChanged || UserIdChanged;
 
         public virtual void ResetForInitialize()
         {
-            FParentIdChanged = FParentId != 0;
-            FLabelChanged = FLabels.Count > 0;
-            FDescriptionChanged = FDescriptions.Count > 0;
-            FTagsChanged = FTags != "";
-            FOrderChanged = FOrder != 0;
-            FUserdataChanged = FUserdata.Length != 0;
-            FUserIdChanged = FUserId != "";
+            ParentIdChanged = FParentId != 0;
+            LabelChanged = FLabels.Count > 0;
+            DescriptionChanged = FDescriptions.Count > 0;
+            TagsChanged = FTags != "";
+            OrderChanged = FOrder != 0;
+            UserdataChanged = FUserdata.Length != 0;
+            UserIdChanged = FUserId != "";
 
             TypeDefinition.ResetForInitialize();
         }
@@ -356,30 +353,27 @@ namespace RCP.Parameter
         public T Default { get { return DefaultDefinition.Default; } set { DefaultDefinition.Default = value; SetDirty(); } }
 
         public event EventHandler<T> ValueUpdated;
-        protected bool FValueChanged;
+        public bool ValueChanged { get; protected set; }
         protected T FValue;
-        public T Value { get { return FValue; } set { FValue = value; FValueChanged = true; SetDirty(); } }
+        public T Value { get { return FValue; } set { FValue = value; ValueChanged = true; SetDirty(); } }
 
         public ValueParameter(Int16 id, IParameterManager manager) : 
             base (id, manager)
         { }
 
-        protected override bool AnyChanged()
-        {
-            return base.AnyChanged() || FValueChanged;
-        }
+        public override bool AnyChanged => base.AnyChanged || ValueChanged;
 
-        public override void CopyTo(IParameter other)
+        public override void CopyFrom(IParameter other)
         {
-            if (FValueChanged)
+            var otherValue = other as ValueParameter<T>;
+            if (otherValue.ValueChanged)
             {
-                var valueParameter = other as ValueParameter<T>;
-                valueParameter.Value = FValue;
-                valueParameter.ValueUpdated?.Invoke(other, FValue);
+                FValue = otherValue.Value;
+                ValueUpdated?.Invoke(other, FValue);
             }
 
             //last, because this also fires the Update event
-            base.CopyTo(other);
+            base.CopyFrom(other);
         }
     }
 }

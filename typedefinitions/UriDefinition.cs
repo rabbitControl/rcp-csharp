@@ -9,13 +9,13 @@ namespace RCP.Parameter
 {
     public class UriDefinition : DefaultDefinition<string>, IUriDefinition
     {
-        private bool FSchemaChanged;
+        public bool SchemaChanged { get; private set; }
         private string FSchema;
-        public string Schema { get { return FSchema; } set { FSchemaChanged = FSchema != value; FSchema = value;} }
+        public string Schema { get { return FSchema; } set { SchemaChanged = FSchema != value; FSchema = value;} }
 
-        private bool FFilterChanged;
+        public bool FilterChanged { get; private set; }
         private string FFilter;
-        public string Filter { get { return FFilter; } set { FFilterChanged = FFilter != value; FFilter = value; } }
+        public string Filter { get { return FFilter; } set { FilterChanged = FFilter != value; FFilter = value; } }
 
         public UriDefinition()
         : base(RcpTypes.Datatype.Uri)
@@ -23,13 +23,13 @@ namespace RCP.Parameter
 
         public override bool AnyChanged()
         {
-            return FSchemaChanged || FFilterChanged;
+            return base.AnyChanged() || SchemaChanged || FilterChanged;
         }
 
         public override void ResetForInitialize()
         {
-            FSchemaChanged = FSchema != "";
-            FFilterChanged = FFilter != "";
+            SchemaChanged = FSchema != "";
+            FilterChanged = FFilter != "";
         }
 
         public override string ReadValue(KaitaiStream input)
@@ -46,18 +46,18 @@ namespace RCP.Parameter
         {
             base.WriteOptions(writer);
 
-            if (FSchemaChanged)
+            if (SchemaChanged)
             {
                 writer.Write((byte)RcpTypes.UriOptions.Schema);
                 WriteValue(writer, FSchema);
-                FSchemaChanged = false;
+                SchemaChanged = false;
             }
 
-            if (FFilterChanged)
+            if (FilterChanged)
             {
                 writer.Write((byte)RcpTypes.UriOptions.Filter);
                 WriteValue(writer, FFilter);
-                FFilterChanged = false;
+                FilterChanged = false;
             }
         }
 
@@ -89,17 +89,17 @@ namespace RCP.Parameter
             return false;
         }
 
-        public override void CopyTo(ITypeDefinition other)
+        public override void CopyFrom(ITypeDefinition other)
         {
-            base.CopyTo(other);
+            base.CopyFrom(other);
 
-            var otherUri = other as UriDefinition;
+            var otherUri = other as IUriDefinition;
 
-            if (FSchemaChanged)
-                otherUri.Schema = FSchema;
+            if (otherUri.SchemaChanged)
+                FSchema = otherUri.Schema;
 
-            if (FFilterChanged)
-                otherUri.Filter = FFilter;
+            if (otherUri.FilterChanged)
+                FFilter = otherUri.Filter;
         }
     }
 }

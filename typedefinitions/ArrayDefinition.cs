@@ -31,7 +31,7 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FDefaultChanged = Default != null;
+            DefaultChanged = Default != null;
         }
 
         protected override void WriteOptions(BinaryWriter writer)

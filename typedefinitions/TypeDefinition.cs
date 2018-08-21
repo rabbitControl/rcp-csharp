@@ -16,7 +16,7 @@ namespace RCP.Parameter
             Datatype = datatype;
         }
         
-        public abstract void CopyTo(ITypeDefinition other);
+        public abstract void CopyFrom(ITypeDefinition other);
 
         public virtual void ResetForInitialize()
         { }
@@ -64,11 +64,11 @@ namespace RCP.Parameter
 
     public abstract class DefaultDefinition<T>: TypeDefinition, IDefaultDefinition<T>
     {
-        protected bool FDefaultChanged;
+        public bool DefaultChanged { get; protected set; }
         protected T FDefault;
         public T Default { get { return FDefault; }
             set {
-                FDefaultChanged = !FDefault?.Equals(value) ?? value != null;
+                DefaultChanged = !FDefault?.Equals(value) ?? value != null;
                 FDefault = value;
             } }
 
@@ -78,13 +78,18 @@ namespace RCP.Parameter
         public abstract void WriteValue(BinaryWriter writer, T value);
         public abstract T ReadValue(KaitaiStream input);
 
+        public override bool AnyChanged()
+        {
+            return DefaultChanged;
+        }
+
         protected override void WriteOptions(BinaryWriter writer)
         {
-            if (FDefaultChanged)
+            if (DefaultChanged)
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Default);
                 WriteValue(writer, Default);
-                FDefaultChanged = false;
+                DefaultChanged = false;
             }
         }
 
@@ -102,10 +107,11 @@ namespace RCP.Parameter
             return false;
         }
 
-        public override void CopyTo(ITypeDefinition other)
+        public override void CopyFrom(ITypeDefinition other)
         {
-            if (FDefaultChanged)
-                (other as DefaultDefinition<T>).Default = FDefault;
+            var otherDefinition = other as IDefaultDefinition<T>;
+            if (otherDefinition.DefaultChanged)
+                FDefault = otherDefinition.Default;
         }
 
         public static ITypeDefinition Parse(KaitaiStream input)

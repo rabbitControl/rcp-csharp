@@ -16,7 +16,7 @@ namespace RCP
 	{
         //public ILogger Logger { get; set; }
         protected Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
-        protected List<IParameter> FDirtyParams = new List<IParameter>();
+        protected HashSet<Int16> FDirtyParamIds = new HashSet<Int16>();
 
         protected IGroupParameter FRoot;
         public IGroupParameter Root => FRoot;
@@ -56,13 +56,13 @@ namespace RCP
 
         public void SetParameterDirty(IParameter param)
         {
-            if (!FDirtyParams.Contains(param) && param.Id != 0)
-                FDirtyParams.Add(param);
+            if (!FDirtyParamIds.Contains(param.Id) && param.Id != 0)
+                FDirtyParamIds.Add(param.Id);
         }
 
         public virtual void Update()
         {
-            FDirtyParams.Clear();
+            FDirtyParamIds.Clear();
         }
     }
 }

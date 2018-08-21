@@ -10,7 +10,7 @@ namespace RCP.Parameter
     {
         public StringDefinition StringDefinition => TypeDefinition as StringDefinition;
 
-        public string RegularExpression { get { return StringDefinition.RegEx; } set { StringDefinition.RegEx = value; SetDirty(); } }
+        public string RegularExpression { get { return StringDefinition.RegularExpression; } set { StringDefinition.RegularExpression = value; SetDirty(); } }
 
         public StringParameter(Int16 id, IParameterManager manager) : 
             base (id, manager)
@@ -24,16 +24,16 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FValueChanged = FValue != "";
+            ValueChanged = FValue != "";
         }
 
         protected override void WriteValue(BinaryWriter writer)
         {
-            if (FValueChanged)
+            if (ValueChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Value);
                 StringDefinition.WriteValue(writer, Value);
-                FValueChanged = false;
+                ValueChanged = false;
             }
         }
 

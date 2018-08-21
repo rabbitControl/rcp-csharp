@@ -38,16 +38,16 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FValueChanged = !FValue.Equals(default(T));
+            ValueChanged = !FValue.Equals(default(T));
         }
 
         protected override void WriteValue(BinaryWriter writer)
         {
-            if (FValueChanged)
+            if (ValueChanged)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Value);
                 NumberDefinition.WriteValue(writer, Value);
-                FValueChanged = false;
+                ValueChanged = false;
             }
         }
 

@@ -18,7 +18,7 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FDefaultChanged = Default != false;
+            DefaultChanged = Default != false;
         }
 
         public override bool ReadValue(KaitaiStream input)

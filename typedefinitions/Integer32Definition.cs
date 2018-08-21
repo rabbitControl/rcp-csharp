@@ -19,11 +19,11 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FDefaultChanged = Default != 0;
+            DefaultChanged = Default != 0;
 
-            FMinimumChanged = Minimum != int.MinValue;
-            FMaximumChanged = Maximum != int.MaxValue;
-            FMultipleOfChanged = MultipleOf != 1;
+            MinimumChanged = Minimum != int.MinValue;
+            MaximumChanged = Maximum != int.MaxValue;
+            MultipleOfChanged = MultipleOf != 1;
         }
 
         public override int ReadValue(KaitaiStream input)

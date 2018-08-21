@@ -9,9 +9,9 @@ namespace RCP.Parameter
 {                           
     public class StringDefinition : DefaultDefinition<string>, IStringDefinition
     {
-        private bool FRegexChanged;
+        public bool RegularExpressionChanged { get; private set; }
         private string FRegEx;
-        public string RegEx { get { return FRegEx; } set { FRegexChanged = FRegEx != value;  FRegEx = value; } }
+        public string RegularExpression { get { return FRegEx; } set { RegularExpressionChanged = FRegEx != value;  FRegEx = value; } }
 
         public StringDefinition()
         : base(RcpTypes.Datatype.String)
@@ -23,8 +23,13 @@ namespace RCP.Parameter
         {
             base.ResetForInitialize();
 
-            FDefaultChanged = Default != "";
-            FRegexChanged = RegEx != "";
+            DefaultChanged = Default != "";
+            RegularExpressionChanged = RegularExpression != "";
+        }
+
+        public override bool AnyChanged()
+        {
+            return base.AnyChanged() || RegularExpressionChanged;
         }
 
         public override string ReadValue(KaitaiStream input)
@@ -41,13 +46,13 @@ namespace RCP.Parameter
         {
             base.WriteOptions(writer);
 
-            if (FRegexChanged)
+            if (RegularExpressionChanged)
             {
                 writer.Write((byte)RcpTypes.StringOptions.RegularExpression);
                 RcpTypes.TinyString.Write(FRegEx, writer);
                 writer.Write((byte)0);
 
-                FRegexChanged = false;
+                RegularExpressionChanged = false;
             }
         }
 
@@ -64,21 +69,21 @@ namespace RCP.Parameter
                     return true;
 
                 case RcpTypes.StringOptions.RegularExpression:
-                    RegEx = new RcpTypes.TinyString(input).Data;
+                    RegularExpression = new RcpTypes.TinyString(input).Data;
                     return true;
             }
 
             return false;
         }
 
-        public override void CopyTo(ITypeDefinition other)
+        public override void CopyFrom(ITypeDefinition other)
         {
-            base.CopyTo(other);
+            base.CopyFrom(other);
 
-            var otherString = other as StringDefinition;
+            var otherString = other as IStringDefinition;
 
-            if (FRegexChanged)
-                otherString.RegEx = FRegEx;
+            if (otherString.RegularExpressionChanged)
+                FRegEx = otherString.RegularExpression;
         }
     }
 }
