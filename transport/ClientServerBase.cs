@@ -64,5 +64,13 @@ namespace RCP
         {
             FDirtyParamIds.Clear();
         }
+
+        public IParameter GetParameter(Int16 id)
+        {
+            if (FParams.ContainsKey(id))
+                return FParams[id];
+            else
+                return null;
+        }
     }
 }

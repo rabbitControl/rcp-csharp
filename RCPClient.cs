@@ -64,11 +64,6 @@ namespace RCP
             base.Update();
         }
 
-        public IParameter GetParameter(Int16 id)
-        {
-            return FParams[id];
-        }
-
         internal static IParameter CreateParameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager)
         {
             switch (datatype)

@@ -180,13 +180,7 @@ namespace RCP
 
         public Action<string> Log;
 
-        public IParameter GetParameter(Int16 id)
-		{
-            if (FParams.ContainsKey(id))
-                return FParams[id];
-            else
-                return null;
-		}
+        
 		
 		//public IEnumerable<IParameter> GetParametersByParent(Int16 id)
 		//{
