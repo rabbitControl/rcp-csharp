@@ -10,7 +10,7 @@ namespace RCP.Parameter
     public class StringDefinition : DefaultDefinition<string>, IStringDefinition
     {
         public bool RegularExpressionChanged { get; private set; }
-        private string FRegEx;
+        private string FRegEx = "";
         public string RegularExpression { get { return FRegEx; } set { RegularExpressionChanged = FRegEx != value;  FRegEx = value; } }
 
         public StringDefinition()
