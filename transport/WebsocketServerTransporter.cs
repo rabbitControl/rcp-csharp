@@ -71,6 +71,9 @@ namespace RCP.Transporter
         {
             if (FServer != null)
             {
+                FSockets.Keys.ToList().ForEach(k => {
+                    FSockets[k].Close();
+                });
                 FSockets.Clear();
                 FServer.Dispose();
             }
