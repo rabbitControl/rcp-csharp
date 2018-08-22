@@ -159,6 +159,11 @@ namespace RCP
 		{
 			//Logger.Log(LogType.Debug, "Client received: " + bytes.Length + "bytes");
 			var packet = Packet.Parse(new KaitaiStream(bytes), this);
+            
+            //during package parsing temp-parameters are created with _this as manager
+            //and the parameters are immediately set dirty which is not correct
+            //therefore clear the dirty params here: 
+            FDirtyParamIds.Clear();
 			//Logger.Log(LogType.Debug, packet.Command.ToString());
 			
 			switch (packet.Command)
