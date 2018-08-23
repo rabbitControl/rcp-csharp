@@ -136,7 +136,6 @@
     <Compile Include="model\Exceptions.cs" />
     <Compile Include="model\Interfaces.cs" />
     <Compile Include="model\Widget.cs" />
-    <Compile Include="model\Model.cs" />
     <Compile Include="parameters\ArrayParameter.cs" />
     <Compile Include="parameters\BooleanParameter.cs" />
     <Compile Include="parameters\EnumParameter.cs" />
