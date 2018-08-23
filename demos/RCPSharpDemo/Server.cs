@@ -38,12 +38,12 @@ namespace RCPSharpDemo
 
             var param = FRabbit.CreateNumberParameter<float>("my float", group);
             param.Order = param.Id;
-            //param.Widget = new SliderWidget();
+            param.Widget = new SliderWidget();
             param.Default = 7.0f;
             param.Value = 2.0f;
             param.Minimum = -10.0f;
             param.Maximum = 10.0f;
-            //param.ValueUpdated += Param_ValueUpdated;
+            param.ValueUpdated += Param_ValueUpdated;
 
             var nt = FRabbit.CreateNumberParameter<int>("my int", group);
             nt.Value = 3;
@@ -62,7 +62,7 @@ namespace RCPSharpDemo
             var clr = FRabbit.CreateRGBAParameter("ma color", group);
             clr.Value = Color.Red;
 
-            var strarr = FRabbit.CreateStringArrayParameter<string[]>("my string array", 3);
+            var strarr = FRabbit.CreateStringArrayParameter("my string array", 3);
             strarr.Default = new string[3] { "a", "b", "c" };
             strarr.Value = new string[3] { "aa", "bv", "cc" };
 

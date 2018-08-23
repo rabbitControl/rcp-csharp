@@ -54,8 +54,8 @@ namespace RCPSharpDemo
 
         private void P_Updated(object sender, EventArgs e)
         {
-            //var p = sender as IParameter;
-            label1.Text = UIParams.Count.ToString() + ": " + ((INumberParameter<float>)sender).Value;
+            if (sender is INumberParameter<int>)
+            label1.Text = UIParams.Count.ToString() + ": " + (sender as INumberParameter<int>).Value.ToString();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
