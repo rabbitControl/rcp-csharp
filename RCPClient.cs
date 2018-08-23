@@ -6,6 +6,7 @@ using RCP.Protocol;
 using Kaitai;
 using RCP.Parameter;
 using RCP.Exceptions;
+using System.Numerics;
 
 namespace RCP
 {
