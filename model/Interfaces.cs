@@ -133,6 +133,7 @@ namespace RCP
 
     public interface IStringParameter : IValueParameter<string>
     {
+        string RegularExpression { get; set; }
     }
 
     public interface IUriParameter : IValueParameter<string>
