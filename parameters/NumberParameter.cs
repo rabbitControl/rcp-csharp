@@ -13,11 +13,11 @@ namespace RCP.Parameter
     {
         public NumberDefinition<T> NumberDefinition => TypeDefinition as NumberDefinition<T>;
         
-        public T Minimum { get { return NumberDefinition.Minimum; } set { NumberDefinition.Minimum = value; SetDirty(); } }
-        public T Maximum { get { return NumberDefinition.Maximum; } set { NumberDefinition.Maximum = value; SetDirty(); } }
-        public T MultipleOf { get { return NumberDefinition.MultipleOf; } set { NumberDefinition.MultipleOf = value; SetDirty(); } }
-        public RcpTypes.NumberScale Scale { get { return NumberDefinition.Scale; } set { NumberDefinition.Scale = value; SetDirty(); } }
-        public string Unit { get { return NumberDefinition.Unit; } set { NumberDefinition.Unit = value; SetDirty(); } }
+        public T Minimum { get { return NumberDefinition.Minimum; } set { NumberDefinition.Minimum = value; if (NumberDefinition.MinimumChanged) SetDirty(); } }
+        public T Maximum { get { return NumberDefinition.Maximum; } set { NumberDefinition.Maximum = value; if (NumberDefinition.MaximumChanged) SetDirty(); } }
+        public T MultipleOf { get { return NumberDefinition.MultipleOf; } set { NumberDefinition.MultipleOf = value; if (NumberDefinition.MultipleOfChanged) SetDirty(); } }
+        public RcpTypes.NumberScale Scale { get { return NumberDefinition.Scale; } set { NumberDefinition.Scale = value; if (NumberDefinition.ScaleChanged) SetDirty(); } }
+        public string Unit { get { return NumberDefinition.Unit; } set { NumberDefinition.Unit = value; if (NumberDefinition.UnitChanged) SetDirty(); } }
 
         public NumberParameter(Int16 id, IParameterManager manager) : 
             base (id, manager)

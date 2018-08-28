@@ -10,7 +10,7 @@ namespace RCP.Parameter
     {
         public StringDefinition StringDefinition => TypeDefinition as StringDefinition;
 
-        public string RegularExpression { get { return StringDefinition.RegularExpression; } set { StringDefinition.RegularExpression = value; SetDirty(); } }
+        public string RegularExpression { get { return StringDefinition.RegularExpression; } set { StringDefinition.RegularExpression = value; if (StringDefinition.RegularExpressionChanged) SetDirty(); } }
 
         public StringParameter(Int16 id, IParameterManager manager) : 
             base (id, manager)

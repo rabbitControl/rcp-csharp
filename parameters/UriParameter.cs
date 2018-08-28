@@ -10,8 +10,8 @@ namespace RCP.Parameter
     {
         public UriDefinition UriDefinition => TypeDefinition as UriDefinition;
 
-        public string Schema { get { return UriDefinition.Schema; } set { UriDefinition.Schema = value; SetDirty(); } }
-        public string Filter { get { return UriDefinition.Filter; } set { UriDefinition.Filter = value; SetDirty(); } }
+        public string Schema { get { return UriDefinition.Schema; } set { UriDefinition.Schema = value; if (UriDefinition.SchemaChanged) SetDirty(); } }
+        public string Filter { get { return UriDefinition.Filter; } set { UriDefinition.Filter = value; if (UriDefinition.FilterChanged) SetDirty(); } }
 
         public UriParameter(Int16 id, IParameterManager manager) : 
             base (id, manager)

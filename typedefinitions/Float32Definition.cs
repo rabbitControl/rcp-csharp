@@ -10,9 +10,9 @@ namespace RCP.Parameter
         public Float32Definition()
         : base(RcpTypes.Datatype.Float32)
         {
-            Minimum = float.MinValue;
-            Maximum = float.MaxValue;
-            MultipleOf = 0.01f;
+            FMinimum = float.MinValue;
+            FMaximum = float.MaxValue;
+            FMultipleOf = 0.01f;
         }
 
         public override void ResetForInitialize()

@@ -11,9 +11,9 @@ namespace RCP.Parameter
         public Vector4f32Definition()
         : base(RcpTypes.Datatype.Vector4f32)
         {
-            Minimum = new Vector4(float.MinValue, float.MinValue, float.MinValue, float.MinValue);
-            Maximum = new Vector4(float.MaxValue, float.MaxValue, float.MaxValue, float.MaxValue);
-            MultipleOf = new Vector4(0.01f, 0.01f, 0.01f, 0.01f);
+            FMinimum = new Vector4(float.MinValue, float.MinValue, float.MinValue, float.MinValue);
+            FMaximum = new Vector4(float.MaxValue, float.MaxValue, float.MaxValue, float.MaxValue);
+            FMultipleOf = new Vector4(0.01f, 0.01f, 0.01f, 0.01f);
         }
 
         public override void ResetForInitialize()

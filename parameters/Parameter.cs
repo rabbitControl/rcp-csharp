@@ -23,31 +23,35 @@ namespace RCP.Parameter
 
         public bool ParentIdChanged { get; private set; }
         private Int16 FParentId;
-        public Int16 ParentId { get { return FParentId; } set { FParentId = value; ParentIdChanged = true; SetDirty(); } }
+        public Int16 ParentId { get { return FParentId; } set { if (FParentId != value) { FParentId = value; ParentIdChanged = true; SetDirty(); } } }
 
         public bool LabelChanged { get; private set; }
         private Dictionary<string, string> FLabels = new Dictionary<string, string>();
-        public string Label { get { return FLabels.ContainsKey("any") ? FLabels["any"] : ""; } set { FLabels["any"] = value; LabelChanged = true; SetDirty(); } }
+        public string Label { get { return FLabels.ContainsKey("any") ? FLabels["any"] : ""; } set {
+                if (!FLabels.ContainsKey("any") || (FLabels.ContainsKey("any") && FLabels["any"] != value)) 
+                    { FLabels["any"] = value; LabelChanged = true; SetDirty(); }} }
 
         public bool DescriptionChanged { get; private set; }
         private Dictionary<string, string> FDescriptions = new Dictionary<string, string>();
-        public string Description { get { return FDescriptions.ContainsKey("any") ? FDescriptions["any"] : ""; } set { FDescriptions["any"] = value; DescriptionChanged = true; SetDirty(); } }
+        public string Description { get { return FDescriptions.ContainsKey("any") ? FDescriptions["any"] : ""; } set {
+                if (!FDescriptions.ContainsKey("any") || (FDescriptions.ContainsKey("any") && FDescriptions["any"] != value))
+                    { FDescriptions["any"] = value; DescriptionChanged = true; SetDirty(); } } }
 
         public bool TagsChanged { get; private set; }
         private string FTags = "";
-        public string Tags { get { return FTags; } set { FTags = value; TagsChanged = true; SetDirty(); } }
+        public string Tags { get { return FTags; } set { if (FTags != value) { FTags = value; TagsChanged = true; SetDirty(); } } }
 
         public bool OrderChanged { get; private set; }
         private int FOrder;
-        public int Order { get { return FOrder; } set { FOrder = value; OrderChanged = true; SetDirty(); } }
+        public int Order { get { return FOrder; } set { if (FOrder != value) { FOrder = value; OrderChanged = true; SetDirty(); } } }
 
         public bool UserdataChanged { get; private set; }
         private byte[] FUserdata = new byte[0];
-        public byte[] Userdata { get { return FUserdata; } set { FUserdata = value; UserdataChanged = true; SetDirty(); } }
+        public byte[] Userdata { get { return FUserdata; } set { if (FUserdata != value) { FUserdata = value; UserdataChanged = true; SetDirty(); } } }
 
         public bool UserIdChanged { get; private set; }
         private string FUserId = "";
-        public string UserId { get { return FUserId; } set { FUserId = value; UserIdChanged = true; SetDirty(); } }
+        public string UserId { get { return FUserId; } set { if (FUserId != value) { FUserId = value; UserIdChanged = true; SetDirty(); } } }
 
         public bool WidgetChanged { get; private set; }
         public Widget Widget { get; set; }

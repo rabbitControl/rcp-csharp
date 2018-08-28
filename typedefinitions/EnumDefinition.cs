@@ -12,11 +12,11 @@ namespace RCP.Parameter
     {
         public bool EntriesChanged { get; private set; }
         private string[] FEntries;
-        public string[] Entries { get { return FEntries; } set { EntriesChanged = FEntries != value;  FEntries = value; } }
+        public string[] Entries { get { return FEntries; } set { if (FEntries != value) { EntriesChanged = true; FEntries = value; } } }
 
         public bool MultiSelectChanged { get; private set; }
         private bool FMultiSelect;
-        public bool MultiSelect { get { return FMultiSelect; } set { MultiSelectChanged = FMultiSelect != value; FMultiSelect = value; } }
+        public bool MultiSelect { get { return FMultiSelect; } set { if (FMultiSelect != value) { MultiSelectChanged = true; FMultiSelect = value; } } }
 
         public EnumDefinition()
         : base(RcpTypes.Datatype.Enum)

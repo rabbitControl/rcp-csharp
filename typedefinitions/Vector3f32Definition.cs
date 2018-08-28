@@ -11,9 +11,9 @@ namespace RCP.Parameter
         public Vector3f32Definition()
         : base(RcpTypes.Datatype.Vector3f32)
         {
-            Minimum = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            Maximum = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            MultipleOf = new Vector3(0.01f, 0.01f, 0.01f);
+            FMinimum = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            FMaximum = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            FMultipleOf = new Vector3(0.01f, 0.01f, 0.01f);
         }
 
         public override void ResetForInitialize()

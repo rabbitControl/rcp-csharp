@@ -10,24 +10,24 @@ namespace RCP.Parameter
     public abstract class NumberDefinition<T> : DefaultDefinition<T>, INumberDefinition<T> where T: struct
     {
         public bool MinimumChanged { get; protected set; }
-        private T FMinimum;
-        public T Minimum { get { return FMinimum; } set { MinimumChanged = !FMinimum.Equals(value); FMinimum = value; } }
+        protected T FMinimum;
+        public T Minimum { get { return FMinimum; } set { if (!FMinimum.Equals(value)) { MinimumChanged = true; FMinimum = value; } } }
 
         public bool MaximumChanged { get; protected set; }
-        private T FMaximum;
-        public T Maximum { get { return FMaximum; } set { MaximumChanged = !FMaximum.Equals(value); FMaximum = value; } }
+        protected T FMaximum;
+        public T Maximum { get { return FMaximum; } set { if (!FMaximum.Equals(value)) { MaximumChanged = true; FMaximum = value; } } }
 
         public bool MultipleOfChanged { get; protected set; }
         protected T FMultipleOf;
-        public T MultipleOf { get { return FMultipleOf; } set { MultipleOfChanged = !FMultipleOf.Equals(value); FMultipleOf = value; } }
+        public T MultipleOf { get { return FMultipleOf; } set { if (!FMultipleOf.Equals(value)) { MultipleOfChanged = true; FMultipleOf = value; } } }
 
         public bool ScaleChanged { get; protected set; }
         private RcpTypes.NumberScale FScale;
-        public RcpTypes.NumberScale Scale { get { return FScale; } set { ScaleChanged = !FScale.Equals(value); FScale = value; } }
+        public RcpTypes.NumberScale Scale { get { return FScale; } set { if (!FScale.Equals(value)) { ScaleChanged = true; FScale = value; } } }
 
         public bool UnitChanged { get; protected set; }
         private string FUnit = "";
-        public string Unit { get { return FUnit; } set { UnitChanged = !FUnit.Equals(value); FUnit = value; } }
+        public string Unit { get { return FUnit; } set { if (!FUnit.Equals(value)) { UnitChanged = true; FUnit = value; } } }
 
         public NumberDefinition(RcpTypes.Datatype datatype)
         : base(datatype)

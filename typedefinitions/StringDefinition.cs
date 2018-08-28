@@ -11,7 +11,7 @@ namespace RCP.Parameter
     {
         public bool RegularExpressionChanged { get; private set; }
         private string FRegEx = "";
-        public string RegularExpression { get { return FRegEx; } set { RegularExpressionChanged = FRegEx != value;  FRegEx = value; } }
+        public string RegularExpression { get { return FRegEx; } set { if (FRegEx != value) { RegularExpressionChanged = true; FRegEx = value; } } }
 
         public StringDefinition()
         : base(RcpTypes.Datatype.String)

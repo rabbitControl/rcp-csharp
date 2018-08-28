@@ -10,12 +10,12 @@ namespace RCP.Parameter
     public class UriDefinition : DefaultDefinition<string>, IUriDefinition
     {
         public bool SchemaChanged { get; private set; }
-        private string FSchema;
-        public string Schema { get { return FSchema; } set { SchemaChanged = FSchema != value; FSchema = value;} }
+        private string FSchema = "";
+        public string Schema { get { return FSchema; } set { if (FSchema != value) { SchemaChanged = true; FSchema = value; } } }
 
         public bool FilterChanged { get; private set; }
-        private string FFilter;
-        public string Filter { get { return FFilter; } set { FilterChanged = FFilter != value; FFilter = value; } }
+        private string FFilter = "";
+        public string Filter { get { return FFilter; } set { if (FFilter != value) { FilterChanged = true; FFilter = value; } } }
 
         public UriDefinition()
         : base(RcpTypes.Datatype.Uri)
