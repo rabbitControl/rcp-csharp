@@ -6,43 +6,37 @@ using RCP.Protocol;
 using RCP.Exceptions;
 using System.Collections.Generic;
 using RCP.Parameters;
-using System.Linq;
 
 namespace RCP.Types
 {
     public class EnumDefinition : DefaultDefinition<string>, IEnumDefinition
     {
-        private string[] FEntries = Array.Empty<string>();
-        public string[] Entries
-        {
-            get { return FEntries; }
-            set
-            {
-                if (!FEntries.SequenceEqual(value))
-                {
-                    FEntries = value;
-                    SetChanged(TypeChangedFlags.EnumEntires);
-                }
-            }
-        }
-
-        private bool FMultiSelect;
-        public bool MultiSelect
-        {
-            get { return FMultiSelect; }
-            set
-            {
-                if (FMultiSelect != value)
-                {
-                    FMultiSelect = value;
-                    SetChanged(TypeChangedFlags.EnumMultiSelect);
-                }
-            }
-        }
+        string[] FEntries = Array.Empty<string>();
+        bool FMultiSelect;
 
         public EnumDefinition()
             : base(RcpTypes.Datatype.Enum, string.Empty)
         {
+        }
+
+        public string[] Entries
+        {
+            get => FEntries;
+            set
+            {
+                if (SetProperty(ref FEntries, value))
+                    SetChanged(TypeChangedFlags.EnumEntires);
+            }
+        }
+
+        public bool MultiSelect
+        {
+            get => FMultiSelect;
+            set
+            {
+                if (SetProperty(ref FMultiSelect, value))
+                    SetChanged(TypeChangedFlags.EnumMultiSelect);
+            }
         }
 
         public override Parameter CreateParameter(short id, IParameterManager manager) => new EnumParameter(id, manager, this);

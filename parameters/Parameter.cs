@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Threading;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Collections.Immutable;
 
 namespace RCP.Parameters
 {
@@ -29,7 +32,7 @@ namespace RCP.Parameters
         Type = 1 << 9,
     }
 
-    public abstract class Parameter : IParameter, IWriteable
+    public abstract class Parameter : RCPObject, IParameter, IWriteable
     {
         public static Parameter Create(IParameterManager manager, Int16 id, RcpTypes.Datatype datatype) => Create(manager, id, datatype, 0);
 
@@ -59,12 +62,12 @@ namespace RCP.Parameters
 
         IParameterManager FManager;
         Int16 FParentId;
-        Dictionary<string, string> FLabels = new Dictionary<string, string>();
-        Dictionary<string, string> FDescriptions = new Dictionary<string, string>();
+        ImmutableDictionary<string, string> FLabels = ImmutableDictionary<string, string>.Empty;
+        ImmutableDictionary<string, string> FDescriptions = ImmutableDictionary<string, string>.Empty;
         string FTags = "";
         int FChangedFlags;
         private int FOrder;
-        private byte[] FUserdata = new byte[0];
+        private byte[] FUserdata = Array.Empty<byte>();
         private string FUserId = "";
         private Widget FWidget;
 
@@ -76,6 +79,8 @@ namespace RCP.Parameters
             Id = id;
             FManager = manager;
             Type = type;
+            // Redirect notifications from type
+            type.PropertyChanged += (s, p) => OnPropertyChanged(p.PropertyName);
         }
 
         public Int16 Id { get; }
@@ -86,77 +91,59 @@ namespace RCP.Parameters
             get { return FParentId; }
             set
             {
-                if (FParentId != value)
-                {
-                    FParentId = value;
+                if (SetProperty(ref FParentId, value))
                     SetChanged(ParameterChangedFlags.ParentId);
-                }
             }
         }
 
         public string Label
         {
-            get { return FLabels.ContainsKey("any") ? FLabels["any"] : ""; }
+            get => FLabels.GetValueOrDefault("any", "");
             set
             {
-                if (!FLabels.ContainsKey("any") || (FLabels.ContainsKey("any") && FLabels["any"] != value))
-                {
-                    FLabels["any"] = value;
+                if (SetProperty(ref FLabels, FLabels.SetItem("any", value)))
                     SetChanged(ParameterChangedFlags.Label);
-                }
             }
         }
 
         public string Description
         {
-            get { return FDescriptions.ContainsKey("any") ? FDescriptions["any"] : ""; }
+            get => FDescriptions.GetValueOrDefault("any", "");
             set
             {
-                if (!FDescriptions.ContainsKey("any") || (FDescriptions.ContainsKey("any") && FDescriptions["any"] != value))
-                {
-                    FDescriptions["any"] = value;
+                if (SetProperty(ref FDescriptions, FDescriptions.SetItem("any", value)))
                     SetChanged(ParameterChangedFlags.Description);
-                }
             }
         }
 
 
         public string Tags
         {
-            get { return FTags; }
+            get => FTags;
             set
             {
-                if (FTags != value)
-                {
-                    FTags = value;
+                if (SetProperty(ref FTags, value))
                     SetChanged(ParameterChangedFlags.Tags);
-                }
             }
         }
 
         public int Order
         {
-            get { return FOrder; }
+            get => FOrder;
             set
             {
-                if (FOrder != value)
-                {
-                    FOrder = value;
+                if (SetProperty(ref FOrder, value))
                     SetChanged(ParameterChangedFlags.Order);
-                }
             }
         }
 
         public byte[] Userdata
         {
-            get { return FUserdata; }
+            get => FUserdata;
             set
             {
-                if (!FUserdata.SequenceEqual(value))
-                {
-                    FUserdata = value;
+                if (SetProperty(ref FUserdata, value))
                     SetChanged(ParameterChangedFlags.Userdata);
-                }
             }
         }
 
@@ -165,11 +152,8 @@ namespace RCP.Parameters
             get { return FUserId; }
             set
             {
-                if (FUserId != value)
-                {
-                    FUserId = value;
+                if (SetProperty(ref FUserId, value))
                     SetChanged(ParameterChangedFlags.UserId);
-                }
             }
         }
 
@@ -178,11 +162,8 @@ namespace RCP.Parameters
             get { return FWidget; }
             set
             {
-                if (value != FWidget)
-                {
-                    FWidget = value;
+                if (SetProperty(ref FWidget, value))
                     SetChanged(ParameterChangedFlags.Widget);
-                }
             }
         }
 
@@ -193,7 +174,7 @@ namespace RCP.Parameters
         
         public void SetLanguageLabel(string iso639_3, string label)
         {
-            FLabels[iso639_3] = label;
+            FLabels = FLabels.SetItem(iso639_3, label);
             SetChanged(ParameterChangedFlags.Label);
         }
 
@@ -201,14 +182,14 @@ namespace RCP.Parameters
         {
             if (FLabels.ContainsKey(iso639_3))
             {
-                FLabels.Remove(iso639_3);
+                FLabels = FLabels.Remove(iso639_3);
                 SetChanged(ParameterChangedFlags.Label);
             }
         }
 
         public void SetLanguageDescription(string iso639_3, string description)
         {
-            FDescriptions[iso639_3] = description;
+            FDescriptions = FDescriptions.SetItem(iso639_3, description);
             SetChanged(ParameterChangedFlags.Description);
         }
 
@@ -216,7 +197,7 @@ namespace RCP.Parameters
         {
             if (FDescriptions.ContainsKey(iso639_3))
             {
-                FDescriptions.Remove(iso639_3);
+                FDescriptions = FDescriptions.Remove(iso639_3);
                 SetChanged(ParameterChangedFlags.Description);
             }
         }
@@ -442,12 +423,12 @@ namespace RCP.Parameters
         ITypeDefinition IParameter.Type => Type;
     }
 
-    public class ValueParameter<T> : Parameter, IValueParameter<T>
+    public class ValueParameter<T> : Parameter, IValueParameter<T>, INotifyPropertyChanged
     {
         T FValue;
 
-        public ValueParameter(Int16 id, IParameterManager manager, DefaultDefinition<T> type) : 
-            base (id, manager, type)
+        public ValueParameter(Int16 id, IParameterManager manager, DefaultDefinition<T> type) 
+            : base(id, manager, type)
         {
             FValue = type.Default;
         }
@@ -465,18 +446,15 @@ namespace RCP.Parameters
             get { return FValue; }
             set
             {
-                if (!EqualityComparer<T>.Default.Equals(value, FValue))
-                {
-                    FValue = value;
+                if (SetProperty(ref FValue, value))
                     SetChanged(ParameterChangedFlags.Value);
-                }
             }
         }
 
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();
-            if (!EqualityComparer<T>.Default.Equals(Value, Type.Default))
+            if (!Equals(Value, Type.Default))
                 SetChanged(ParameterChangedFlags.Value);
         }
 

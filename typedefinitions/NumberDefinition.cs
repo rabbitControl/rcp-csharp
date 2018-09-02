@@ -17,66 +17,51 @@ namespace RCP.Types
 
         public T Minimum
         {
-            get { return FMinimum; }
+            get => FMinimum;
             set
             {
-                if (!EqualityComparer<T>.Default.Equals(FMinimum, value))
-                {
-                    FMinimum = value;
+                if (SetProperty(ref FMinimum, value))
                     SetChanged(TypeChangedFlags.ValueMinimum);
-                }
             }
         }
 
         public T Maximum
         {
-            get { return FMaximum; }
+            get => FMaximum;
             set
             {
-                if (!EqualityComparer<T>.Default.Equals(FMaximum, value))
-                {
-                    FMaximum = value;
+                if (SetProperty(ref FMaximum, value))
                     SetChanged(TypeChangedFlags.ValueMaximum);
-                }
             }
         }
 
         public T MultipleOf
         {
-            get { return FMultipleOf; }
+            get => FMultipleOf;
             set
             {
-                if (!EqualityComparer<T>.Default.Equals(FMultipleOf, value))
-                {
-                    FMultipleOf = value;
+                if (SetProperty(ref FMultipleOf, value))
                     SetChanged(TypeChangedFlags.ValueMultipleOf);
-                }
             }
         }
 
         public RcpTypes.NumberScale Scale
         {
-            get { return FScale; }
+            get => FScale;
             set
             {
-                if (value != FScale)
-                {
-                    FScale = value;
+                if (SetProperty(ref FScale, value))
                     SetChanged(TypeChangedFlags.ValueScale);
-                }
             }
         }
 
         public string Unit
         {
-            get { return FUnit; }
+            get => FUnit;
             set
             {
-                if (value != FUnit)
-                {
-                    FUnit = value;
+                if (SetProperty(ref FUnit, value))
                     SetChanged(TypeChangedFlags.ValueUnit);
-                }
             }
         }
 
@@ -97,11 +82,11 @@ namespace RCP.Types
 
         public override void ResetForInitialize()
         {
-            if (!EqualityComparer<T>.Default.Equals(Minimum, DefaultMinimum))
+            if (!Equals(Minimum, DefaultMinimum))
                 SetChanged(TypeChangedFlags.ValueMinimum);
-            if (!EqualityComparer<T>.Default.Equals(Maximum, DefaultMaximum))
+            if (!Equals(Maximum, DefaultMaximum))
                 SetChanged(TypeChangedFlags.ValueMaximum);
-            if (!EqualityComparer<T>.Default.Equals(MultipleOf, DefaultMulitpleOf))
+            if (!Equals(MultipleOf, DefaultMulitpleOf))
                 SetChanged(TypeChangedFlags.ValueMultipleOf);
             if (FScale != RcpTypes.NumberScale.Linear)
                 SetChanged(TypeChangedFlags.ValueScale);

@@ -29,7 +29,7 @@ namespace RCP.Types
         UriFilterChanged = 1 << 11
     }
 
-    public abstract class TypeDefinition : ITypeDefinition
+    public abstract class TypeDefinition : RCPObject, ITypeDefinition
     {
         public static bool HasElementType(RcpTypes.Datatype type)
         {
@@ -241,11 +241,8 @@ namespace RCP.Types
             get { return FDefault; }
             set
             {
-                if (!EqualityComparer<T>.Default.Equals(FDefault, value))
-                {
-                    FDefault = value;
+                if (SetProperty(ref FDefault, value))
                     SetChanged(TypeChangedFlags.Default);
-                }
             }
         }
 
@@ -281,7 +278,7 @@ namespace RCP.Types
 
         public override void ResetForInitialize()
         {
-            if (!EqualityComparer<T>.Default.Equals(Default, TypeDefault))
+            if (!Equals(Default, TypeDefault))
                 SetChanged(TypeChangedFlags.Default);
             base.ResetForInitialize();
         }

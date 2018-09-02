@@ -10,23 +10,21 @@ namespace RCP.Types
 {                           
     public class StringDefinition : DefaultDefinition<string>, IStringDefinition
     {
-        private string FRegEx = "";
-        public string RegularExpression
-        {
-            get { return FRegEx; }
-            set
-            {
-                if (FRegEx != value)
-                {
-                    FRegEx = value;
-                    SetChanged(TypeChangedFlags.StringRegexp);
-                }
-            }
-        }
+        string FRegEx = "";
 
         public StringDefinition()
             : base(RcpTypes.Datatype.String, string.Empty)
         {
+        }
+
+        public string RegularExpression
+        {
+            get => FRegEx;
+            set
+            {
+                if (SetProperty(ref FRegEx, value))
+                    SetChanged(TypeChangedFlags.StringRegexp);
+            }
         }
 
         public override Parameter CreateParameter(short id, IParameterManager manager) => new StringParameter(id, manager, this);

@@ -11,21 +11,8 @@ namespace RCP.Types
 {
     public sealed class ArrayDefinition<T> : DefaultDefinition<T[]>, IArrayDefinition
     {
-        private int[] FStructure = Array.Empty<int>();
-        public int[] Structure
-        {
-            get { return FStructure; }
-            set
-            {
-                if (!FStructure.SequenceEqual(value))
-                {
-                    FStructure = value;
-                    SetChanged(TypeChangedFlags.ArrayStructure);
-                }
-            }
-        }
-
-        private readonly DefaultDefinition<T> FElementType;
+        readonly DefaultDefinition<T> FElementType;
+        int[] FStructure = Array.Empty<int>();
 
         public ArrayDefinition(DefaultDefinition<T> elementType, int[] structure) 
             : base(RcpTypes.Datatype.Array, Array.Empty<T>())
@@ -35,6 +22,16 @@ namespace RCP.Types
         }
 
         public ITypeDefinition ElementType => FElementType;
+
+        public int[] Structure
+        {
+            get => FStructure;
+            set
+            {
+                if (SetProperty(ref FStructure, value))
+                    SetChanged(TypeChangedFlags.ArrayStructure);
+            }
+        }
 
         public override Parameter CreateParameter(short id, IParameterManager manager) => new ArrayParameter<T>(id, manager, this);
 

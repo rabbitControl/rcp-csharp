@@ -5,18 +5,24 @@ using Kaitai;
 using RCP.Protocol;
 using RCP.Types;
 using RCP.Parameters;
+using System.Threading;
+using System.ComponentModel;
 
 namespace RCP
 {
-    public class RCPClient: ClientServerBase
+    public class RCPClient : ClientServerBase
 	{
+        private readonly SynchronizationContext FContext;
 		private IClientTransporter FTransporter;
+        bool FIsDirty;
 
-        public RCPClient()
+        public RCPClient() 
             : base()
-        { }
+        {
+            FContext = SynchronizationContext.Current;
+        }
 
-        public RCPClient(IClientTransporter transporter)
+        public RCPClient(IClientTransporter transporter) 
             : this()
         {
             SetTransporter(transporter);
@@ -30,7 +36,6 @@ namespace RCP
 
         public Action<Exception> OnError;
         public Action<RcpTypes.ClientStatus, string> StatusChanged;
-
 
         public void Connect(string host, int port)
         {
@@ -52,22 +57,49 @@ namespace RCP
 
         public override void Update()
         {
-            foreach (var parameter in FParams.Values)
-                if (parameter.IsDirty)
-                    SendPacket(Pack(RcpTypes.Command.Update, parameter));
+            try
+            {
+                foreach (var parameter in FParams.Values)
+                    if (parameter.IsDirty)
+                        SendPacket(Pack(RcpTypes.Command.Update, parameter));
+            }
+            finally
+            {
+                FIsDirty = false;
+            }
+        }
+
+        protected override void OnParameterAdded(Parameter parameter)
+        {
+            parameter.PropertyChanged += HandleParameterUpdated;
+            base.OnParameterAdded(parameter);
+        }
+
+        protected override void OnParameterRemoved(Parameter parameter)
+        {
+            parameter.PropertyChanged -= HandleParameterUpdated;
+            base.OnParameterRemoved(parameter);
+        }
+
+        void HandleParameterUpdated(object sender, PropertyChangedEventArgs args)
+        {
+            if (FIsDirty)
+                return;
+            FIsDirty = true;
+            FContext.Post(_ => Update(), null);
         }
 
         #region Transporter
         public void SetTransporter(IClientTransporter transporter)
         {
-            if (FTransporter != null)
+            var previousTransporter = Interlocked.Exchange(ref FTransporter, transporter);
+            if (previousTransporter != null)
             {
-                FTransporter.Received = null;
-                FTransporter.Dispose();
+                previousTransporter.Received = null;
+                previousTransporter.Dispose();
             }
-
-            FTransporter = transporter;
-            FTransporter.Received = ReceiveCB;
+            if (transporter != null)
+                transporter.Received = ReceiveCB;
         }
 
         void ReceiveCB(byte[] bytes)

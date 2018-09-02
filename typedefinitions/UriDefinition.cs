@@ -10,37 +10,32 @@ namespace RCP.Types
 {
     public class UriDefinition : DefaultDefinition<string>, IUriDefinition
     {
-        private string FSchema = "";
-        public string Schema
-        {
-            get { return FSchema; }
-            set
-            {
-                if (FSchema != value)
-                {
-                    FSchema = value;
-                    SetChanged(TypeChangedFlags.UriSchemaChanged);
-                }
-            }
-        }
-
-        private string FFilter = "";
-        public string Filter
-        {
-            get { return FFilter; }
-            set
-            {
-                if (FFilter != value)
-                {
-                    FFilter = value;
-                    SetChanged(TypeChangedFlags.UriFilterChanged);
-                }
-            }
-        }
+        string FSchema = "";
+        string FFilter = "";
 
         public UriDefinition()
             : base(RcpTypes.Datatype.Uri, string.Empty)
         {
+        }
+
+        public string Schema
+        {
+            get => FSchema;
+            set
+            {
+                if (SetProperty(ref FSchema, value))
+                    SetChanged(TypeChangedFlags.UriSchemaChanged);
+            }
+        }
+
+        public string Filter
+        {
+            get => FFilter;
+            set
+            {
+                if (SetProperty(ref FFilter, value))
+                    SetChanged(TypeChangedFlags.UriFilterChanged);
+            }
         }
 
         public override Parameter CreateParameter(short id, IParameterManager manager) => new UriParameter(id, manager, this);

@@ -12,7 +12,7 @@ namespace RCP
         Parameter GetParameter(Int16 id);
     }
 
-    public abstract class ClientServerBase: IDisposable, IParameterManager
+    public abstract class ClientServerBase : IDisposable, IParameterManager
 	{
         protected Dictionary<Int16, Parameter> FParams = new Dictionary<Int16, Parameter>();
 
@@ -64,15 +64,20 @@ namespace RCP
         {
             var id = parameter.Id;
             if (!FParams.ContainsKey(id))
+            {
                 FParams.Add(id, parameter);
-            ParameterAdded?.Invoke(this, parameter);
+                OnParameterAdded(parameter);
+            }
         }
 
         public virtual void RemoveParameter(Parameter parameter)
         {
             var id = parameter.Id;
-            FParams.Remove(id);
-            ParameterRemoved?.Invoke(this, parameter);
+            if (FParams.Remove(id))
+                OnParameterRemoved(parameter);
         }
+
+        protected virtual void OnParameterAdded(Parameter parameter) => ParameterAdded?.Invoke(this, parameter);
+        protected virtual void OnParameterRemoved(Parameter parameter) => ParameterRemoved?.Invoke(this, parameter);
     }
 }

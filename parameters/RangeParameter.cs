@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RCP.Types;
 
 namespace RCP.Parameters
@@ -12,8 +13,60 @@ namespace RCP.Parameters
         {
         }
 
+        public T Minimum
+        {
+            get => Type.ElementType.Minimum;
+            set
+            {
+                if (!Equals(value, Minimum))
+                {
+                    Type.ElementType.Minimum = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public T Maximum
+        {
+            get => Type.ElementType.Maximum;
+            set
+            {
+                if (!Equals(value, Maximum))
+                {
+                    Type.ElementType.Maximum = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public T Lower
+        {
+            get => Value.Lower;
+            set
+            {
+                if (!Equals(value, Lower))
+                {
+                    Value = new Range<T>(value, Upper);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public T Upper
+        {
+            get => Value.Upper;
+            set
+            {
+                if (!Equals(value, Upper))
+                {
+                    Value = new Range<T>(Lower, value);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         IRangeDefinition IRangeParameter.Type => Type;
-        object IRangeParameter.Lower { get => Value.Lower; set => Value = new Range<T>((T)value, Value.Upper); }
-        object IRangeParameter.Upper { get => Value.Upper; set => Value = new Range<T>(Value.Lower, (T)value); }
+        object IRangeParameter.Lower { get => Lower; set => Lower = (T)value; }
+        object IRangeParameter.Upper { get => Upper; set => Upper = (T)value; }
     }
 }

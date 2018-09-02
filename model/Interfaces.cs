@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 
@@ -12,7 +13,7 @@ namespace RCP
         void Write(BinaryWriter writer);
     }
 
-    public interface ITypeDefinition : IWriteable
+    public interface ITypeDefinition : IWriteable, INotifyPropertyChanged
     {
         RcpTypes.Datatype Datatype { get; }
         Type ClrType { get; }
@@ -79,7 +80,7 @@ namespace RCP
         INumberDefinition ElementType { get; }
     }
 
-    public interface IParameter : IWriteable
+    public interface IParameter : IWriteable, INotifyPropertyChanged
     {
         Int16 Id { get; }
         ITypeDefinition Type { get; }
@@ -110,6 +111,11 @@ namespace RCP
 
     public interface IGroupParameter: IParameter
     {
+    }
+
+    public interface INumberParameter : IValueParameter
+    {
+        new INumberDefinition Type { get; }
     }
 
     public interface IRangeParameter : IValueParameter
