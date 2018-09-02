@@ -19,8 +19,11 @@ namespace RCP.Parameter
         public bool MultiSelect { get { return FMultiSelect; } set { if (FMultiSelect != value) { MultiSelectChanged = true; FMultiSelect = value; } } }
 
         public EnumDefinition()
-        : base(RcpTypes.Datatype.Enum)
-        { }
+            : base(RcpTypes.Datatype.Enum)
+        {
+        }
+
+        public override Parameter CreateParameter(short id, IParameterManager manager) => new EnumParameter(id, manager, this);
 
         public override bool AnyChanged()
         {

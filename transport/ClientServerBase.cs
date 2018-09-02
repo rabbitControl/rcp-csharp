@@ -23,7 +23,7 @@ namespace RCP
 
         public ClientServerBase()
         {
-            FRoot = new GroupParameter(0, this);
+            FRoot = new GroupParameter(0, this, new GroupDefinition());
         }
 
         protected Packet Pack(RcpTypes.Command command, IParameter parameter)

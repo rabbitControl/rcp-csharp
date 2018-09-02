@@ -5,16 +5,17 @@ using System.Collections.Generic;
 
 namespace RCP.Parameter
 {
-    internal class GroupParameter : Parameter, IGroupParameter
+    public sealed class GroupParameter : Parameter, IGroupParameter
     {
+        public new GroupDefinition TypeDefinition => base.TypeDefinition as GroupDefinition;
+
         private List<IParameter> FParams = new List<IParameter>();
         private List<IParameter> FAddedParams = new List<IParameter>();
         private List<IParameter> FRemovedParams = new List<IParameter>();
 
-        public GroupParameter(Int16 id, IParameterManager manager): 
-            base (id, manager)
+        public GroupParameter(Int16 id, IParameterManager manager, GroupDefinition typeDefinition): 
+            base (id, manager, typeDefinition)
         {
-            TypeDefinition = new GroupDefinition();
         }
 
         public void AddParameter(IParameter param)

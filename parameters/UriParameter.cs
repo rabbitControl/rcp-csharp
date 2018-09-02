@@ -6,51 +6,35 @@ using System.IO;
 
 namespace RCP.Parameter
 {
-    internal class UriParameter : ValueParameter<string>, IUriParameter
+    public sealed class UriParameter : ValueParameter<string>
     {
-        public UriDefinition UriDefinition => TypeDefinition as UriDefinition;
+        public new UriDefinition TypeDefinition => base.TypeDefinition as UriDefinition;
 
-        public string Schema { get { return UriDefinition.Schema; } set { UriDefinition.Schema = value; if (UriDefinition.SchemaChanged) SetDirty(); } }
-        public string Filter { get { return UriDefinition.Filter; } set { UriDefinition.Filter = value; if (UriDefinition.FilterChanged) SetDirty(); } }
-
-        public UriParameter(Int16 id, IParameterManager manager) : 
-            base (id, manager)
+        public UriParameter(Int16 id, IParameterManager manager, UriDefinition typeDefinition) 
+            : base(id, manager, typeDefinition)
         {
-            TypeDefinition = new UriDefinition();
-
-            Value = "";
-            Default = "";
-            Schema = "file";
-            Filter = "";
         }
 
-        public override void ResetForInitialize()
+        public string Schema
         {
-            base.ResetForInitialize();
-
-            ValueChanged = Value != "";
-        }
-
-        protected override void WriteValue(BinaryWriter writer)
-        {
-            if (ValueChanged)
+            get { return TypeDefinition.Schema; }
+            set
             {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                UriDefinition.WriteValue(writer, Value);
-                ValueChanged = false;
+                TypeDefinition.Schema = value;
+                if (TypeDefinition.SchemaChanged)
+                    SetDirty();
             }
         }
 
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        public string Filter
         {
-            switch (option)
+            get { return TypeDefinition.Filter; }
+            set
             {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = UriDefinition.ReadValue(input);
-                    return true;
+                TypeDefinition.Filter = value;
+                if (TypeDefinition.FilterChanged)
+                    SetDirty();
             }
-
-            return false;
         }
     }
 }

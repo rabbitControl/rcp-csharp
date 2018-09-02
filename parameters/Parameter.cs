@@ -11,7 +11,7 @@ namespace RCP.Parameter
 {
     public enum Status { Update, Remove };
 
-    internal abstract class Parameter : IParameter, IWriteable
+    public abstract class Parameter : IParameter, IWriteable
     {
         protected IParameterManager FManager;
 
@@ -19,7 +19,7 @@ namespace RCP.Parameter
 
         public Int16 Id { get; private set; }
 
-        public ITypeDefinition TypeDefinition { get; set; }
+        public ITypeDefinition TypeDefinition { get; }
 
         public bool ParentIdChanged { get; private set; }
         private Int16 FParentId;
@@ -56,10 +56,11 @@ namespace RCP.Parameter
         public bool WidgetChanged { get; private set; }
         public Widget Widget { get; set; }
 
-        public Parameter(Int16 id, IParameterManager manager)
+        public Parameter(Int16 id, IParameterManager manager, ITypeDefinition typeDefinition)
         {
             Id = id;
             FManager = manager;
+            TypeDefinition = typeDefinition;
 
             SetDirty();
         }
@@ -202,6 +203,13 @@ namespace RCP.Parameter
 
             switch (datatype)
             {
+                case RcpTypes.Datatype.Range:
+                    {
+                        var elementType = (RcpTypes.Datatype)input.ReadU1();
+                        parameter = (Parameter)RCPClient.CreateRangeParameter(id, elementType, manager);
+                        parameter.TypeDefinition.ParseOptions(input);
+                        break;
+                    }
                 case RcpTypes.Datatype.Array:
                     {
                         //parse element type definition
@@ -351,21 +359,69 @@ namespace RCP.Parameter
         }
     }
 
-    internal abstract class ValueParameter<T> : Parameter, IValueParameter<T>
+    public class ValueParameter<T> : Parameter, IValueParameter<T>
     {
-        public IDefaultDefinition<T> DefaultDefinition => TypeDefinition as IDefaultDefinition<T>;
-        public T Default { get { return DefaultDefinition.Default; } set { DefaultDefinition.Default = value; SetDirty(); } }
+        public new DefaultDefinition<T> TypeDefinition => base.TypeDefinition as DefaultDefinition<T>;
 
-        public event EventHandler<T> ValueUpdated;
+        public T Default
+        {
+            get { return TypeDefinition.Default; }
+            set
+            {
+                TypeDefinition.Default = value;
+                SetDirty();
+            }
+        }
+
+        public event EventHandler ValueUpdated;
         public bool ValueChanged { get; protected set; }
-        protected T FValue;
-        public T Value { get { return FValue; } set { FValue = value; ValueChanged = true; SetDirty(); } }
 
-        public ValueParameter(Int16 id, IParameterManager manager) : 
-            base (id, manager)
-        { }
+        protected T FValue;
+        public T Value
+        {
+            get { return FValue; }
+            set
+            {
+                FValue = value;
+                ValueChanged = true; SetDirty();
+            }
+        }
+
+        public ValueParameter(Int16 id, IParameterManager manager, DefaultDefinition<T> type) : 
+            base (id, manager, type)
+        {
+            FValue = type.Default;
+        }
 
         public override bool AnyChanged => base.AnyChanged || ValueChanged;
+
+        public override void ResetForInitialize()
+        {
+            base.ResetForInitialize();
+            ValueChanged = !EqualityComparer<T>.Default.Equals(Value, TypeDefinition.Default);
+        }
+
+        protected override void WriteValue(BinaryWriter writer)
+        {
+            if (ValueChanged)
+            {
+                writer.Write((byte)RcpTypes.ParameterOptions.Value);
+                TypeDefinition.WriteValue(writer, Value);
+                ValueChanged = false;
+            }
+        }
+
+        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        {
+            switch (option)
+            {
+                case RcpTypes.ParameterOptions.Value:
+                    Value = TypeDefinition.ReadValue(input);
+                    return true;
+            }
+
+            return false;
+        }
 
         public override void CopyFrom(IParameter other)
         {
@@ -373,11 +429,14 @@ namespace RCP.Parameter
             if (otherValue.ValueChanged)
             {
                 FValue = otherValue.Value;
-                ValueUpdated?.Invoke(other, FValue);
+                ValueUpdated?.Invoke(other, EventArgs.Empty);
             }
 
             //last, because this also fires the Update event
             base.CopyFrom(other);
         }
+
+        object IValueParameter.Value { get => Value; set => Value = (T)value; }
+        object IValueParameter.Default { get => Default; set => Default = (T)value; }
     }
 }

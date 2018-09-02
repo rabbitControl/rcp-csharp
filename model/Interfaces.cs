@@ -15,10 +15,18 @@ namespace RCP
     public interface ITypeDefinition : IWriteable
     {
         RcpTypes.Datatype Datatype { get; }
+        Type ClrType { get; }
         void ParseOptions(Kaitai.KaitaiStream input);
         void ResetForInitialize();
         bool AnyChanged();
         void CopyFrom(ITypeDefinition other);
+    }
+
+    public interface INumberDefinition : ITypeDefinition
+    {
+        object Minimum { get; }
+        object Maximum { get; }
+        object MultipleOf { get; }
     }
 
     public interface IDefaultDefinition<T> : ITypeDefinition
@@ -33,13 +41,13 @@ namespace RCP
     {
     }
 
-    public interface INumberDefinition<T> : IDefaultDefinition<T> where T : struct
+    public interface INumberDefinition<T> : IDefaultDefinition<T>, INumberDefinition where T : struct
     {
-        T Minimum { get; set; }
+        new T Minimum { get; set; }
         bool MinimumChanged { get; }
-        T Maximum { get; set; }
+        new T Maximum { get; set; }
         bool MaximumChanged { get; }
-        T MultipleOf { get; set; }
+        new T MultipleOf { get; set; }
         bool MultipleOfChanged { get; }
         RcpTypes.NumberScale Scale { get; set; }
         bool ScaleChanged { get; }
@@ -80,6 +88,11 @@ namespace RCP
         int[] Structure { get; set; }
     }
 
+    public interface IRangeDefinition : ITypeDefinition
+    {
+        INumberDefinition ElementType { get; }
+    }
+
     public interface IParameter : IWriteable
     {
         Int16 Id { get; }
@@ -105,76 +118,28 @@ namespace RCP
         event EventHandler Updated;
     }
 
-    public interface IValueParameter<T>: IParameter
+    public interface IValueParameter : IParameter
     {
-        T Value { get; set; }
         bool ValueChanged { get; }
-        T Default { get; set; }
-        event EventHandler<T> ValueUpdated;
+        object Value { get; set; }
+        object Default { get; set; }
+        event EventHandler ValueUpdated;
     }
 
-    public interface IBooleanParameter : IValueParameter<bool>
+    public interface IValueParameter<T>: IValueParameter
     {
-    }
-
-    public interface INumberParameter<T> : IValueParameter<T> where T : struct
-    {
-        T Minimum { get; set; }
-        T Maximum { get; set; }
-        T MultipleOf { get; set; }
-        RcpTypes.NumberScale Scale { get; set; }
-        string Unit { get; set; }
-    }
-
-    public interface IEnumParameter : IValueParameter<string>
-    {
-    	string[] Entries { get; set; }
-    }
-
-    public interface IStringParameter : IValueParameter<string>
-    {
-        string RegularExpression { get; set; }
-    }
-
-    public interface IUriParameter : IValueParameter<string>
-    {
-        string Schema { get; set; }
-        string Filter { get; set; }
-    }
-
-    public interface IRGBAParameter : IValueParameter<Color>
-    {
-    }
-
-    public interface IArrayParameter<T> : IValueParameter<T>
-    {
-    }
-
-    public interface IBooleanArrayParameter : IArrayParameter<bool[]>
-    {
-    }
-
-    public interface INumberArrayParameter<T, E> : IArrayParameter<T>
-    {
-    }
-
-    public interface IStringArrayParameter : IArrayParameter<string[]> 
-    {
-    }
-
-    public interface IEnumArrayParameter : IArrayParameter<string[]>
-    {
-    }
-
-    public interface IRGBAArrayParameter : IArrayParameter<Color[]>
-    {
-    }
-
-    public interface IUriArrayParameter : IArrayParameter<string[]>
-    {
+        new T Value { get; set; }
+        new T Default { get; set; }
     }
 
     public interface IGroupParameter: IParameter
     {
+    }
+
+    public interface IRangeParameter : IValueParameter
+    {
+        new IRangeDefinition TypeDefinition { get; }
+        object Lower { get; set; }
+        object Upper { get; set; }
     }
 }

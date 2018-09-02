@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 using RCP.Protocol;
 using Kaitai;
-using System.Windows.Forms;
 using System.Collections;
 using System.Linq;
 using RCP.Parameter;
 using System.Numerics;
+using System.Diagnostics;
 
 namespace RCP
 {
@@ -41,99 +41,18 @@ namespace RCP
             base.Dispose();
 		}
 
-        public IBooleanParameter CreateBooleanParameter(string label = "", IGroupParameter group = null)
+        public IParameter CreateParameter(RcpTypes.Datatype type, string label = "", IGroupParameter group = null)
         {
-            var param = new BooleanParameter(FIdCounter++, this);
+            var param = TypeDefinition.Create(type).CreateParameter(FIdCounter++, this);
             param.Label = label;
             AddParameter(param, group);
 
             return param;
         }
 
-        public IBooleanArrayParameter CreateBooleanArrayParameter(string label, params int[] structure)
+        public IParameter CreateArrayParameter(RcpTypes.Datatype elementType, int[] structure, string label = "", IGroupParameter group = null)
         {
-            var param = new BooleanArrayParameter(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
-        }
-
-        public INumberParameter<T> CreateNumberParameter<T>(string label = "", IGroupParameter group = null) where T: struct
-        {
-            var param = new NumberParameter<T>(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-
-            return param as NumberParameter<T>;
-        }
-
-        public INumberArrayParameter<T, E> CreateNumberArrayParameter<T, E>(string label, params int[] structure) where E : struct
-        {
-            var param = new NumberArrayParameter<T, E>(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
-        }
-
-        public IStringParameter CreateStringParameter(string label = "", IGroupParameter group = null)
-        {
-            var param = new StringParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
-
-        public IStringArrayParameter CreateStringArrayParameter(string label, params int[] structure)
-        {
-            var param = new StringArrayParameter(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
-        }
-
-        public IUriParameter CreateUriParameter(string label = "", IGroupParameter group = null)
-        {
-            var param = new UriParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
-
-        public IUriArrayParameter CreateUriArrayParameter(string label, params int[] structure)
-        {
-            var param = new UriArrayParameter(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
-        }
-
-        public IEnumParameter CreateEnumParameter(string label = "", IGroupParameter group = null)
-        {
-            var param = new EnumParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
-
-        public IEnumArrayParameter CreateEnumArrayParameter(string label, params int[] structure)
-        {
-            var param = new EnumArrayParameter(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
-        }
-
-        public IRGBAParameter CreateRGBAParameter(string label = "", IGroupParameter group = null)
-        {
-            var param = new RGBAParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
-
-        public IRGBAArrayParameter CreateRGBAArrayParameter(string label, params int[] structure)
-        {
-            var param = new RGBAArrayParameter(FIdCounter++, this, structure);
+            var param = TypeDefinition.Create(elementType).CreateArray(structure).CreateParameter(FIdCounter++, this);
             param.Label = label;
             AddParameter(param);
             return param;
@@ -141,7 +60,7 @@ namespace RCP
 
         public IGroupParameter CreateGroup(string label = "", IGroupParameter group = null)
         {
-            var param = new GroupParameter(FIdCounter++, this);
+            var param = TypeDefinition.Create(RcpTypes.Datatype.Group).CreateParameter(FIdCounter++, this) as IGroupParameter;
             param.Label = label;
             AddParameter(param, group);
             return param;
@@ -251,7 +170,7 @@ namespace RCP
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                Trace.TraceError(e.Message);
             }
         }
 		

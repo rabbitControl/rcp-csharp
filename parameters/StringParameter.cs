@@ -6,47 +6,24 @@ using System.IO;
 
 namespace RCP.Parameter
 {
-    internal class StringParameter : ValueParameter<string>, IStringParameter
+    public sealed class StringParameter : ValueParameter<string>
     {
-        public StringDefinition StringDefinition => TypeDefinition as StringDefinition;
+        public new StringDefinition TypeDefinition => base.TypeDefinition as StringDefinition;
 
-        public string RegularExpression { get { return StringDefinition.RegularExpression; } set { StringDefinition.RegularExpression = value; if (StringDefinition.RegularExpressionChanged) SetDirty(); } }
-
-        public StringParameter(Int16 id, IParameterManager manager) : 
-            base (id, manager)
+        public StringParameter(Int16 id, IParameterManager manager, StringDefinition typeDefinition) 
+            : base(id, manager, typeDefinition)
         {
-            TypeDefinition = new StringDefinition();
-
-            FValue = "";
         }
 
-        public override void ResetForInitialize()
+        public string RegularExpression
         {
-            base.ResetForInitialize();
-
-            ValueChanged = FValue != "";
-        }
-
-        protected override void WriteValue(BinaryWriter writer)
-        {
-            if (ValueChanged)
+            get { return TypeDefinition.RegularExpression; }
+            set
             {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                StringDefinition.WriteValue(writer, Value);
-                ValueChanged = false;
+                TypeDefinition.RegularExpression = value;
+                if (TypeDefinition.RegularExpressionChanged)
+                    SetDirty();
             }
-        }
-
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
-        {
-            switch (option)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = StringDefinition.ReadValue(input);
-                    return true;
-            }
-
-            return false;
         }
     }
 }

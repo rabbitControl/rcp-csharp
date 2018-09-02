@@ -14,6 +14,8 @@ namespace RCP.Parameter
             FDefault = false;
         }
 
+        public override Parameter CreateParameter(short id, IParameterManager manager) => new ValueParameter<bool>(id, manager, this);
+
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();

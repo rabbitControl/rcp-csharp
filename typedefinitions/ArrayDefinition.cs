@@ -10,22 +10,32 @@ using RCP.Exceptions;
 
 namespace RCP.Parameter
 {
-    public class ArrayDefinition<T, E> : DefaultDefinition<T>, IArrayDefinition
+    public sealed class ArrayDefinition<T> : DefaultDefinition<T[]>, IArrayDefinition
     {
         protected bool FStructureChanged;
         private int[] FStructure;
-        public int[] Structure { get { return FStructure; } set { FStructure = value; FStructureChanged = true; } }
+        public int[] Structure
+        {
+            get { return FStructure; }
+            set
+            {
+                FStructure = value;
+                FStructureChanged = true;
+            }
+        }
 
         public RcpTypes.Datatype ElementType => FElementDefinition.Datatype;
 
-        private IDefaultDefinition<E> FElementDefinition;
+        private readonly DefaultDefinition<T> FElementDefinition;
         public ITypeDefinition ElementDefinition => FElementDefinition; 
 
-        public ArrayDefinition(DefaultDefinition<E> elementDefinition, int[] structure) : base(RcpTypes.Datatype.Array)
+        public ArrayDefinition(DefaultDefinition<T> elementDefinition, int[] structure) : base(RcpTypes.Datatype.Array)
         {
             FElementDefinition = elementDefinition;
             Structure = structure;
         }
+
+        public override Parameter CreateParameter(short id, IParameterManager manager) => new ArrayParameter<T>(id, manager, this);
 
         public override void ResetForInitialize()
         {
@@ -61,19 +71,7 @@ namespace RCP.Parameter
         public override void ParseOptions(KaitaiStream input)
         {
             FElementDefinition.ParseOptions(input);
-
-            while (true)
-            {
-                var code = input.ReadU1();
-                if (code == 0) // terminator
-                    break;
-
-                // handle option in specific implementation
-                if (!HandleOption(input, code))
-                {
-                    throw new RCPUnsupportedFeatureException();
-                }
-            }
+            base.ParseOptions(input);
         }
 
         protected override bool HandleOption(KaitaiStream input, byte code)
@@ -107,22 +105,22 @@ namespace RCP.Parameter
             return dimensions;
         }
 
-        public override T ReadValue(KaitaiStream input)
+        public override T[] ReadValue(KaitaiStream input)
         {
             FStructure = ReadStructure(input);
 
-            var a = Array.CreateInstance(typeof(E), FStructure[0]);
+            var a = new T[FStructure[0]];;
 
             //TODO: support multiple dimensions
-            for (int i = 0; i < FStructure[0]; i++)
+            for (int i = 0; i < a.Length; i++)
             {
-                a.SetValue((E)FElementDefinition.ReadValue(input), i);
+                a[i] = FElementDefinition.ReadValue(input);
             }
 
-            return (T)(object)a;
+            return a;
         }
 
-        public override void WriteValue(BinaryWriter writer, T value)
+        public override void WriteValue(BinaryWriter writer, T[] value)
         {
             WriteStructure(writer);
 
@@ -130,12 +128,8 @@ namespace RCP.Parameter
             var rank = 1;//a.Rank;
 
             //TODO: support multiple dimensions
-            for (int i = 0; i < rank; i++)
-            {
-                var l = a.GetLength(i);
-                for (int j = 0; j < l; j++)
-                    FElementDefinition.WriteValue(writer, (E)a.GetValue(j));
-            }
+            foreach (var e in value)
+                FElementDefinition.WriteValue(writer, e);
         }
     }
 }

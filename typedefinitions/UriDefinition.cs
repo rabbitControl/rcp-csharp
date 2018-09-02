@@ -18,8 +18,11 @@ namespace RCP.Parameter
         public string Filter { get { return FFilter; } set { if (FFilter != value) { FilterChanged = true; FFilter = value; } } }
 
         public UriDefinition()
-        : base(RcpTypes.Datatype.Uri)
-        { }
+            :base(RcpTypes.Datatype.Uri)
+        {
+        }
+
+        public override Parameter CreateParameter(short id, IParameterManager manager) => new UriParameter(id, manager, this);
 
         public override bool AnyChanged()
         {

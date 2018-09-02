@@ -9,58 +9,69 @@ using System.Numerics;
 
 namespace RCP.Parameter
 {
-    internal class NumberParameter<T> : ValueParameter<T>, INumberParameter<T> where T : struct
+    public class NumberParameter<T> : ValueParameter<T>
+        where T : struct
     {
-        public NumberDefinition<T> NumberDefinition => TypeDefinition as NumberDefinition<T>;
-        
-        public T Minimum { get { return NumberDefinition.Minimum; } set { NumberDefinition.Minimum = value; if (NumberDefinition.MinimumChanged) SetDirty(); } }
-        public T Maximum { get { return NumberDefinition.Maximum; } set { NumberDefinition.Maximum = value; if (NumberDefinition.MaximumChanged) SetDirty(); } }
-        public T MultipleOf { get { return NumberDefinition.MultipleOf; } set { NumberDefinition.MultipleOf = value; if (NumberDefinition.MultipleOfChanged) SetDirty(); } }
-        public RcpTypes.NumberScale Scale { get { return NumberDefinition.Scale; } set { NumberDefinition.Scale = value; if (NumberDefinition.ScaleChanged) SetDirty(); } }
-        public string Unit { get { return NumberDefinition.Unit; } set { NumberDefinition.Unit = value; if (NumberDefinition.UnitChanged) SetDirty(); } }
+        public new NumberDefinition<T> TypeDefinition => base.TypeDefinition as NumberDefinition<T>;
 
-        public NumberParameter(Int16 id, IParameterManager manager) : 
-            base (id, manager)
+        public NumberParameter(Int16 id, IParameterManager manager, NumberDefinition<T> typeDefinition) 
+            : base(id, manager, typeDefinition)
         {
-            if (typeof(T) == typeof(float))
-                TypeDefinition = new Float32Definition() as NumberDefinition<T>;
-            else if (typeof(T) == typeof(int))
-                TypeDefinition = new Integer32Definition() as NumberDefinition<T>;
-            else if (typeof(T) == typeof(Vector2))
-                TypeDefinition = new Vector2f32Definition() as NumberDefinition<T>;
-            else if (typeof(T) == typeof(Vector3))
-                TypeDefinition = new Vector3f32Definition() as NumberDefinition<T>;
-            else if (typeof(T) == typeof(Vector4))
-                TypeDefinition = new Vector4f32Definition() as NumberDefinition<T>;
         }
 
-        public override void ResetForInitialize()
+        public T Minimum
         {
-            base.ResetForInitialize();
-
-            ValueChanged = !FValue.Equals(default(T));
-        }
-
-        protected override void WriteValue(BinaryWriter writer)
-        {
-            if (ValueChanged)
+            get { return TypeDefinition.Minimum; }
+            set
             {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                NumberDefinition.WriteValue(writer, Value);
-                ValueChanged = false;
+                TypeDefinition.Minimum = value;
+                if (TypeDefinition.MinimumChanged)
+                    SetDirty();
             }
         }
 
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        public T Maximum
         {
-            switch (option)
+            get { return TypeDefinition.Maximum; }
+            set
             {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = NumberDefinition.ReadValue(input);
-                    return true;
+                TypeDefinition.Maximum = value;
+                if (TypeDefinition.MaximumChanged)
+                    SetDirty();
             }
+        }
 
-            return false;
+        public T MultipleOf
+        {
+            get { return TypeDefinition.MultipleOf; }
+            set
+            {
+                TypeDefinition.MultipleOf = value;
+                if (TypeDefinition.MultipleOfChanged)
+                    SetDirty();
+            }
+        }
+
+        public RcpTypes.NumberScale Scale
+        {
+            get { return TypeDefinition.Scale; }
+            set
+            {
+                TypeDefinition.Scale = value;
+                if (TypeDefinition.ScaleChanged)
+                    SetDirty();
+            }
+        }
+
+        public string Unit
+        {
+            get { return TypeDefinition.Unit; }
+            set
+            {
+                TypeDefinition.Unit = value;
+                if (TypeDefinition.UnitChanged)
+                    SetDirty();
+            }
         }
     }
 }

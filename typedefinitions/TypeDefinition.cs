@@ -9,13 +9,99 @@ namespace RCP.Parameter
 {
     public abstract class TypeDefinition : ITypeDefinition
     {
-        public RcpTypes.Datatype Datatype { get; private set; }
+        public static bool HasElementType(RcpTypes.Datatype type)
+        {
+            switch (type)
+            {
+                case RcpTypes.Datatype.Array:
+                case RcpTypes.Datatype.List:
+                case RcpTypes.Datatype.Range:
+                    return true;
+            }
+            return false;
+        }
+
+        public static TypeDefinition Create(RcpTypes.Datatype type)
+        {
+            switch (type)
+            {
+                case RcpTypes.Datatype.Customtype:
+                    break;
+                case RcpTypes.Datatype.Boolean:
+                    return new BooleanDefinition();
+                case RcpTypes.Datatype.Int8:
+                    return new Integer8Definition();
+                case RcpTypes.Datatype.Uint8:
+                    return new UInteger8Definition();
+                case RcpTypes.Datatype.Int16:
+                    return new Integer16Definition();
+                case RcpTypes.Datatype.Uint16:
+                    return new UInteger16Definition();
+                case RcpTypes.Datatype.Int32:
+                    return new Integer32Definition();
+                case RcpTypes.Datatype.Uint32:
+                    return new UInteger32Definition();
+                case RcpTypes.Datatype.Int64:
+                    return new Integer64Definition();
+                case RcpTypes.Datatype.Uint64:
+                    return new UInteger64Definition();
+                case RcpTypes.Datatype.Float32:
+                    return new Float32Definition();
+                case RcpTypes.Datatype.Float64:
+                    return new Float64Definition();
+                case RcpTypes.Datatype.Vector2i32:
+                    break;
+                case RcpTypes.Datatype.Vector2f32:
+                    return new Vector2f32Definition();
+                case RcpTypes.Datatype.Vector3i32:
+                    break;
+                case RcpTypes.Datatype.Vector3f32:
+                    return new Vector3f32Definition();
+                case RcpTypes.Datatype.Vector4i32:
+                    break;
+                case RcpTypes.Datatype.Vector4f32:
+                    return new Vector4f32Definition();
+                case RcpTypes.Datatype.String:
+                    return new StringDefinition();
+                case RcpTypes.Datatype.Rgb:
+                    return new RGBDefinition();
+                case RcpTypes.Datatype.Rgba:
+                    return new RGBADefinition();
+                case RcpTypes.Datatype.Enum:
+                    return new EnumDefinition();
+                case RcpTypes.Datatype.Array:
+                    throw new ArgumentException(nameof(type), "Must not be an array.");
+                case RcpTypes.Datatype.List:
+                    throw new ArgumentException(nameof(type), "Must not be a list.");
+                case RcpTypes.Datatype.Bang:
+                    break;
+                case RcpTypes.Datatype.Group:
+                    return new GroupDefinition();
+                case RcpTypes.Datatype.Uri:
+                    break;
+                case RcpTypes.Datatype.Ipv4:
+                    break;
+                case RcpTypes.Datatype.Ipv6:
+                    break;
+                case RcpTypes.Datatype.Range:
+                    throw new ArgumentException(nameof(type), "Must not be a range.");
+                default:
+                    throw new NotImplementedException($"Unkown type {type}.");
+            }
+            throw new NotSupportedException($"{type} is not supported yet.");
+        }
 
         public TypeDefinition(RcpTypes.Datatype datatype)
         {
             Datatype = datatype;
         }
-        
+
+        public RcpTypes.Datatype Datatype { get; }
+        public abstract Type ClrType { get; }
+
+        public abstract TypeDefinition CreateArray(int[] structure);
+        public abstract TypeDefinition CreateRange();
+        public abstract Parameter CreateParameter(Int16 id, IParameterManager manager);
         public abstract void CopyFrom(ITypeDefinition other);
 
         public virtual void ResetForInitialize()
@@ -66,14 +152,25 @@ namespace RCP.Parameter
     {
         public bool DefaultChanged { get; protected set; }
         protected T FDefault;
-        public T Default { get { return FDefault; }
-            set {
-                DefaultChanged = !FDefault?.Equals(value) ?? value != null;
-                FDefault = value;
-            } }
 
         public DefaultDefinition(RcpTypes.Datatype datatype) : base(datatype)
-        { }
+        {
+        }
+
+        public override Type ClrType => typeof(T);
+
+        public T Default
+        {
+            get { return FDefault; }
+            set
+            {
+                DefaultChanged = !FDefault?.Equals(value) ?? value != null;
+                FDefault = value;
+            }
+        }
+
+        public override sealed TypeDefinition CreateArray(int[] structure) => new ArrayDefinition<T>(this, structure);
+        public override TypeDefinition CreateRange() => throw new NotSupportedException();
 
         public abstract void WriteValue(BinaryWriter writer, T value);
         public abstract T ReadValue(KaitaiStream input);

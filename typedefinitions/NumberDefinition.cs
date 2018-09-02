@@ -30,8 +30,12 @@ namespace RCP.Parameter
         public string Unit { get { return FUnit; } set { if (!FUnit.Equals(value)) { UnitChanged = true; FUnit = value; } } }
 
         public NumberDefinition(RcpTypes.Datatype datatype)
-        : base(datatype)
-        { }
+            : base(datatype)
+        {
+        }
+
+        public override sealed Parameter CreateParameter(short id, IParameterManager manager) => new NumberParameter<T>(id, manager, this);
+        public override sealed TypeDefinition CreateRange() => new RangeDefinition<T>(this);
 
         public override bool AnyChanged()
         {
@@ -145,5 +149,9 @@ namespace RCP.Parameter
             if (otherNumber.UnitChanged)
                 FUnit = otherNumber.Unit;
         }
+
+        object INumberDefinition.Minimum => Minimum;
+        object INumberDefinition.Maximum => Maximum;
+        object INumberDefinition.MultipleOf => MultipleOf;
     }
 }
