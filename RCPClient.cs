@@ -1,12 +1,10 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
 
-using RCP.Protocol;
 using Kaitai;
-using RCP.Parameter;
-using RCP.Exceptions;
-using System.Numerics;
+using RCP.Protocol;
+using RCP.Types;
+using RCP.Parameters;
 
 namespace RCP
 {
@@ -28,12 +26,7 @@ namespace RCP
 		{
 			if (FTransporter != null)
                 FTransporter.Dispose();
-
-            base.Dispose();
 		}
-		
-        public Action<IParameter> ParameterAdded;
-        public Action<IParameter> ParameterRemoved;
 
         public Action<Exception> OnError;
         public Action<RcpTypes.ClientStatus, string> StatusChanged;
@@ -59,32 +52,10 @@ namespace RCP
 
         public override void Update()
         {
-            foreach (var id in FDirtyParamIds)
-                SendPacket(Pack(RcpTypes.Command.Update, FParams[id]));
-
-            base.Update();
+            foreach (var parameter in FParams.Values)
+                if (parameter.IsDirty)
+                    SendPacket(Pack(RcpTypes.Command.Update, parameter));
         }
-
-        internal static IParameter CreateParameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager)
-        {
-            var typeDefinition = TypeDefinition.Create(datatype);
-            return typeDefinition.CreateParameter(id, manager);
-        }
-
-        internal static IParameter CreateArrayParameter(Int16 id, RcpTypes.Datatype elementType, IParameterManager manager)
-        {
-            var elementTypeDefinition = TypeDefinition.Create(elementType);
-            var arrayTypeDefinition = elementTypeDefinition.CreateArray(new int[1]);
-            return arrayTypeDefinition.CreateParameter(id, manager);
-        }
-
-        internal static IParameter CreateRangeParameter(Int16 id, RcpTypes.Datatype elementType, IParameterManager manager)
-        {
-            var elementTypeDefinition = TypeDefinition.Create(elementType);
-            var rangeTypeDefinition = elementTypeDefinition.CreateRange();
-            return rangeTypeDefinition.CreateParameter(id, manager);
-        }
-
 
         #region Transporter
         public void SetTransporter(IClientTransporter transporter)
@@ -103,39 +74,28 @@ namespace RCP
 		{
 			//Logger.Log(LogType.Debug, "Client received: " + bytes.Length + "bytes");
 			var packet = Packet.Parse(new KaitaiStream(bytes), this);
-            
-            //during package parsing temp-parameters are created with _this as manager
-            //and the parameters are immediately set dirty which is not correct
-            //therefore clear the dirty params here: 
-            FDirtyParamIds.Clear();
+            var parameter = packet.Data;
+            var id = parameter.Id;
+
 			//Logger.Log(LogType.Debug, packet.Command.ToString());
-			
 			switch (packet.Command)
 			{
 				case RcpTypes.Command.Update:
-                    if (FParams.ContainsKey(packet.Data.Id))
-                        (FParams[packet.Data.Id] as Parameter.Parameter).CopyFrom(packet.Data);
+
+                    if (!FParams.ContainsKey(id))
+                        AddParameter(parameter);
                     else
-                    {
-                        FParams.Add(packet.Data.Id, packet.Data);
-                        //inform the application
-                        ParameterAdded?.Invoke(packet.Data);
-                    }
-                    
+                        parameter.RaiseEvents();
 				    break;
 
                 case RcpTypes.Command.Updatevalue:
-                    //TODO: actually only set the parameters value
-                    if (FParams.ContainsKey(packet.Data.Id))
-                        FParams.Remove(packet.Data.Id);
-                    FParams.Add(packet.Data.Id, packet.Data);
-                    //inform the application
+                    if (FParams.ContainsKey(id))
+                        parameter.RaiseEvents();
                     break;
 
                 case RcpTypes.Command.Remove:
-                    FParams.Remove(packet.Data.Id);
-				    //inform the application
-				    ParameterRemoved?.Invoke(packet.Data);
+                    if (FParams.ContainsKey(id))
+                        RemoveParameter(parameter);
 				    break;
 			}
 		}

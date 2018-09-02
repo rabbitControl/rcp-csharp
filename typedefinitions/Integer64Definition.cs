@@ -1,30 +1,13 @@
 using Kaitai;
 using System.IO;
 
-using RCP.Protocol;
-
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class Integer64Definition : NumberDefinition<long>
     {
-        public Integer64Definition()
-        : base(RcpTypes.Datatype.Int64)
-        {
-            FMinimum = long.MinValue;
-            FMaximum = long.MaxValue;
-            FMultipleOf = 1;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != 0;
-
-            MinimumChanged = Minimum != long.MinValue;
-            MaximumChanged = Maximum != long.MaxValue;
-            MultipleOfChanged = MultipleOf != 1;
-        }
+        protected override long DefaultMinimum => long.MinValue;
+        protected override long DefaultMaximum => long.MaxValue;
+        protected override long DefaultMulitpleOf => 1L;
 
         public override long ReadValue(KaitaiStream input)
         {

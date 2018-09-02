@@ -1,19 +1,18 @@
 using System;
 using System.IO;
 using Kaitai;
-
+using RCP.Parameters;
 using RCP.Protocol;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class RangeDefinition<T> : DefaultDefinition<Range<T>>, IRangeDefinition where T : struct
     {
         public readonly NumberDefinition<T> ElementType;
 
         public RangeDefinition(NumberDefinition<T> elementType)
-        : base(RcpTypes.Datatype.Range)
+            : base(RcpTypes.Datatype.Range, default(Range<T>))
         {
-            FDefault = new Range<T>(elementType.Default, elementType.Default);
             ElementType = elementType;
         }
 
@@ -48,13 +47,6 @@ namespace RCP.Parameter
             }
 
             return false;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != new Range<T>(ElementType.Default, ElementType.Default);
         }
 
         public override Range<T> ReadValue(KaitaiStream input)

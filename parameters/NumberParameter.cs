@@ -1,18 +1,13 @@
 using System;
-using System.IO;
-
-using Kaitai;
 using RCP.Protocol;
-using RCP;
-using RCP.Exceptions;
-using System.Numerics;
+using RCP.Types;
 
-namespace RCP.Parameter
+namespace RCP.Parameters
 {
     public class NumberParameter<T> : ValueParameter<T>
         where T : struct
     {
-        public new NumberDefinition<T> TypeDefinition => base.TypeDefinition as NumberDefinition<T>;
+        public new NumberDefinition<T> Type => base.Type as NumberDefinition<T>;
 
         public NumberParameter(Int16 id, IParameterManager manager, NumberDefinition<T> typeDefinition) 
             : base(id, manager, typeDefinition)
@@ -21,57 +16,32 @@ namespace RCP.Parameter
 
         public T Minimum
         {
-            get { return TypeDefinition.Minimum; }
-            set
-            {
-                TypeDefinition.Minimum = value;
-                if (TypeDefinition.MinimumChanged)
-                    SetDirty();
-            }
+            get => Type.Minimum;
+            set => Type.Minimum = value;
         }
 
         public T Maximum
         {
-            get { return TypeDefinition.Maximum; }
-            set
-            {
-                TypeDefinition.Maximum = value;
-                if (TypeDefinition.MaximumChanged)
-                    SetDirty();
-            }
+            get => Type.Maximum;
+            set => Type.Maximum = value;
         }
 
         public T MultipleOf
         {
-            get { return TypeDefinition.MultipleOf; }
-            set
-            {
-                TypeDefinition.MultipleOf = value;
-                if (TypeDefinition.MultipleOfChanged)
-                    SetDirty();
-            }
+            get => Type.MultipleOf;
+            set => Type.MultipleOf = value;
         }
 
         public RcpTypes.NumberScale Scale
         {
-            get { return TypeDefinition.Scale; }
-            set
-            {
-                TypeDefinition.Scale = value;
-                if (TypeDefinition.ScaleChanged)
-                    SetDirty();
-            }
+            get => Type.Scale;
+            set => Type.Scale = value;
         }
 
         public string Unit
         {
-            get { return TypeDefinition.Unit; }
-            set
-            {
-                TypeDefinition.Unit = value;
-                if (TypeDefinition.UnitChanged)
-                    SetDirty();
-            }
+            get => Type.Unit;
+            set => Type.Unit = value;
         }
     }
 }

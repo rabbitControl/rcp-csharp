@@ -1,13 +1,14 @@
 using Kaitai;
 using RCP.Protocol;
+using RCP.Types;
 using System;
 using System.Collections.Generic;
 
-namespace RCP.Parameter
+namespace RCP.Parameters
 {
     public sealed class GroupParameter : Parameter, IGroupParameter
     {
-        public new GroupDefinition TypeDefinition => base.TypeDefinition as GroupDefinition;
+        public new GroupDefinition TypeDefinition => base.Type as GroupDefinition;
 
         private List<IParameter> FParams = new List<IParameter>();
         private List<IParameter> FAddedParams = new List<IParameter>();

@@ -1,14 +1,11 @@
 using System;
-using Kaitai;
+using RCP.Types;
 
-using RCP.Protocol;
-using System.IO;
-
-namespace RCP.Parameter
+namespace RCP.Parameters
 {
     public sealed class UriParameter : ValueParameter<string>
     {
-        public new UriDefinition TypeDefinition => base.TypeDefinition as UriDefinition;
+        public new UriDefinition Type => base.Type as UriDefinition;
 
         public UriParameter(Int16 id, IParameterManager manager, UriDefinition typeDefinition) 
             : base(id, manager, typeDefinition)
@@ -17,24 +14,14 @@ namespace RCP.Parameter
 
         public string Schema
         {
-            get { return TypeDefinition.Schema; }
-            set
-            {
-                TypeDefinition.Schema = value;
-                if (TypeDefinition.SchemaChanged)
-                    SetDirty();
-            }
+            get => Type.Schema;
+            set => Type.Schema = value;
         }
 
         public string Filter
         {
-            get { return TypeDefinition.Filter; }
-            set
-            {
-                TypeDefinition.Filter = value;
-                if (TypeDefinition.FilterChanged)
-                    SetDirty();
-            }
+            get => Type.Filter;
+            set => Type.Filter = value;
         }
     }
 }

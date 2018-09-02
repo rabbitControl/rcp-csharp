@@ -1,30 +1,13 @@
 using Kaitai;
 using System.IO;
 
-using RCP.Protocol;
-
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public sealed class UInteger64Definition : NumberDefinition<ulong>
     {
-        public UInteger64Definition()
-        : base(RcpTypes.Datatype.Uint64)
-        {
-            FMinimum = ulong.MinValue;
-            FMaximum = ulong.MaxValue;
-            FMultipleOf = 1;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != 0;
-
-            MinimumChanged = Minimum != ulong.MinValue;
-            MaximumChanged = Maximum != ulong.MaxValue;
-            MultipleOfChanged = MultipleOf != 1;
-        }
+        protected override ulong DefaultMinimum => ulong.MinValue;
+        protected override ulong DefaultMaximum => ulong.MaxValue;
+        protected override ulong DefaultMulitpleOf => 1;
 
         public override ulong ReadValue(KaitaiStream input)
         {

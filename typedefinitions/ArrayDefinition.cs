@@ -1,56 +1,50 @@
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Numerics;
 using Kaitai;
 
 using RCP.Protocol;
 using RCP.Exceptions;
+using RCP.Parameters;
+using System.Linq;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public sealed class ArrayDefinition<T> : DefaultDefinition<T[]>, IArrayDefinition
     {
-        protected bool FStructureChanged;
-        private int[] FStructure;
+        private int[] FStructure = Array.Empty<int>();
         public int[] Structure
         {
             get { return FStructure; }
             set
             {
-                FStructure = value;
-                FStructureChanged = true;
+                if (!FStructure.SequenceEqual(value))
+                {
+                    FStructure = value;
+                    SetChanged(TypeChangedFlags.ArrayStructure);
+                }
             }
         }
 
-        public RcpTypes.Datatype ElementType => FElementDefinition.Datatype;
+        private readonly DefaultDefinition<T> FElementType;
 
-        private readonly DefaultDefinition<T> FElementDefinition;
-        public ITypeDefinition ElementDefinition => FElementDefinition; 
-
-        public ArrayDefinition(DefaultDefinition<T> elementDefinition, int[] structure) : base(RcpTypes.Datatype.Array)
+        public ArrayDefinition(DefaultDefinition<T> elementType, int[] structure) 
+            : base(RcpTypes.Datatype.Array, Array.Empty<T>())
         {
-            FElementDefinition = elementDefinition;
+            FElementType = elementType;
             Structure = structure;
         }
 
+        public ITypeDefinition ElementType => FElementType;
+
         public override Parameter CreateParameter(short id, IParameterManager manager) => new ArrayParameter<T>(id, manager, this);
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != null;
-        }
 
         protected override void WriteOptions(BinaryWriter writer)
         {
-            FElementDefinition.Write(writer);
+            FElementType.Write(writer);
 
             base.WriteOptions(writer);
 
-            if (FStructureChanged)
+            if (IsChanged(TypeChangedFlags.ArrayStructure))
             {
                 writer.Write((byte)RcpTypes.ArrayOptions.Structure);
                 WriteStructure(writer);
@@ -70,22 +64,21 @@ namespace RCP.Parameter
 
         public override void ParseOptions(KaitaiStream input)
         {
-            FElementDefinition.ParseOptions(input);
+            FElementType.ParseOptions(input);
             base.ParseOptions(input);
         }
 
         protected override bool HandleOption(KaitaiStream input, byte code)
         {
+            if (base.HandleOption(input, code))
+                return true;
+
             var option = (RcpTypes.ArrayOptions)code;
             if (!Enum.IsDefined(typeof(RcpTypes.ArrayOptions), option))
                 throw new RCPDataErrorException("Arraydefinition parsing: Unknown option: " + option.ToString());
 
             switch (option)
             {
-                case RcpTypes.ArrayOptions.Default:
-                    FDefault = ReadValue(input);
-                    return true;
-
                 case RcpTypes.ArrayOptions.Structure:
                     Structure = ReadStructure(input);
                     return true;
@@ -114,7 +107,7 @@ namespace RCP.Parameter
             //TODO: support multiple dimensions
             for (int i = 0; i < a.Length; i++)
             {
-                a[i] = FElementDefinition.ReadValue(input);
+                a[i] = FElementType.ReadValue(input);
             }
 
             return a;
@@ -129,7 +122,7 @@ namespace RCP.Parameter
 
             //TODO: support multiple dimensions
             foreach (var e in value)
-                FElementDefinition.WriteValue(writer, e);
+                FElementType.WriteValue(writer, e);
         }
     }
 }

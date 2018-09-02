@@ -4,35 +4,53 @@ using Kaitai;
 
 using RCP.Protocol;
 using RCP.Exceptions;
+using RCP.Parameters;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class UriDefinition : DefaultDefinition<string>, IUriDefinition
     {
-        public bool SchemaChanged { get; private set; }
         private string FSchema = "";
-        public string Schema { get { return FSchema; } set { if (FSchema != value) { SchemaChanged = true; FSchema = value; } } }
+        public string Schema
+        {
+            get { return FSchema; }
+            set
+            {
+                if (FSchema != value)
+                {
+                    FSchema = value;
+                    SetChanged(TypeChangedFlags.UriSchemaChanged);
+                }
+            }
+        }
 
-        public bool FilterChanged { get; private set; }
         private string FFilter = "";
-        public string Filter { get { return FFilter; } set { if (FFilter != value) { FilterChanged = true; FFilter = value; } } }
+        public string Filter
+        {
+            get { return FFilter; }
+            set
+            {
+                if (FFilter != value)
+                {
+                    FFilter = value;
+                    SetChanged(TypeChangedFlags.UriFilterChanged);
+                }
+            }
+        }
 
         public UriDefinition()
-            :base(RcpTypes.Datatype.Uri)
+            : base(RcpTypes.Datatype.Uri, string.Empty)
         {
         }
 
         public override Parameter CreateParameter(short id, IParameterManager manager) => new UriParameter(id, manager, this);
 
-        public override bool AnyChanged()
-        {
-            return base.AnyChanged() || SchemaChanged || FilterChanged;
-        }
-
         public override void ResetForInitialize()
         {
-            SchemaChanged = FSchema != "";
-            FilterChanged = FFilter != "";
+            if (FSchema != "")
+                SetChanged(TypeChangedFlags.UriSchemaChanged);
+            if (FFilter != "")
+                SetChanged(TypeChangedFlags.UriFilterChanged);
         }
 
         public override string ReadValue(KaitaiStream input)
@@ -49,18 +67,16 @@ namespace RCP.Parameter
         {
             base.WriteOptions(writer);
 
-            if (SchemaChanged)
+            if (IsChanged(TypeChangedFlags.UriSchemaChanged))
             {
                 writer.Write((byte)RcpTypes.UriOptions.Schema);
                 WriteValue(writer, FSchema);
-                SchemaChanged = false;
             }
 
-            if (FilterChanged)
+            if (IsChanged(TypeChangedFlags.UriFilterChanged))
             {
                 writer.Write((byte)RcpTypes.UriOptions.Filter);
                 WriteValue(writer, FFilter);
-                FilterChanged = false;
             }
         }
 
@@ -90,19 +106,6 @@ namespace RCP.Parameter
             }
 
             return false;
-        }
-
-        public override void CopyFrom(ITypeDefinition other)
-        {
-            base.CopyFrom(other);
-
-            var otherUri = other as IUriDefinition;
-
-            if (otherUri.SchemaChanged)
-                FSchema = otherUri.Schema;
-
-            if (otherUri.FilterChanged)
-                FFilter = otherUri.Filter;
         }
     }
 }

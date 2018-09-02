@@ -3,28 +3,13 @@ using System.IO;
 
 using RCP.Protocol;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class Integer32Definition : NumberDefinition<int>
     {
-        public Integer32Definition()
-        : base(RcpTypes.Datatype.Int32)
-        {
-            FMinimum = int.MinValue;
-            FMaximum = int.MaxValue;
-            FMultipleOf = 1;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != 0;
-
-            MinimumChanged = Minimum != int.MinValue;
-            MaximumChanged = Maximum != int.MaxValue;
-            MultipleOfChanged = MultipleOf != 1;
-        }
+        protected override int DefaultMinimum => int.MinValue;
+        protected override int DefaultMaximum => int.MaxValue;
+        protected override int DefaultMulitpleOf => 1;
 
         public override int ReadValue(KaitaiStream input)
         {

@@ -1,31 +1,14 @@
 using Kaitai;
 using System.IO;
-
-using RCP.Protocol;
 using System.Numerics;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class Vector3f32Definition : NumberDefinition<Vector3>
     {
-        public Vector3f32Definition()
-        : base(RcpTypes.Datatype.Vector3f32)
-        {
-            FMinimum = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            FMaximum = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            FMultipleOf = new Vector3(0.01f, 0.01f, 0.01f);
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != new Vector3(0, 0, 0);
-
-            MinimumChanged = Minimum != new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            MaximumChanged = Maximum != new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            MultipleOfChanged = MultipleOf != new Vector3(0.01f, 0.01f, 0.01f);
-        }
+        protected override Vector3 DefaultMinimum => new Vector3(float.MinValue);
+        protected override Vector3 DefaultMaximum => new Vector3(float.MaxValue);
+        protected override Vector3 DefaultMulitpleOf => new Vector3(0.01f);
 
         public override Vector3 ReadValue(KaitaiStream input)
         {

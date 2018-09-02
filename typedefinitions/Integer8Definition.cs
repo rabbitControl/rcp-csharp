@@ -1,30 +1,13 @@
 using Kaitai;
 using System.IO;
 
-using RCP.Protocol;
-
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class Integer8Definition : NumberDefinition<sbyte>
     {
-        public Integer8Definition()
-        : base(RcpTypes.Datatype.Int8)
-        {
-            FMinimum = sbyte.MinValue;
-            FMaximum = sbyte.MaxValue;
-            FMultipleOf = 1;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != 0;
-
-            MinimumChanged = Minimum != sbyte.MinValue;
-            MaximumChanged = Maximum != sbyte.MaxValue;
-            MultipleOfChanged = MultipleOf != 1;
-        }
+        protected override sbyte DefaultMinimum => sbyte.MinValue;
+        protected override sbyte DefaultMaximum => sbyte.MaxValue;
+        protected override sbyte DefaultMulitpleOf => 1;
 
         public override sbyte ReadValue(KaitaiStream input)
         {

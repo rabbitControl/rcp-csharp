@@ -4,25 +4,18 @@ using Kaitai;
 
 using RCP.Protocol;
 using System.Drawing;
+using RCP.Parameters;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {                           
     public class RGBADefinition : DefaultDefinition<Color>, IRGBADefinition
     {
         public RGBADefinition()
-        : base(RcpTypes.Datatype.Rgba)
+        : base(RcpTypes.Datatype.Rgba, Color.Black)
         {
-            FDefault = Color.Black;
         }
 
         public override Parameter CreateParameter(short id, IParameterManager manager) => new ValueParameter<Color>(id, manager, this);
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != Color.Black;
-        }
 
         public override Color ReadValue(KaitaiStream input)
         {

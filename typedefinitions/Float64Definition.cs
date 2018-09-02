@@ -3,28 +3,13 @@ using System.IO;
 
 using RCP.Protocol;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class Float64Definition : NumberDefinition<double>
     {
-        public Float64Definition()
-        : base(RcpTypes.Datatype.Float64)
-        {
-            FMinimum = double.MinValue;
-            FMaximum = double.MaxValue;
-            FMultipleOf = 0.01f;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != 0.0f;
-
-            MinimumChanged = Minimum != double.MinValue;
-            MaximumChanged = Maximum != double.MaxValue;
-            MultipleOfChanged = MultipleOf != 0.01f;
-        }
+        protected override double DefaultMinimum => double.MinValue;
+        protected override double DefaultMaximum => double.MaxValue;
+        protected override double DefaultMulitpleOf => 0.01d;
 
         public override double ReadValue(KaitaiStream input)
         {

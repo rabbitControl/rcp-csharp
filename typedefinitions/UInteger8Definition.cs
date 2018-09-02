@@ -1,30 +1,13 @@
 using Kaitai;
 using System.IO;
 
-using RCP.Protocol;
-
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class UInteger8Definition : NumberDefinition<byte>
     {
-        public UInteger8Definition()
-        : base(RcpTypes.Datatype.Uint8)
-        {
-            FMinimum = byte.MinValue;
-            FMaximum = byte.MaxValue;
-            FMultipleOf = 1;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != 0;
-
-            MinimumChanged = Minimum != byte.MinValue;
-            MaximumChanged = Maximum != byte.MaxValue;
-            MultipleOfChanged = MultipleOf != 1;
-        }
+        protected override byte DefaultMinimum => byte.MinValue;
+        protected override byte DefaultMaximum => byte.MaxValue;
+        protected override byte DefaultMulitpleOf => 1;
 
         public override byte ReadValue(KaitaiStream input)
         {

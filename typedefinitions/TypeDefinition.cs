@@ -4,9 +4,31 @@ using Kaitai;
 
 using RCP.Protocol;
 using RCP.Exceptions;
+using RCP.Parameters;
+using System.Collections.Generic;
+using System.Threading;
+using System.Drawing;
+using System.Numerics;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
+    [Flags]
+    public enum TypeChangedFlags : int
+    {
+        Default = 1 << 0,
+        EnumEntires = 1 << 1,
+        EnumMultiSelect = 1 << 2,
+        ValueMinimum = 1 << 3,
+        ValueMaximum = 1 << 4,
+        ValueMultipleOf = 1 << 5,
+        ValueScale = 1 << 6,
+        ValueUnit = 1 << 7,
+        StringRegexp = 1 << 8,
+        ArrayStructure = 1 << 9,
+        UriSchemaChanged = 1 << 10,
+        UriFilterChanged = 1 << 11
+    }
+
     public abstract class TypeDefinition : ITypeDefinition
     {
         public static bool HasElementType(RcpTypes.Datatype type)
@@ -19,6 +41,50 @@ namespace RCP.Parameter
                     return true;
             }
             return false;
+        }
+
+        public static RcpTypes.Datatype GetDatatype(Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Boolean:
+                    return RcpTypes.Datatype.Boolean;
+                case TypeCode.Byte:
+                    return RcpTypes.Datatype.Uint8;
+                case TypeCode.Double:
+                    return RcpTypes.Datatype.Float64;
+                case TypeCode.Int16:
+                    return RcpTypes.Datatype.Int16;
+                case TypeCode.Int32:
+                    return RcpTypes.Datatype.Int32;
+                case TypeCode.Int64:
+                    return RcpTypes.Datatype.Int64;
+                case TypeCode.SByte:
+                    return RcpTypes.Datatype.Int8;
+                case TypeCode.Single:
+                    return RcpTypes.Datatype.Float32;
+                case TypeCode.String:
+                    return RcpTypes.Datatype.String;
+                case TypeCode.UInt16:
+                    return RcpTypes.Datatype.Uint16;
+                case TypeCode.UInt32:
+                    return RcpTypes.Datatype.Uint32;
+                case TypeCode.UInt64:
+                    return RcpTypes.Datatype.Uint64;
+                default:
+                    break;
+            }
+
+            if (type == typeof(Color))
+                return RcpTypes.Datatype.Rgba;
+            if (type == typeof(Vector2))
+                return RcpTypes.Datatype.Vector2f32;
+            if (type == typeof(Vector3))
+                return RcpTypes.Datatype.Vector3f32;
+            if (type == typeof(Vector4))
+                return RcpTypes.Datatype.Vector4f32;
+
+            throw new NotSupportedException();
         }
 
         public static TypeDefinition Create(RcpTypes.Datatype type)
@@ -91,6 +157,8 @@ namespace RCP.Parameter
             throw new NotSupportedException($"{type} is not supported yet.");
         }
 
+        int FChangedFlags;
+
         public TypeDefinition(RcpTypes.Datatype datatype)
         {
             Datatype = datatype;
@@ -102,10 +170,10 @@ namespace RCP.Parameter
         public abstract TypeDefinition CreateArray(int[] structure);
         public abstract TypeDefinition CreateRange();
         public abstract Parameter CreateParameter(Int16 id, IParameterManager manager);
-        public abstract void CopyFrom(ITypeDefinition other);
 
         public virtual void ResetForInitialize()
-        { }
+        {
+        }
 
         public virtual void Write(BinaryWriter writer)
         {
@@ -114,17 +182,21 @@ namespace RCP.Parameter
             //write type specific stuff
             WriteOptions(writer);
 
+            //reset changed flags
+            FChangedFlags = 0;
+
             //terminate
             writer.Write((byte)0);
         }
 
-        public virtual bool AnyChanged()
+        internal TypeChangedFlags ResetChangedFlags()
         {
-            return false;
+            return (TypeChangedFlags)Interlocked.Exchange(ref FChangedFlags, 0);
         }
 
         protected virtual void WriteOptions(BinaryWriter writer)
-        { }
+        {
+        }
 
         protected virtual bool HandleOption(KaitaiStream input, byte option)
         {
@@ -146,26 +218,34 @@ namespace RCP.Parameter
                 }
             }
         }
+
+        internal bool IsDirty => FChangedFlags != 0;
+        protected bool IsChanged(TypeChangedFlags flag) => ((TypeChangedFlags)FChangedFlags).HasFlag(flag);
+        protected void SetChanged(TypeChangedFlags flag) => FChangedFlags |= (int)flag;
     }
 
     public abstract class DefaultDefinition<T>: TypeDefinition, IDefaultDefinition<T>
     {
-        public bool DefaultChanged { get; protected set; }
-        protected T FDefault;
+        T FDefault;
 
-        public DefaultDefinition(RcpTypes.Datatype datatype) : base(datatype)
+        public DefaultDefinition(RcpTypes.Datatype datatype, T @default) : base(datatype)
         {
+            TypeDefault = FDefault = @default;
         }
 
         public override Type ClrType => typeof(T);
+        public T TypeDefault { get; }
 
         public T Default
         {
             get { return FDefault; }
             set
             {
-                DefaultChanged = !FDefault?.Equals(value) ?? value != null;
-                FDefault = value;
+                if (!EqualityComparer<T>.Default.Equals(FDefault, value))
+                {
+                    FDefault = value;
+                    SetChanged(TypeChangedFlags.Default);
+                }
             }
         }
 
@@ -175,19 +255,14 @@ namespace RCP.Parameter
         public abstract void WriteValue(BinaryWriter writer, T value);
         public abstract T ReadValue(KaitaiStream input);
 
-        public override bool AnyChanged()
-        {
-            return DefaultChanged;
-        }
-
         protected override void WriteOptions(BinaryWriter writer)
         {
-            if (DefaultChanged)
+            if (IsChanged(TypeChangedFlags.Default))
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Default);
                 WriteValue(writer, Default);
-                DefaultChanged = false;
             }
+            base.WriteOptions(writer);
         }
 
         protected override bool HandleOption(KaitaiStream input, byte code)
@@ -204,46 +279,11 @@ namespace RCP.Parameter
             return false;
         }
 
-        public override void CopyFrom(ITypeDefinition other)
+        public override void ResetForInitialize()
         {
-            var otherDefinition = other as IDefaultDefinition<T>;
-            if (otherDefinition.DefaultChanged)
-                FDefault = otherDefinition.Default;
-        }
-
-        public static ITypeDefinition Parse(KaitaiStream input)
-        {
-            var code = input.ReadByte();
-
-            var datatype = (RcpTypes.Datatype)code;
-            if (!Enum.IsDefined(typeof(RcpTypes.Datatype), datatype))
-                throw new RCPDataErrorException("TypeDefinition parsing: Unknown datatype: " + datatype.ToString());
-
-            //        	if (datatype != null)
-            //	            MessageBox.Show(datatype.ToString() + " : ");
-            ITypeDefinition definition = null;
-            switch (datatype)
-            {
-                //case RcpTypes.Datatype.Boolean: definition = new BooleanDefinition(); break;
-                //case RcpTypes.Datatype.Enum: definition = new EnumDefinition(); break;
-                case RcpTypes.Datatype.Int32: definition = new Integer32Definition(); break;
-                //				case RcpTypes.Datatype.Uint64: definition = RCPUInt64.Parse(input) as TypeDefinition<T>; break;
-                //				case RcpTypes.Datatype.Int64: definition = RCPInt64.Parse(input) as TypeDefinition<T>; break;
-                //case RcpTypes.Datatype.Float32: definition = new Float32Definition(); break;
-                //				case RcpTypes.Datatype.Float64: definition = RCPFloat64.Parse(input) as TypeDefinition<T>; break;
-                //case RcpTypes.Datatype.String: definition = new StringDefinition(); break;
-                //case RcpTypes.Datatype.Rgba: definition = new RGBADefinition(); break;
-                //case RcpTypes.Datatype.Vector2f32: definition = new Vector2f32Definition(); break;
-                //case RcpTypes.Datatype.Vector3f32: definition = new Vector3f32Definition(); break;
-            }
-
-            if (definition != null)
-            {
-                definition.ParseOptions(input);
-                return definition;
-            }
-
-            throw new RCPDataErrorException("TypeDefinition parsing failed!");
+            if (!EqualityComparer<T>.Default.Equals(Default, TypeDefault))
+                SetChanged(TypeChangedFlags.Default);
+            base.ResetForInitialize();
         }
     }
 }

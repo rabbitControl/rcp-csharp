@@ -4,82 +4,197 @@ using System.IO;
 using Kaitai;
 using RCP.Exceptions;
 using RCP.Protocol;
+using RCP.Types;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using System.Threading;
 
-namespace RCP.Parameter
+namespace RCP.Parameters
 {
     public enum Status { Update, Remove };
 
+    [Flags]
+    public enum ParameterChangedFlags : int
+    {
+        ParentId = 1 << 0,
+        Label = 1 << 1,
+        Description = 1 << 2,
+        Tags = 1 << 3,
+        Order = 1 << 4,
+        Userdata = 1 << 5,
+        UserId = 1 << 6,
+        Widget = 1 << 7,
+        Value = 1 << 8,
+        Type = 1 << 9,
+    }
+
     public abstract class Parameter : IParameter, IWriteable
     {
-        protected IParameterManager FManager;
+        public static Parameter Create(IParameterManager manager, Int16 id, RcpTypes.Datatype datatype) => Create(manager, id, datatype, 0);
+
+        public static Parameter Create(IParameterManager manager, Int16 id, RcpTypes.Datatype datatype, RcpTypes.Datatype elementType) => Create(manager, id, datatype, elementType, null);
+
+        public static Parameter Create(IParameterManager manager, Int16 id, RcpTypes.Datatype datatype, RcpTypes.Datatype elementType, int[] structure)
+        {
+            TypeDefinition typeDefinition, elementTypeDefinition;
+            switch (datatype)
+            {
+                case RcpTypes.Datatype.Array:
+                    elementTypeDefinition = TypeDefinition.Create(elementType);
+                    typeDefinition = elementTypeDefinition.CreateArray(structure ?? new int[1]);
+                    break;
+                case RcpTypes.Datatype.List:
+                    throw new NotImplementedException();
+                case RcpTypes.Datatype.Range:
+                    elementTypeDefinition = TypeDefinition.Create(elementType);
+                    typeDefinition = elementTypeDefinition.CreateRange();
+                    break;
+                default:
+                    typeDefinition = TypeDefinition.Create(datatype);
+                    break;
+            }
+            return typeDefinition.CreateParameter(id, manager);
+        }
+
+        IParameterManager FManager;
+        Int16 FParentId;
+        Dictionary<string, string> FLabels = new Dictionary<string, string>();
+        Dictionary<string, string> FDescriptions = new Dictionary<string, string>();
+        string FTags = "";
+        int FChangedFlags;
+        private int FOrder;
+        private byte[] FUserdata = new byte[0];
+        private string FUserId = "";
+        private Widget FWidget;
 
         public event EventHandler Updated;
+        public event EventHandler ValueUpdated;
 
-        public Int16 Id { get; private set; }
-
-        public ITypeDefinition TypeDefinition { get; }
-
-        public bool ParentIdChanged { get; private set; }
-        private Int16 FParentId;
-        public Int16 ParentId { get { return FParentId; } set { if (FParentId != value) { FParentId = value; ParentIdChanged = true; SetDirty(); } } }
-
-        public bool LabelChanged { get; private set; }
-        private Dictionary<string, string> FLabels = new Dictionary<string, string>();
-        public string Label { get { return FLabels.ContainsKey("any") ? FLabels["any"] : ""; } set {
-                if (!FLabels.ContainsKey("any") || (FLabels.ContainsKey("any") && FLabels["any"] != value)) 
-                    { FLabels["any"] = value; LabelChanged = true; SetDirty(); }} }
-
-        public bool DescriptionChanged { get; private set; }
-        private Dictionary<string, string> FDescriptions = new Dictionary<string, string>();
-        public string Description { get { return FDescriptions.ContainsKey("any") ? FDescriptions["any"] : ""; } set {
-                if (!FDescriptions.ContainsKey("any") || (FDescriptions.ContainsKey("any") && FDescriptions["any"] != value))
-                    { FDescriptions["any"] = value; DescriptionChanged = true; SetDirty(); } } }
-
-        public bool TagsChanged { get; private set; }
-        private string FTags = "";
-        public string Tags { get { return FTags; } set { if (FTags != value) { FTags = value; TagsChanged = true; SetDirty(); } } }
-
-        public bool OrderChanged { get; private set; }
-        private int FOrder;
-        public int Order { get { return FOrder; } set { if (FOrder != value) { FOrder = value; OrderChanged = true; SetDirty(); } } }
-
-        public bool UserdataChanged { get; private set; }
-        private byte[] FUserdata = new byte[0];
-        public byte[] Userdata { get { return FUserdata; } set { if (FUserdata != value) { FUserdata = value; UserdataChanged = true; SetDirty(); } } }
-
-        public bool UserIdChanged { get; private set; }
-        private string FUserId = "";
-        public string UserId { get { return FUserId; } set { if (FUserId != value) { FUserId = value; UserIdChanged = true; SetDirty(); } } }
-
-        public bool WidgetChanged { get; private set; }
-        public Widget Widget { get; set; }
-
-        public Parameter(Int16 id, IParameterManager manager, ITypeDefinition typeDefinition)
+        public Parameter(Int16 id, IParameterManager manager, TypeDefinition type)
         {
             Id = id;
             FManager = manager;
-            TypeDefinition = typeDefinition;
+            Type = type;
+        }
 
-            SetDirty();
+        public Int16 Id { get; }
+        public TypeDefinition Type { get; }
+
+        public Int16 ParentId
+        {
+            get { return FParentId; }
+            set
+            {
+                if (FParentId != value)
+                {
+                    FParentId = value;
+                    SetChanged(ParameterChangedFlags.ParentId);
+                }
+            }
+        }
+
+        public string Label
+        {
+            get { return FLabels.ContainsKey("any") ? FLabels["any"] : ""; }
+            set
+            {
+                if (!FLabels.ContainsKey("any") || (FLabels.ContainsKey("any") && FLabels["any"] != value))
+                {
+                    FLabels["any"] = value;
+                    SetChanged(ParameterChangedFlags.Label);
+                }
+            }
+        }
+
+        public string Description
+        {
+            get { return FDescriptions.ContainsKey("any") ? FDescriptions["any"] : ""; }
+            set
+            {
+                if (!FDescriptions.ContainsKey("any") || (FDescriptions.ContainsKey("any") && FDescriptions["any"] != value))
+                {
+                    FDescriptions["any"] = value;
+                    SetChanged(ParameterChangedFlags.Description);
+                }
+            }
+        }
+
+
+        public string Tags
+        {
+            get { return FTags; }
+            set
+            {
+                if (FTags != value)
+                {
+                    FTags = value;
+                    SetChanged(ParameterChangedFlags.Tags);
+                }
+            }
+        }
+
+        public int Order
+        {
+            get { return FOrder; }
+            set
+            {
+                if (FOrder != value)
+                {
+                    FOrder = value;
+                    SetChanged(ParameterChangedFlags.Order);
+                }
+            }
+        }
+
+        public byte[] Userdata
+        {
+            get { return FUserdata; }
+            set
+            {
+                if (!FUserdata.SequenceEqual(value))
+                {
+                    FUserdata = value;
+                    SetChanged(ParameterChangedFlags.Userdata);
+                }
+            }
+        }
+
+        public string UserId
+        {
+            get { return FUserId; }
+            set
+            {
+                if (FUserId != value)
+                {
+                    FUserId = value;
+                    SetChanged(ParameterChangedFlags.UserId);
+                }
+            }
+        }
+
+        public Widget Widget
+        {
+            get { return FWidget; }
+            set
+            {
+                if (value != FWidget)
+                {
+                    FWidget = value;
+                    SetChanged(ParameterChangedFlags.Widget);
+                }
+            }
         }
 
         public void SetParent(IParameter param)
         {
             ParentId = param.Id;
         }
-
-        protected void SetDirty()
-        {
-            if (FManager != null) //not assigned for temp-parameters (ie. those just used for parsing on clients)
-                FManager.SetParameterDirty(this);
-        }
         
         public void SetLanguageLabel(string iso639_3, string label)
         {
             FLabels[iso639_3] = label;
-            LabelChanged = true;
+            SetChanged(ParameterChangedFlags.Label);
         }
 
         public void RemoveLanguageLabel(string iso639_3)
@@ -87,14 +202,14 @@ namespace RCP.Parameter
             if (FLabels.ContainsKey(iso639_3))
             {
                 FLabels.Remove(iso639_3);
-                LabelChanged = true;
+                SetChanged(ParameterChangedFlags.Label);
             }
         }
 
         public void SetLanguageDescription(string iso639_3, string description)
         {
             FDescriptions[iso639_3] = description;
-            DescriptionChanged = true;
+            SetChanged(ParameterChangedFlags.Description);
         }
 
         public void RemoveLanguageDescription(string iso639_3)
@@ -102,7 +217,7 @@ namespace RCP.Parameter
             if (FDescriptions.ContainsKey(iso639_3))
             {
                 FDescriptions.Remove(iso639_3);
-                DescriptionChanged = true;
+                SetChanged(ParameterChangedFlags.Description);
             }
         }
 
@@ -111,12 +226,12 @@ namespace RCP.Parameter
             //mandatory
             writer.Write(Id, ByteOrder.BigEndian);
 
-            TypeDefinition.Write(writer);
+            Type.Write(writer);
 
             //optional
             WriteValue(writer);
 
-            if (LabelChanged)
+            if (IsChanged(ParameterChangedFlags.Label))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Label);
                 foreach (var language in FLabels.Keys)
@@ -125,10 +240,9 @@ namespace RCP.Parameter
                     RcpTypes.TinyString.Write(FLabels[language], writer);
                 }
                 writer.Write((byte)0);
-                LabelChanged = false;
             }
 
-            if (DescriptionChanged)
+            if (IsChanged(ParameterChangedFlags.Description))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Description);
                 foreach (var language in FDescriptions.Keys)
@@ -137,57 +251,52 @@ namespace RCP.Parameter
                     RcpTypes.ShortString.Write(FDescriptions[language], writer);
                 }
                 writer.Write((byte)0);
-                DescriptionChanged = false;
             }
 
-            if (TagsChanged)
+            if (IsChanged(ParameterChangedFlags.Tags))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Tags);
                 RcpTypes.TinyString.Write(Tags, writer);
-                TagsChanged = false;
             }
 
-            if (OrderChanged)
+            if (IsChanged(ParameterChangedFlags.Order))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Order);
                 writer.Write(Order, ByteOrder.BigEndian);
-                OrderChanged = false;
             }
 
-            if (ParentIdChanged)
+            if (IsChanged(ParameterChangedFlags.ParentId))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Parentid);
                 writer.Write(ParentId, ByteOrder.BigEndian);
-                ParentIdChanged = false;
             }
 
-            if (Widget != null)
+            if (IsChanged(ParameterChangedFlags.Widget) && Widget != null)
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Widget);
                 Widget.Write(writer);
             }
 
-            if (UserdataChanged)
+            if (IsChanged(ParameterChangedFlags.Userdata))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Userdata);
                 writer.Write(Userdata.Length, ByteOrder.BigEndian);
                 writer.Write(Userdata);
-                UserdataChanged = false;
             }
 
-            if (UserIdChanged)
+            if (IsChanged(ParameterChangedFlags.UserId))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Userid);
                 RcpTypes.TinyString.Write(UserId, writer);
-                UserIdChanged = false;
             }
 
             //terminate
             writer.Write((byte)0);
+
+            //reset changed flags
+            FChangedFlags = 0;
         }
 
-        protected virtual void WriteTypeDefinitionOptions(BinaryWriter writer) { }
-        protected virtual void ParseTypeDefinitionOptions(KaitaiStream input) { }
         protected virtual void WriteValue(BinaryWriter writer) { }
 
         public static Parameter Parse(KaitaiStream input, IParameterManager manager)
@@ -195,46 +304,26 @@ namespace RCP.Parameter
             // get mandatory id
             var id = input.ReadS2be();
 
+            var datatype = ReadDatatype(input);
+
+            RcpTypes.Datatype elementType;
+            if (TypeDefinition.HasElementType(datatype))
+                elementType = ReadDatatype(input);
+            else
+                elementType = 0;
+
+            var parameter = manager.GetParameter(id) ?? Create(manager, id, datatype, elementType);
+            parameter.Type.ParseOptions(input);
+            parameter.ParseOptions(input);
+            return parameter;
+        }
+
+        private static RcpTypes.Datatype ReadDatatype(KaitaiStream input)
+        {
             var datatype = (RcpTypes.Datatype)input.ReadU1();
             if (!Enum.IsDefined(typeof(RcpTypes.Datatype), datatype))
                 throw new RCPDataErrorException("Parameter parsing: Unknown datatype!");
-
-            Parameter parameter = null;
-
-            switch (datatype)
-            {
-                case RcpTypes.Datatype.Range:
-                    {
-                        var elementType = (RcpTypes.Datatype)input.ReadU1();
-                        parameter = (Parameter)RCPClient.CreateRangeParameter(id, elementType, manager);
-                        parameter.TypeDefinition.ParseOptions(input);
-                        break;
-                    }
-                case RcpTypes.Datatype.Array:
-                    {
-                        //parse element type definition
-                        //create array param
-                        //set element type definition on array param
-                        //create array definition
-                        //parse array definition options
-                        //set array definition on array param
-
-                        var elementType = (RcpTypes.Datatype)input.ReadU1();
-                        parameter = (Parameter)RCPClient.CreateArrayParameter(id, elementType, manager);
-                        parameter.TypeDefinition.ParseOptions(input);
-                        break;
-                    }
-
-                default:
-                    {
-                        parameter = (Parameter)RCPClient.CreateParameter(id, datatype, manager);
-                        parameter.TypeDefinition.ParseOptions(input);
-                        break;
-                    }
-            }
-
-            parameter.ParseOptions(input);
-            return parameter;
+            return datatype;
         }
 
         protected virtual bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions code)
@@ -262,8 +351,7 @@ namespace RCP.Parameter
                         {
                             var language = new string(input.ReadChars(3));
                             FLabels.Add(language, new RcpTypes.TinyString(input).Data);
-                            LabelChanged = true;
-                            SetDirty();
+                            SetChanged(ParameterChangedFlags.Label);
                         }
                         input.ReadByte(); //0 terminator
                         break;
@@ -273,8 +361,7 @@ namespace RCP.Parameter
                         {
                             var language = new string(input.ReadChars(3));
                             FDescriptions.Add(language, new RcpTypes.ShortString(input).Data);
-                            DescriptionChanged = true;
-                            SetDirty();
+                            SetChanged(ParameterChangedFlags.Description);
                         }
                         input.ReadByte(); //0 terminator
                         break;
@@ -313,79 +400,51 @@ namespace RCP.Parameter
             }
         }
 
-        public virtual void CopyFrom(IParameter other)
-        {
-            TypeDefinition.CopyFrom(other.TypeDefinition);
-
-            if (other.ParentIdChanged)
-                FParentId = other.ParentId;
-
-            //TODO: language specific copy
-            if (other.LabelChanged)
-                FLabels["any"] = other.Label;
-
-            if (other.DescriptionChanged)
-                FDescriptions["any"] = other.Description;
-
-            if (other.TagsChanged)
-                FTags = other.Tags;
-
-            if (other.OrderChanged)
-                FOrder = other.Order;
-
-            if (other.UserdataChanged)
-                FUserdata = other.Userdata;
-
-            if (other.UserIdChanged)
-                FUserId = other.UserId;
-
-            if (other.AnyChanged)
-                Updated?.Invoke(this, null);
-        }
-
-        public virtual bool AnyChanged => TypeDefinition.AnyChanged() || ParentIdChanged || LabelChanged || DescriptionChanged || TagsChanged || OrderChanged || UserdataChanged || UserIdChanged;
+        internal bool IsDirty => FChangedFlags != 0 || Type.IsDirty;
+        protected bool IsChanged(ParameterChangedFlags flags) => ((ParameterChangedFlags)FChangedFlags).HasFlag(flags);
+        protected void SetChanged(ParameterChangedFlags flags) => FChangedFlags |= (int)flags;
 
         public virtual void ResetForInitialize()
         {
-            ParentIdChanged = FParentId != 0;
-            LabelChanged = FLabels.Count > 0;
-            DescriptionChanged = FDescriptions.Count > 0;
-            TagsChanged = FTags != "";
-            OrderChanged = FOrder != 0;
-            UserdataChanged = FUserdata.Length != 0;
-            UserIdChanged = FUserId != "";
+            if (FParentId != 0)
+                SetChanged(ParameterChangedFlags.ParentId);
+            if (FLabels.Count > 0)
+                SetChanged(ParameterChangedFlags.Label);
+            if (FDescriptions.Count > 0)
+                SetChanged(ParameterChangedFlags.Description);
+            if (FTags != "")
+                SetChanged(ParameterChangedFlags.Tags);
+            if (FOrder != 0)
+                SetChanged(ParameterChangedFlags.Order);
+            if (FUserdata.Length != 0)
+                SetChanged(ParameterChangedFlags.Userdata);
+            if (FUserId != "")
+                SetChanged(ParameterChangedFlags.UserId);
 
-            TypeDefinition.ResetForInitialize();
+            Type.ResetForInitialize();
         }
+
+        internal void RaiseEvents()
+        {
+            var flags = (ParameterChangedFlags)Interlocked.Exchange(ref FChangedFlags, 0);
+            var typeChangedFlags = Type.ResetChangedFlags();
+            if (typeChangedFlags != 0)
+                flags |= ParameterChangedFlags.Type;
+            if (flags != 0)
+            {
+                if (flags != ParameterChangedFlags.Value)
+                    Updated?.Invoke(this, EventArgs.Empty);
+                if (flags.HasFlag(ParameterChangedFlags.Value))
+                    ValueUpdated?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        ITypeDefinition IParameter.Type => Type;
     }
 
     public class ValueParameter<T> : Parameter, IValueParameter<T>
     {
-        public new DefaultDefinition<T> TypeDefinition => base.TypeDefinition as DefaultDefinition<T>;
-
-        public T Default
-        {
-            get { return TypeDefinition.Default; }
-            set
-            {
-                TypeDefinition.Default = value;
-                SetDirty();
-            }
-        }
-
-        public event EventHandler ValueUpdated;
-        public bool ValueChanged { get; protected set; }
-
-        protected T FValue;
-        public T Value
-        {
-            get { return FValue; }
-            set
-            {
-                FValue = value;
-                ValueChanged = true; SetDirty();
-            }
-        }
+        T FValue;
 
         public ValueParameter(Int16 id, IParameterManager manager, DefaultDefinition<T> type) : 
             base (id, manager, type)
@@ -393,22 +452,42 @@ namespace RCP.Parameter
             FValue = type.Default;
         }
 
-        public override bool AnyChanged => base.AnyChanged || ValueChanged;
+        public new DefaultDefinition<T> Type => base.Type as DefaultDefinition<T>;
+
+        public T Default
+        {
+            get => Type.Default;
+            set => Type.Default = value;
+        }
+
+        public T Value
+        {
+            get { return FValue; }
+            set
+            {
+                if (!EqualityComparer<T>.Default.Equals(value, FValue))
+                {
+                    FValue = value;
+                    SetChanged(ParameterChangedFlags.Value);
+                }
+            }
+        }
 
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();
-            ValueChanged = !EqualityComparer<T>.Default.Equals(Value, TypeDefinition.Default);
+            if (!EqualityComparer<T>.Default.Equals(Value, Type.Default))
+                SetChanged(ParameterChangedFlags.Value);
         }
 
         protected override void WriteValue(BinaryWriter writer)
         {
-            if (ValueChanged)
+            if (IsChanged(ParameterChangedFlags.Value))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                TypeDefinition.WriteValue(writer, Value);
-                ValueChanged = false;
+                Type.WriteValue(writer, Value);
             }
+            base.WriteValue(writer);
         }
 
         protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
@@ -416,24 +495,11 @@ namespace RCP.Parameter
             switch (option)
             {
                 case RcpTypes.ParameterOptions.Value:
-                    Value = TypeDefinition.ReadValue(input);
+                    Value = Type.ReadValue(input);
                     return true;
             }
 
             return false;
-        }
-
-        public override void CopyFrom(IParameter other)
-        {
-            var otherValue = other as ValueParameter<T>;
-            if (otherValue.ValueChanged)
-            {
-                FValue = otherValue.Value;
-                ValueUpdated?.Invoke(other, EventArgs.Empty);
-            }
-
-            //last, because this also fires the Update event
-            base.CopyFrom(other);
         }
 
         object IValueParameter.Value { get => Value; set => Value = (T)value; }

@@ -1,19 +1,23 @@
 using System;
+using RCP.Types;
 
-using Kaitai;
-using RCP.Protocol;
-using System.IO;
-using RCP.Exceptions;
-using System.Collections.Generic;
-
-namespace RCP.Parameter
+namespace RCP.Parameters
 {
     public sealed class EnumParameter : ValueParameter<string>
     {
-        public EnumDefinition EnumDefinition => TypeDefinition as EnumDefinition;
+        public new EnumDefinition Type => base.Type as EnumDefinition;
 
-        public string[] Entries { get { return EnumDefinition.Entries; } set { EnumDefinition.Entries = value; if (EnumDefinition.EntriesChanged) SetDirty(); } }
-        public bool MultiSelect { get { return EnumDefinition.MultiSelect; } set { EnumDefinition.MultiSelect = value; if (EnumDefinition.MultiSelectChanged) SetDirty(); } }
+        public string[] Entries
+        {
+            get => Type.Entries;
+            set => Type.Entries = value;
+        }
+
+        public bool MultiSelect
+        {
+            get => Type.MultiSelect;
+            set => Type.MultiSelect = value;
+        }
 
         public EnumParameter(Int16 id, IParameterManager manager, EnumDefinition typeDefinition)
             : base(id, manager, typeDefinition)

@@ -5,35 +5,55 @@ using Kaitai;
 using RCP.Protocol;
 using RCP.Exceptions;
 using System.Collections.Generic;
+using RCP.Parameters;
+using System.Linq;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class EnumDefinition : DefaultDefinition<string>, IEnumDefinition
     {
-        public bool EntriesChanged { get; private set; }
-        private string[] FEntries;
-        public string[] Entries { get { return FEntries; } set { if (FEntries != value) { EntriesChanged = true; FEntries = value; } } }
+        private string[] FEntries = Array.Empty<string>();
+        public string[] Entries
+        {
+            get { return FEntries; }
+            set
+            {
+                if (!FEntries.SequenceEqual(value))
+                {
+                    FEntries = value;
+                    SetChanged(TypeChangedFlags.EnumEntires);
+                }
+            }
+        }
 
-        public bool MultiSelectChanged { get; private set; }
         private bool FMultiSelect;
-        public bool MultiSelect { get { return FMultiSelect; } set { if (FMultiSelect != value) { MultiSelectChanged = true; FMultiSelect = value; } } }
+        public bool MultiSelect
+        {
+            get { return FMultiSelect; }
+            set
+            {
+                if (FMultiSelect != value)
+                {
+                    FMultiSelect = value;
+                    SetChanged(TypeChangedFlags.EnumMultiSelect);
+                }
+            }
+        }
 
         public EnumDefinition()
-            : base(RcpTypes.Datatype.Enum)
+            : base(RcpTypes.Datatype.Enum, string.Empty)
         {
         }
 
         public override Parameter CreateParameter(short id, IParameterManager manager) => new EnumParameter(id, manager, this);
 
-        public override bool AnyChanged()
-        {
-            return base.AnyChanged() || EntriesChanged || MultiSelectChanged;
-        }
-
         public override void ResetForInitialize()
         {
-            EntriesChanged = FEntries.Length != 0;
-            MultiSelectChanged = FMultiSelect != false;
+            if (FEntries.Length != 0)
+                SetChanged(TypeChangedFlags.EnumEntires);
+            if (FMultiSelect != false)
+                SetChanged(TypeChangedFlags.EnumMultiSelect);
+            base.ResetForInitialize();
         }
 
         public override string ReadValue(KaitaiStream input)
@@ -48,27 +68,23 @@ namespace RCP.Parameter
 
         protected override void WriteOptions(BinaryWriter writer)
         {
-            base.WriteOptions(writer);
-
-            if (EntriesChanged)
+            if (IsChanged(TypeChangedFlags.EnumEntires))
             {
                 writer.Write((byte)RcpTypes.EnumOptions.Entries);
                 foreach (var entry in Entries)
                     RcpTypes.TinyString.Write(entry, writer);
                 writer.Write((byte)0);
-
-                EntriesChanged = false;
             }
 
-            if (MultiSelectChanged)
+            if (IsChanged(TypeChangedFlags.EnumMultiSelect))
             {
                 writer.Write((byte)RcpTypes.EnumOptions.Multiselect);
                 foreach (var entry in Entries)
                     RcpTypes.TinyString.Write(entry, writer);
                 writer.Write((byte)0);
-
-                MultiSelectChanged = false;
             }
+
+            base.WriteOptions(writer);
         }
 
         protected override bool HandleOption(KaitaiStream input, byte code)
@@ -97,19 +113,6 @@ namespace RCP.Parameter
             }
 
             return false;
-        }
-
-        public override void CopyFrom(ITypeDefinition other)
-        {
-            base.CopyFrom(other);
-
-            var otherEnum = other as IEnumDefinition;
-
-            if (otherEnum.EntriesChanged)
-                FEntries = otherEnum.Entries;
-
-            if (otherEnum.MultiSelectChanged)
-                FMultiSelect = otherEnum.MultiSelect;
         }
     }
 }

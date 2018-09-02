@@ -1,30 +1,13 @@
 using Kaitai;
 using System.IO;
 
-using RCP.Protocol;
-
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class UInteger32Definition : NumberDefinition<uint>
     {
-        public UInteger32Definition()
-        : base(RcpTypes.Datatype.Uint32)
-        {
-            FMinimum = uint.MinValue;
-            FMaximum = uint.MaxValue;
-            FMultipleOf = 1;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != 0;
-
-            MinimumChanged = Minimum != uint.MinValue;
-            MaximumChanged = Maximum != uint.MaxValue;
-            MultipleOfChanged = MultipleOf != 1;
-        }
+        protected override uint DefaultMinimum => uint.MinValue;
+        protected override uint DefaultMaximum => uint.MaxValue;
+        protected override uint DefaultMulitpleOf => 1;
 
         public override uint ReadValue(KaitaiStream input)
         {

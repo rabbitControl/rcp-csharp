@@ -1,30 +1,13 @@
 using Kaitai;
 using System.IO;
 
-using RCP.Protocol;
-
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class UInteger16Definition : NumberDefinition<ushort>
     {
-        public UInteger16Definition()
-        : base(RcpTypes.Datatype.Uint16)
-        {
-            FMinimum = ushort.MinValue;
-            FMaximum = ushort.MaxValue;
-            FMultipleOf = 1;
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != 0;
-
-            MinimumChanged = Minimum != ushort.MinValue;
-            MaximumChanged = Maximum != ushort.MaxValue;
-            MultipleOfChanged = MultipleOf != 1;
-        }
+        protected override ushort DefaultMinimum => ushort.MinValue;
+        protected override ushort DefaultMaximum => ushort.MaxValue;
+        protected override ushort DefaultMulitpleOf => 1;
 
         public override ushort ReadValue(KaitaiStream input)
         {

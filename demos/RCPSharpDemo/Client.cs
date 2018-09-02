@@ -2,7 +2,7 @@
 
 using RCP;
 using RCP.Transporter;
-using RCP.Parameter;
+using RCP.Parameters;
 using System;
 using System.Collections.Generic;
 
@@ -23,7 +23,7 @@ namespace RCPSharpDemo
             Carrot = new RCPClient();
             Carrot.SetTransporter(transporter);
 
-            Carrot.ParameterAdded = (p) =>
+            Carrot.ParameterAdded += (s, p) =>
             {
                 UIParams.Add(p.Id, p);
                 label1.Text = UIParams.Count.ToString() + ": " + p.Label;
@@ -31,7 +31,7 @@ namespace RCPSharpDemo
                 p.Updated += P_Updated;
             };
 
-            Carrot.ParameterRemoved = (p) =>
+            Carrot.ParameterRemoved += (s, p) =>
             {
                 //remove UI matching p
                 UIParams.Remove(p.Id);
@@ -54,8 +54,8 @@ namespace RCPSharpDemo
 
         private void P_Updated(object sender, EventArgs e)
         {
-            if (sender is INumberParameter<int>)
-            label1.Text = UIParams.Count.ToString() + ": " + (sender as INumberParameter<int>).Value.ToString();
+            if (sender is NumberParameter<int>)
+                label1.Text = UIParams.Count.ToString() + ": " + (sender as NumberParameter<int>).Value.ToString();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
