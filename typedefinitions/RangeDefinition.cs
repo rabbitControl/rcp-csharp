@@ -60,6 +60,6 @@ namespace RCP.Types
             ElementType.WriteValue(writer, value.Upper);
         }
 
-        INumberDefinition IRangeDefinition.ElementType => ElementType;
+        INumberDefinition IRangeDefinition.ElementDefinition => ElementType;
     }
 }

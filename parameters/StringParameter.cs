@@ -5,7 +5,7 @@ namespace RCP.Parameters
 {
     public sealed class StringParameter : ValueParameter<string>
     {
-        public new StringDefinition Type => base.Type as StringDefinition;
+        public new StringDefinition TypeDefinition => base.TypeDefinition as StringDefinition;
 
         public StringParameter(Int16 id, IParameterManager manager, StringDefinition typeDefinition) 
             : base(id, manager, typeDefinition)
@@ -14,8 +14,8 @@ namespace RCP.Parameters
 
         public string RegularExpression
         {
-            get => Type.RegularExpression;
-            set => Type.RegularExpression = value;
+            get => TypeDefinition.RegularExpression;
+            set => TypeDefinition.RegularExpression = value;
         }
     }
 }

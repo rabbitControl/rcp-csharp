@@ -144,7 +144,7 @@ namespace RCP.Types
                 case RcpTypes.Datatype.Group:
                     return new GroupDefinition();
                 case RcpTypes.Datatype.Uri:
-                    break;
+                    return new UriDefinition();
                 case RcpTypes.Datatype.Ipv4:
                     break;
                 case RcpTypes.Datatype.Ipv6:

@@ -78,13 +78,13 @@ namespace RCP.Parameters
         {
             Id = id;
             FManager = manager;
-            Type = type;
+            TypeDefinition = type;
             // Redirect notifications from type
             type.PropertyChanged += (s, p) => OnPropertyChanged(p.PropertyName);
         }
 
         public Int16 Id { get; }
-        public TypeDefinition Type { get; }
+        public TypeDefinition TypeDefinition { get; }
 
         public Int16 ParentId
         {
@@ -207,7 +207,7 @@ namespace RCP.Parameters
             //mandatory
             writer.Write(Id, ByteOrder.BigEndian);
 
-            Type.Write(writer);
+            TypeDefinition.Write(writer);
 
             //optional
             WriteValue(writer);
@@ -294,7 +294,7 @@ namespace RCP.Parameters
                 elementType = 0;
 
             var parameter = manager.GetParameter(id) ?? Create(manager, id, datatype, elementType);
-            parameter.Type.ParseOptions(input);
+            parameter.TypeDefinition.ParseOptions(input);
             parameter.ParseOptions(input);
             return parameter;
         }
@@ -381,7 +381,7 @@ namespace RCP.Parameters
             }
         }
 
-        internal bool IsDirty => FChangedFlags != 0 || Type.IsDirty;
+        internal bool IsDirty => FChangedFlags != 0 || TypeDefinition.IsDirty;
         protected bool IsChanged(ParameterChangedFlags flags) => ((ParameterChangedFlags)FChangedFlags).HasFlag(flags);
         protected void SetChanged(ParameterChangedFlags flags) => FChangedFlags |= (int)flags;
 
@@ -402,13 +402,13 @@ namespace RCP.Parameters
             if (FUserId != "")
                 SetChanged(ParameterChangedFlags.UserId);
 
-            Type.ResetForInitialize();
+            TypeDefinition.ResetForInitialize();
         }
 
         internal void RaiseEvents()
         {
             var flags = (ParameterChangedFlags)Interlocked.Exchange(ref FChangedFlags, 0);
-            var typeChangedFlags = Type.ResetChangedFlags();
+            var typeChangedFlags = TypeDefinition.ResetChangedFlags();
             if (typeChangedFlags != 0)
                 flags |= ParameterChangedFlags.Type;
             if (flags != 0)
@@ -420,7 +420,7 @@ namespace RCP.Parameters
             }
         }
 
-        ITypeDefinition IParameter.Type => Type;
+        ITypeDefinition IParameter.TypeDefinition => TypeDefinition;
     }
 
     public class ValueParameter<T> : Parameter, IValueParameter<T>, INotifyPropertyChanged
@@ -433,12 +433,12 @@ namespace RCP.Parameters
             FValue = type.Default;
         }
 
-        public new DefaultDefinition<T> Type => base.Type as DefaultDefinition<T>;
+        public new DefaultDefinition<T> TypeDefinition => base.TypeDefinition as DefaultDefinition<T>;
 
         public T Default
         {
-            get => Type.Default;
-            set => Type.Default = value;
+            get => TypeDefinition.Default;
+            set => TypeDefinition.Default = value;
         }
 
         public T Value
@@ -454,7 +454,7 @@ namespace RCP.Parameters
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();
-            if (!Equals(Value, Type.Default))
+            if (!Equals(Value, TypeDefinition.Default))
                 SetChanged(ParameterChangedFlags.Value);
         }
 
@@ -463,7 +463,7 @@ namespace RCP.Parameters
             if (IsChanged(ParameterChangedFlags.Value))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                Type.WriteValue(writer, Value);
+                TypeDefinition.WriteValue(writer, Value);
             }
             base.WriteValue(writer);
         }
@@ -473,7 +473,7 @@ namespace RCP.Parameters
             switch (option)
             {
                 case RcpTypes.ParameterOptions.Value:
-                    Value = Type.ReadValue(input);
+                    Value = TypeDefinition.ReadValue(input);
                     return true;
             }
 

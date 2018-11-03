@@ -6,7 +6,7 @@ namespace RCP.Parameters
 {
     public sealed class RangeParameter<T> : ValueParameter<Range<T>>, IRangeParameter where T : struct
     {
-        public new RangeDefinition<T> Type => base.Type as RangeDefinition<T>;
+        public new RangeDefinition<T> TypeDefinition => base.TypeDefinition as RangeDefinition<T>;
 
         public RangeParameter(Int16 id, IParameterManager manager, RangeDefinition<T> typeDefinition)
             : base(id, manager, typeDefinition)
@@ -15,12 +15,12 @@ namespace RCP.Parameters
 
         public T Minimum
         {
-            get => Type.ElementType.Minimum;
+            get => TypeDefinition.ElementType.Minimum;
             set
             {
                 if (!Equals(value, Minimum))
                 {
-                    Type.ElementType.Minimum = value;
+                    TypeDefinition.ElementType.Minimum = value;
                     OnPropertyChanged();
                 }
             }
@@ -28,12 +28,12 @@ namespace RCP.Parameters
 
         public T Maximum
         {
-            get => Type.ElementType.Maximum;
+            get => TypeDefinition.ElementType.Maximum;
             set
             {
                 if (!Equals(value, Maximum))
                 {
-                    Type.ElementType.Maximum = value;
+                    TypeDefinition.ElementType.Maximum = value;
                     OnPropertyChanged();
                 }
             }
@@ -65,7 +65,7 @@ namespace RCP.Parameters
             }
         }
 
-        IRangeDefinition IRangeParameter.Type => Type;
+        IRangeDefinition IRangeParameter.TypeDefinition => TypeDefinition;
         object IRangeParameter.Lower { get => Lower; set => Lower = (T)value; }
         object IRangeParameter.Upper { get => Upper; set => Upper = (T)value; }
     }

@@ -21,7 +21,9 @@ namespace RCP.Types
             Structure = structure;
         }
 
-        public ITypeDefinition ElementType => FElementType;
+        public ITypeDefinition ElementDefinition => FElementType;
+
+        public RcpTypes.Datatype ElementType => ElementDefinition.Datatype;
 
         public int[] Structure
         {

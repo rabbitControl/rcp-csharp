@@ -71,19 +71,20 @@ namespace RCP
 
     public interface IArrayDefinition : ITypeDefinition
     {
-        ITypeDefinition ElementType { get; }
+        ITypeDefinition ElementDefinition { get; }
+        RcpTypes.Datatype ElementType { get; }
         int[] Structure { get; set; }
     }
 
     public interface IRangeDefinition : ITypeDefinition
     {
-        INumberDefinition ElementType { get; }
+        INumberDefinition ElementDefinition { get; }
     }
 
     public interface IParameter : IWriteable, INotifyPropertyChanged
     {
         Int16 Id { get; }
-        ITypeDefinition Type { get; }
+        ITypeDefinition TypeDefinition { get; }
         string Label { get; set; }
         string Description { get; set; }
         string Tags { get; set; }
@@ -115,12 +116,12 @@ namespace RCP
 
     public interface INumberParameter : IValueParameter
     {
-        new INumberDefinition Type { get; }
+        new INumberDefinition TypeDefinition { get; }
     }
 
     public interface IRangeParameter : IValueParameter
     {
-        new IRangeDefinition Type { get; }
+        new IRangeDefinition TypeDefinition { get; }
         object Lower { get; set; }
         object Upper { get; set; }
     }

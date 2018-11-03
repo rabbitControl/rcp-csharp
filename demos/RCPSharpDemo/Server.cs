@@ -59,7 +59,7 @@ namespace RCPSharpDemo
             var str = FRabbit.CreateStringParameter("my string", group);
             str.Value = "foobar";
 
-            var clr = FRabbit.CreateRGBAParameter("ma color", group);
+            var clr = FRabbit.CreateValueParameter<Color>("ma color", group);
             clr.Value = Color.Red;
 
             var strarr = FRabbit.CreateArrayParameter<string>("my string array", null, new int[] { 3 });

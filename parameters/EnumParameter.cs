@@ -5,18 +5,18 @@ namespace RCP.Parameters
 {
     public sealed class EnumParameter : ValueParameter<string>
     {
-        public new EnumDefinition Type => base.Type as EnumDefinition;
+        public new EnumDefinition TypeDefinition => base.TypeDefinition as EnumDefinition;
 
         public string[] Entries
         {
-            get => Type.Entries;
-            set => Type.Entries = value;
+            get => TypeDefinition.Entries;
+            set => TypeDefinition.Entries = value;
         }
 
         public bool MultiSelect
         {
-            get => Type.MultiSelect;
-            set => Type.MultiSelect = value;
+            get => TypeDefinition.MultiSelect;
+            set => TypeDefinition.MultiSelect = value;
         }
 
         public EnumParameter(Int16 id, IParameterManager manager, EnumDefinition typeDefinition)

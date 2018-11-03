@@ -7,7 +7,7 @@ namespace RCP.Parameters
     public class NumberParameter<T> : ValueParameter<T>
         where T : struct
     {
-        public new NumberDefinition<T> Type => base.Type as NumberDefinition<T>;
+        public new NumberDefinition<T> TypeDefinition => base.TypeDefinition as NumberDefinition<T>;
 
         public NumberParameter(Int16 id, IParameterManager manager, NumberDefinition<T> typeDefinition) 
             : base(id, manager, typeDefinition)
@@ -16,32 +16,32 @@ namespace RCP.Parameters
 
         public T Minimum
         {
-            get => Type.Minimum;
-            set => Type.Minimum = value;
+            get => TypeDefinition.Minimum;
+            set => TypeDefinition.Minimum = value;
         }
 
         public T Maximum
         {
-            get => Type.Maximum;
-            set => Type.Maximum = value;
+            get => TypeDefinition.Maximum;
+            set => TypeDefinition.Maximum = value;
         }
 
         public T MultipleOf
         {
-            get => Type.MultipleOf;
-            set => Type.MultipleOf = value;
+            get => TypeDefinition.MultipleOf;
+            set => TypeDefinition.MultipleOf = value;
         }
 
         public RcpTypes.NumberScale Scale
         {
-            get => Type.Scale;
-            set => Type.Scale = value;
+            get => TypeDefinition.Scale;
+            set => TypeDefinition.Scale = value;
         }
 
         public string Unit
         {
-            get => Type.Unit;
-            set => Type.Unit = value;
+            get => TypeDefinition.Unit;
+            set => TypeDefinition.Unit = value;
         }
     }
 }

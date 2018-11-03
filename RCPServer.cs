@@ -44,6 +44,8 @@ namespace RCP
             return AddAndReturn(param, label, group);
         }
 
+        public ArrayParameter<T> CreateArrayParameter<T>(string label = "", params int[] structure) => CreateArrayParameter<T>(label, null, structure);
+
         public ArrayParameter<T> CreateArrayParameter<T>(string label = "", GroupParameter group = null, int[] structure = null)
         {
             var elementType = TypeDefinition.GetDatatype(typeof(T));
@@ -64,10 +66,31 @@ namespace RCP
             return AddAndReturn(param, label, group);
         }
 
+        public ValueParameter<T> CreateValueParameter<T>(string label = "", GroupParameter group = null)
+        {
+            var datatype = TypeDefinition.GetDatatype(typeof(T));
+            var param = CreateParameter(datatype, label, group) as ValueParameter<T>;
+            return AddAndReturn(param, label, group);
+        }
+
         public StringParameter CreateStringParameter(string label = "", GroupParameter group = null)
         {
             var param = CreateParameter(RcpTypes.Datatype.String, label, group) as StringParameter;
             return AddAndReturn(param, label, group);
+        }
+
+        public UriParameter CreateUriParameter(string label = "", GroupParameter group = null)
+        {
+            var param = CreateParameter(RcpTypes.Datatype.Uri, label, group) as UriParameter;
+            return AddAndReturn(param, label, group);
+        }
+
+        public ArrayParameter<string> CreateUriArrayParameter(string label, params int[] structure)
+        {
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Array, RcpTypes.Datatype.Uri, structure) as ArrayParameter<string>;
+            param.Label = label;
+            AddParameter(param);
+            return param;
         }
 
         public EnumParameter CreateEnumParameter(string label = "", GroupParameter group = null)
@@ -76,10 +99,12 @@ namespace RCP
             return AddAndReturn(param, label, group);
         }
 
-        public ValueParameter<Color> CreateRGBAParameter(string label = "", GroupParameter group = null)
+        public ArrayParameter<string> CreateEnumArrayParameter(string label, params int[] structure)
         {
-            var param = CreateParameter(RcpTypes.Datatype.Rgba, label, group) as ValueParameter<Color>;
-            return AddAndReturn(param, label, group);
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Array, RcpTypes.Datatype.Enum, structure) as ArrayParameter<string>;
+            param.Label = label;
+            AddParameter(param);
+            return param;
         }
 
         public GroupParameter CreateGroup(string label = "", GroupParameter group = null)
