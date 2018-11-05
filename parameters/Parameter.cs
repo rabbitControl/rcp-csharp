@@ -51,7 +51,9 @@ namespace RCP.Parameter
 
         public bool UserIdChanged { get; private set; }
         private string FUserId = "";
-        public string UserId { get { return FUserId; } set { if (FUserId != value) { FUserId = value; UserIdChanged = true; SetDirty(); } } }
+        public string UserId { get { return FUserId; }
+            set { if (FUserId != value)
+                { FUserId = value; UserIdChanged = true; SetDirty(); } } }
 
         public bool WidgetChanged { get; private set; }
         public Widget Widget { get; set; }
@@ -60,6 +62,9 @@ namespace RCP.Parameter
         {
             Id = id;
             FManager = manager;
+
+            FLabels["any"] = "";
+            FDescriptions["any"] = "";
 
             SetDirty();
         }
