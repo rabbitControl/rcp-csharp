@@ -331,7 +331,7 @@ namespace RCP.Parameters
                         while (input.PeekChar() > 0)
                         {
                             var language = new string(input.ReadChars(3));
-                            FLabels.Add(language, new RcpTypes.TinyString(input).Data);
+                            FLabels = FLabels.SetItem(language, new RcpTypes.TinyString(input).Data);
                             SetChanged(ParameterChangedFlags.Label);
                         }
                         input.ReadByte(); //0 terminator
@@ -341,7 +341,7 @@ namespace RCP.Parameters
                         while (input.PeekChar() > 0)
                         {
                             var language = new string(input.ReadChars(3));
-                            FDescriptions.Add(language, new RcpTypes.ShortString(input).Data);
+                            FDescriptions = FDescriptions.SetItem(language, new RcpTypes.ShortString(input).Data);
                             SetChanged(ParameterChangedFlags.Description);
                         }
                         input.ReadByte(); //0 terminator
