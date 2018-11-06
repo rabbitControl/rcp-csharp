@@ -35,7 +35,11 @@ namespace RCP
         void WriteValue(BinaryWriter writer, T value);
     }
 
-    public interface IBoolDefinition : IDefaultDefinition<bool>
+    public interface IBangDefinition : ITypeDefinition
+    {
+    }
+
+    public interface IBoolDefinition : ITypeDefinition
     {
     }
 

@@ -53,6 +53,12 @@ namespace RCP
             return AddAndReturn(param, label, group);
         }
 
+        public Parameter CreateBangParameter(string label = "", GroupParameter group = null)
+        {
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Bang);
+            return AddAndReturn(param, label, group);
+        }
+
         public Parameter CreateRangeParameter(RcpTypes.Datatype elementType, string label = "", GroupParameter group = null)
         {
             var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Range, elementType);

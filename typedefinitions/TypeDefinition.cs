@@ -140,7 +140,7 @@ namespace RCP.Types
                 case RcpTypes.Datatype.List:
                     throw new ArgumentException(nameof(type), "Must not be a list.");
                 case RcpTypes.Datatype.Bang:
-                    break;
+                    return new BangDefinition();
                 case RcpTypes.Datatype.Group:
                     return new GroupDefinition();
                 case RcpTypes.Datatype.Uri:
