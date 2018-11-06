@@ -15,6 +15,8 @@ namespace RCPSharpDemo
         RCPClient Carrot;
         Dictionary<Int16, IParameter> UIParams = new Dictionary<Int16, IParameter>();
 
+        BangParameter FTheBang;
+
         public Client()
         {
             InitializeComponent();
@@ -29,10 +31,21 @@ namespace RCPSharpDemo
                 label1.Text = UIParams.Count.ToString() + ": " + p.Label;
 
                 p.Updated += P_Updated;
+
+                if (p is BangParameter)
+                {
+                    FTheBang = p as BangParameter;
+                    FTheBang.OnBang += Client_OnBang;
+                }
             };
 
             Carrot.ParameterRemoved += (s, p) =>
             {
+                if (p is BangParameter)
+                {
+                    FTheBang.OnBang -= Client_OnBang;
+                    FTheBang = null;
+                }
                 //remove UI matching p
                 UIParams.Remove(p.Id);
             };
@@ -52,6 +65,11 @@ namespace RCPSharpDemo
             transporter.Connect("127.0.0.1", 10000);
         }
 
+        private void Client_OnBang()
+        {
+            label1.Text = "bang: " + DateTime.Now.ToString();
+        }
+
         private void P_Updated(object sender, EventArgs e)
         {
             if (sender is NumberParameter<int>)
@@ -69,6 +87,15 @@ namespace RCPSharpDemo
             UIParams.Clear();
             label1.Text = "";
             Carrot.Initialize();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (FTheBang != null)
+            {
+                FTheBang.Bang();
+                Carrot.Update();
+            }
         }
     }
 }

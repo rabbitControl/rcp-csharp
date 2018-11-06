@@ -2,6 +2,7 @@
 using RCP.Parameters;
 using RCP.Protocol;
 using RCP.Transporter;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -31,6 +32,8 @@ namespace RCPSharpDemo
             FClient.Dispose();
             FRabbit.Dispose();
         }
+
+        private BangParameter FMyBang;
         
         private void button1_Click(object sender, System.EventArgs e)
         {
@@ -70,6 +73,9 @@ namespace RCPSharpDemo
             intarr.Default = new int[3] { 1, 2, 4 };
             intarr.Value = new int[3] { 4, 5, 6 };
 
+            FMyBang = (BangParameter)FRabbit.CreateBangParameter("my bang");
+            FMyBang.OnBang += FMyBang_OnBang;
+
             FRabbit.Update();
 
             //enm.Value = "biber";
@@ -79,9 +85,20 @@ namespace RCPSharpDemo
             //FRabbit.Update();
         }
 
+        private void FMyBang_OnBang()
+        {
+            label1.Text = "bang: " + DateTime.Now.ToString();
+        }
+
         private void Enm_ValueUpdated(object sender, string e)
         {
             label1.Text = e.ToString();
+        }
+
+        private void button2_Click(object sender, System.EventArgs e)
+        {
+            FMyBang.Bang();
+            FRabbit.Update();
         }
     }
 }
