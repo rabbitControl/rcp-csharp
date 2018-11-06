@@ -70,8 +70,6 @@ namespace RCPSharpDemo
             intarr.Default = new int[3] { 1, 2, 4 };
             intarr.Value = new int[3] { 4, 5, 6 };
 
-            FRabbit.Update();
-
             //enm.Value = "biber";
             //FRabbit.Update();
 
