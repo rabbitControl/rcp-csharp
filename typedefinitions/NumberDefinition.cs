@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace RCP.Types
 {
-    public abstract class NumberDefinition<T> : DefaultDefinition<T>, INumberDefinition<T> where T: struct
+    public abstract class NumberDefinition<T> : DefaultDefinition<T>, INumberDefinition<T> /*where T: struct*/
     {
         T FMinimum, FMaximum, FMultipleOf;
         RcpTypes.NumberScale FScale;

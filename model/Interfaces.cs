@@ -39,7 +39,7 @@ namespace RCP
     {
     }
 
-    public interface INumberDefinition<T> : IDefaultDefinition<T>, INumberDefinition where T : struct
+    public interface INumberDefinition<T> : IDefaultDefinition<T>, INumberDefinition /*where T : struct*/
     {
         new T Minimum { get; set; }
         new T Maximum { get; set; }

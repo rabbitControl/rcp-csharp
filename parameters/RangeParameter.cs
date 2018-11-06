@@ -4,7 +4,7 @@ using RCP.Types;
 
 namespace RCP.Parameters
 {
-    public sealed class RangeParameter<T> : ValueParameter<Range<T>>, IRangeParameter where T : struct
+    public sealed class RangeParameter<T> : ValueParameter<Range<T>>, IRangeParameter /*where T : struct*/
     {
         public new RangeDefinition<T> TypeDefinition => base.TypeDefinition as RangeDefinition<T>;
 
