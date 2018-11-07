@@ -65,7 +65,7 @@ namespace RCP
             return AddAndReturn(param, label, group);
         }
 
-        public NumberParameter<T> CreateNumberParameter<T>(string label = "", GroupParameter group = null) where T : struct
+        public NumberParameter<T> CreateNumberParameter<T>(string label = "", GroupParameter group = null) /*where T : struct*/
         {
             var datatype = TypeDefinition.GetDatatype(typeof(T));
             var param = (NumberParameter<T>)CreateParameter(datatype, label, group);

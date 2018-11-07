@@ -76,8 +76,6 @@ namespace RCPSharpDemo
             FMyBang = (BangParameter)FRabbit.CreateBangParameter("my bang");
             FMyBang.OnBang += FMyBang_OnBang;
 
-            FRabbit.Update();
-
             //enm.Value = "biber";
             //FRabbit.Update();
 

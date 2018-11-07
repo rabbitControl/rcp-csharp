@@ -6,7 +6,7 @@ using RCP.Protocol;
 
 namespace RCP.Types
 {
-    public class RangeDefinition<T> : DefaultDefinition<Range<T>>, IRangeDefinition where T : struct
+    public class RangeDefinition<T> : DefaultDefinition<Range<T>>, IRangeDefinition /*where T : struct*/
     {
         public readonly NumberDefinition<T> ElementType;
 

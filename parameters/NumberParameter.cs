@@ -5,7 +5,7 @@ using RCP.Types;
 namespace RCP.Parameters
 {
     public class NumberParameter<T> : ValueParameter<T>
-        where T : struct
+        //where T : struct
     {
         public new NumberDefinition<T> TypeDefinition => base.TypeDefinition as NumberDefinition<T>;
 

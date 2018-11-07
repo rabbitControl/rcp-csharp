@@ -12,18 +12,13 @@ namespace RCP
 {
     public class RCPClient : ClientServerBase
 	{
-        private readonly SynchronizationContext FContext;
 		private IClientTransporter FTransporter;
-        bool FIsDirty;
 
-        public RCPClient() 
-            : base()
+        public RCPClient()
         {
-            FContext = SynchronizationContext.Current;
         }
 
         public RCPClient(IClientTransporter transporter) 
-            : this()
         {
             SetTransporter(transporter);
         }
@@ -57,36 +52,9 @@ namespace RCP
 
         public override void Update()
         {
-            try
-            {
-                foreach (var parameter in FParams.Values)
-                    if (parameter.IsDirty)
-                        SendPacket(Pack(RcpTypes.Command.Update, parameter));
-            }
-            finally
-            {
-                FIsDirty = false;
-            }
-        }
-
-        protected override void OnParameterAdded(Parameter parameter)
-        {
-            parameter.PropertyChanged += HandleParameterUpdated;
-            base.OnParameterAdded(parameter);
-        }
-
-        protected override void OnParameterRemoved(Parameter parameter)
-        {
-            parameter.PropertyChanged -= HandleParameterUpdated;
-            base.OnParameterRemoved(parameter);
-        }
-
-        void HandleParameterUpdated(object sender, PropertyChangedEventArgs args)
-        {
-            if (FIsDirty)
-                return;
-            FIsDirty = true;
-            FContext.Post(_ => Update(), null);
+            foreach (var parameter in FParams.Values)
+                if (parameter.IsDirty)
+                    SendPacket(Pack(RcpTypes.Command.Update, parameter));
         }
 
         #region Transporter

@@ -4,6 +4,8 @@ using RCP.Protocol;
 using System.Collections.Generic;
 using RCP.Parameters;
 using RCP.Types;
+using System.Threading;
+using System.ComponentModel;
 
 namespace RCP
 {
@@ -14,12 +16,16 @@ namespace RCP
 
     public abstract class ClientServerBase : IDisposable, IParameterManager
 	{
+        private readonly SynchronizationContext FContext;
         protected Dictionary<Int16, Parameter> FParams = new Dictionary<Int16, Parameter>();
+        bool FIsDirty;
 
         public GroupParameter Root { get; }
+        public bool AutoUpdate { get; set; } = true;
 
         public ClientServerBase()
         {
+            FContext = SynchronizationContext.Current;
             Root = new GroupParameter(0, this, new GroupDefinition());
         }
 
@@ -77,7 +83,36 @@ namespace RCP
                 OnParameterRemoved(parameter);
         }
 
-        protected virtual void OnParameterAdded(Parameter parameter) => ParameterAdded?.Invoke(this, parameter);
-        protected virtual void OnParameterRemoved(Parameter parameter) => ParameterRemoved?.Invoke(this, parameter);
+        protected virtual void OnParameterAdded(Parameter parameter)
+        {
+            parameter.PropertyChanged += HandleParameterUpdated;
+            ParameterAdded?.Invoke(this, parameter);
+        }
+
+        protected virtual void OnParameterRemoved(Parameter parameter)
+        {
+            parameter.PropertyChanged -= HandleParameterUpdated;
+            ParameterRemoved?.Invoke(this, parameter);
+        }
+
+        void HandleParameterUpdated(object sender, PropertyChangedEventArgs args)
+        {
+            if (!AutoUpdate)
+                return;
+            if (FIsDirty)
+                return;
+            FIsDirty = true;
+            FContext.Post(_ =>
+            {
+                try
+                {
+                    Update();
+                }
+                finally
+                {
+                    FIsDirty = false;
+                }
+            }, null);
+        }
     }
 }
