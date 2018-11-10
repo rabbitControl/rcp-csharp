@@ -11,11 +11,17 @@ namespace RCP.Parameters
     {
         bool FBangPending;
 
-        public event Action OnBang;
+        public event EventHandler OnBang;
 
         public BangParameter(Int16 id, IParameterManager manager)
             : base(id, manager, new BangDefinition())
         {
+            (TypeDefinition as BangDefinition).OnBang += ForwardBang;
+        }
+
+        private void ForwardBang()
+        {
+            OnBang?.Invoke(this, null);
         }
 
         public void Bang()
@@ -30,26 +36,14 @@ namespace RCP.Parameters
             FBangPending = false;
         }
 
-        protected override void WriteValue(BinaryWriter writer)
-        {
-            if (FBangPending)
-            {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                FBangPending = false;
-            }
-            base.WriteValue(writer);
-        }
-
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
-        {
-            switch (option)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    OnBang?.Invoke();
-                    return true;
-            }
-
-            return false;
-        }
+        //protected override void WriteValue(BinaryWriter writer)
+        //{
+        //    if (FBangPending)
+        //    {
+        //        writer.Write((byte)RcpTypes.ParameterOptions.Value);
+        //        FBangPending = false;
+        //    }
+        //    base.WriteValue(writer);
+        //}
     }
 }

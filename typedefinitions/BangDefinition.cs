@@ -5,9 +5,11 @@ using RCP.Parameters;
 using RCP.Protocol;
 
 namespace RCP.Types
-{                           
+{
     public class BangDefinition : TypeDefinition, IBangDefinition
     {
+        public Action OnBang;
+
         public BangDefinition()
             : base(RcpTypes.Datatype.Bang)
         {
@@ -26,5 +28,13 @@ namespace RCP.Types
         {
             throw new NotImplementedException();
         }
+
+        public override void ParseOptions(KaitaiStream input)
+        {
+            //read terminator
+            input.ReadU1();
+            //execute bang
+            OnBang?.Invoke();
+        }
     }
-}
+ }

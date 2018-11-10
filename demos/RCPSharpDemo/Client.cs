@@ -65,7 +65,7 @@ namespace RCPSharpDemo
             transporter.Connect("127.0.0.1", 10000);
         }
 
-        private void Client_OnBang()
+        private void Client_OnBang(object sender, EventArgs e)
         {
             label1.Text = "bang: " + DateTime.Now.ToString();
         }

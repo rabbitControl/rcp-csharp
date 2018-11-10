@@ -83,7 +83,7 @@ namespace RCPSharpDemo
             //FRabbit.Update();
         }
 
-        private void FMyBang_OnBang()
+        private void FMyBang_OnBang(object sender, EventArgs e)
         {
             label1.Text = "bang: " + DateTime.Now.ToString();
         }
