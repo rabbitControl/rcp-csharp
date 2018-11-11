@@ -1,53 +1,27 @@
 using System;
+using RCP.Types;
 
-using Kaitai;
-using RCP.Protocol;
-using System.IO;
-using RCP.Exceptions;
-using System.Collections.Generic;
-
-namespace RCP.Parameter
+namespace RCP.Parameters
 {
-    internal class EnumParameter : ValueParameter<string>, IEnumParameter
+    public sealed class EnumParameter : ValueParameter<string>
     {
-        public EnumDefinition EnumDefinition => TypeDefinition as EnumDefinition;
+        public new EnumDefinition TypeDefinition => base.TypeDefinition as EnumDefinition;
 
-        public string[] Entries { get { return EnumDefinition.Entries; } set { EnumDefinition.Entries = value; if (EnumDefinition.EntriesChanged) SetDirty(); } }
-        public bool MultiSelect { get { return EnumDefinition.MultiSelect; } set { EnumDefinition.MultiSelect = value; if (EnumDefinition.MultiSelectChanged) SetDirty(); } }
-
-        public EnumParameter(Int16 id, IParameterManager manager) : 
-            base (id, manager)
+        public string[] Entries
         {
-            TypeDefinition = new EnumDefinition();
+            get => TypeDefinition.Entries;
+            set => TypeDefinition.Entries = value;
         }
 
-        public override void ResetForInitialize()
+        public bool MultiSelect
         {
-            base.ResetForInitialize();
-
-            ValueChanged = Value != "";
+            get => TypeDefinition.MultiSelect;
+            set => TypeDefinition.MultiSelect = value;
         }
 
-        protected override void WriteValue(BinaryWriter writer)
+        public EnumParameter(Int16 id, IParameterManager manager, EnumDefinition typeDefinition)
+            : base(id, manager, typeDefinition)
         {
-            if (ValueChanged)
-            {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                EnumDefinition.WriteValue(writer, Value);
-                ValueChanged = false;
-            }
-        }
-
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
-        {
-            switch (option)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = EnumDefinition.ReadValue(input);
-                    return true;
-            }
-
-            return false;
         }
     }
 }

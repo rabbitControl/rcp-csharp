@@ -1,25 +1,24 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
 
-using RCP.Protocol;
 using Kaitai;
-using RCP.Parameter;
-using RCP.Exceptions;
-using System.Numerics;
+using RCP.Protocol;
+using RCP.Types;
+using RCP.Parameters;
+using System.Threading;
+using System.ComponentModel;
 
 namespace RCP
 {
-    public class RCPClient: ClientServerBase
+    public class RCPClient : ClientServerBase
 	{
 		private IClientTransporter FTransporter;
 
         public RCPClient()
-            : base()
-        { }
+        {
+        }
 
-        public RCPClient(IClientTransporter transporter)
-            : this()
+        public RCPClient(IClientTransporter transporter) 
         {
             SetTransporter(transporter);
         }
@@ -28,16 +27,10 @@ namespace RCP
 		{
 			if (FTransporter != null)
                 FTransporter.Dispose();
-
-            base.Dispose();
 		}
-		
-        public Action<IParameter> ParameterAdded;
-        public Action<IParameter> ParameterRemoved;
 
         public Action<Exception> OnError;
         public Action<RcpTypes.ClientStatus, string> StatusChanged;
-
 
         public void Connect(string host, int port)
         {
@@ -59,140 +52,50 @@ namespace RCP
 
         public override void Update()
         {
-            foreach (var id in FDirtyParamIds)
-                SendPacket(Pack(RcpTypes.Command.Update, FParams[id]));
-
-            base.Update();
+            foreach (var parameter in FParams.Values)
+                if (parameter.IsDirty)
+                    SendPacket(Pack(RcpTypes.Command.Update, parameter));
         }
-
-        internal static IParameter CreateParameter(Int16 id, RcpTypes.Datatype datatype, IParameterManager manager)
-        {
-            switch (datatype)
-            {
-                case RcpTypes.Datatype.Boolean:
-                    return new BooleanParameter(id, manager);
-
-                case RcpTypes.Datatype.Enum:
-                    return new EnumParameter(id, manager);
-
-                case RcpTypes.Datatype.Int32:
-                    return new NumberParameter<int>(id, manager);
-
-                case RcpTypes.Datatype.Float32:
-                    return new NumberParameter<float>(id, manager);
-
-                case RcpTypes.Datatype.String:
-                    return new StringParameter(id, manager);
-
-                case RcpTypes.Datatype.Uri:
-                    return new UriParameter(id, manager);
-
-                case RcpTypes.Datatype.Rgba:
-                    return new RGBAParameter(id, manager);
-
-                case RcpTypes.Datatype.Vector2f32:
-                    return new NumberParameter<Vector2>(id, manager);
-
-                case RcpTypes.Datatype.Vector3f32:
-                    return new NumberParameter<Vector3>(id, manager);
-
-                case RcpTypes.Datatype.Vector4f32:
-                    return new NumberParameter<Vector4>(id, manager);
-
-                case RcpTypes.Datatype.Group:
-                    return new GroupParameter(id, manager);
-
-                default: throw new RCPUnsupportedFeatureException();
-                    //array
-            }
-        }
-
-        internal static IParameter CreateArrayParameter(Int16 id, RcpTypes.Datatype elementType, IParameterManager manager)
-        {
-            switch (elementType)
-            {
-                case RcpTypes.Datatype.String:
-                    return new StringArrayParameter(id, manager);
-
-                case RcpTypes.Datatype.Int32:
-                    return new NumberArrayParameter<int[], int>(id, manager);
-
-                case RcpTypes.Datatype.Float32:
-                    return new NumberArrayParameter<float[], float>(id, manager);
-
-                case RcpTypes.Datatype.Vector2f32:
-                    return new NumberArrayParameter<Vector2[], Vector2>(id, manager);
-
-                case RcpTypes.Datatype.Vector3f32:
-                    return new NumberArrayParameter<Vector3[], Vector3>(id, manager);
-
-                case RcpTypes.Datatype.Boolean:
-                    return new BooleanArrayParameter(id, manager);
-
-                case RcpTypes.Datatype.Enum:
-                    return new EnumArrayParameter(id, manager);
-
-                case RcpTypes.Datatype.Rgba:
-                    return new RGBAArrayParameter(id, manager);
-
-                case RcpTypes.Datatype.Uri:
-                    return new UriArrayParameter(id, manager);
-
-                default: throw new RCPUnsupportedFeatureException();
-            }
-        }
-
 
         #region Transporter
         public void SetTransporter(IClientTransporter transporter)
         {
-            if (FTransporter != null)
+            var previousTransporter = Interlocked.Exchange(ref FTransporter, transporter);
+            if (previousTransporter != null)
             {
-                FTransporter.Received = null;
-                FTransporter.Dispose();
+                previousTransporter.Received = null;
+                previousTransporter.Dispose();
             }
-
-            FTransporter = transporter;
-            FTransporter.Received = ReceiveCB;
+            if (transporter != null)
+                transporter.Received = ReceiveCB;
         }
 
         void ReceiveCB(byte[] bytes)
 		{
 			//Logger.Log(LogType.Debug, "Client received: " + bytes.Length + "bytes");
 			var packet = Packet.Parse(new KaitaiStream(bytes), this);
-            
-            //during package parsing temp-parameters are created with _this as manager
-            //and the parameters are immediately set dirty which is not correct
-            //therefore clear the dirty params here: 
-            FDirtyParamIds.Clear();
+            var parameter = packet.Data;
+            var id = parameter.Id;
+
 			//Logger.Log(LogType.Debug, packet.Command.ToString());
-			
 			switch (packet.Command)
 			{
 				case RcpTypes.Command.Update:
-                    if (FParams.ContainsKey(packet.Data.Id))
-                        (FParams[packet.Data.Id] as Parameter.Parameter).CopyFrom(packet.Data);
+
+                    if (!FParams.ContainsKey(id))
+                        AddParameter(parameter);
                     else
-                    {
-                        FParams.Add(packet.Data.Id, packet.Data);
-                        //inform the application
-                        ParameterAdded?.Invoke(packet.Data);
-                    }
-                    
+                        parameter.RaiseEvents();
 				    break;
 
                 case RcpTypes.Command.Updatevalue:
-                    //TODO: actually only set the parameters value
-                    if (FParams.ContainsKey(packet.Data.Id))
-                        FParams.Remove(packet.Data.Id);
-                    FParams.Add(packet.Data.Id, packet.Data);
-                    //inform the application
+                    if (FParams.ContainsKey(id))
+                        parameter.RaiseEvents();
                     break;
 
                 case RcpTypes.Command.Remove:
-                    FParams.Remove(packet.Data.Id);
-				    //inform the application
-				    ParameterRemoved?.Invoke(packet.Data);
+                    if (FParams.ContainsKey(id))
+                        RemoveParameter(parameter);
 				    break;
 			}
 		}

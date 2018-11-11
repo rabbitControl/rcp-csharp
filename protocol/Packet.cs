@@ -3,7 +3,7 @@ using System.IO;
 using Kaitai;
 
 using RCP.Exceptions;
-using RCP.Parameter;
+using RCP.Parameters;
 
 namespace RCP.Protocol
 {
@@ -12,7 +12,7 @@ namespace RCP.Protocol
         public RcpTypes.Command Command { get; set; }
         public uint Id { get; set; }
         public ulong Timestamp { get; set; }
-        public IParameter Data { get; set; }
+        public Parameter Data { get; set; }
 
         public Packet(RcpTypes.Command command)
         {
@@ -51,7 +51,7 @@ namespace RCP.Protocol
                             case RcpTypes.Command.Remove:
                             case RcpTypes.Command.Update:
                                 // expect parameter
-                                packet.Data = RCP.Parameter.Parameter.Parse(input, manager);
+                                packet.Data = Parameter.Parse(input, manager);
                                 break;
 
                             case RcpTypes.Command.Version:

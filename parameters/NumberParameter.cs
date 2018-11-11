@@ -1,66 +1,47 @@
 using System;
-using System.IO;
-
-using Kaitai;
 using RCP.Protocol;
-using RCP;
-using RCP.Exceptions;
-using System.Numerics;
+using RCP.Types;
 
-namespace RCP.Parameter
+namespace RCP.Parameters
 {
-    internal class NumberParameter<T> : ValueParameter<T>, INumberParameter<T> where T : struct
+    public class NumberParameter<T> : ValueParameter<T>
+        //where T : struct
     {
-        public NumberDefinition<T> NumberDefinition => TypeDefinition as NumberDefinition<T>;
-        
-        public T Minimum { get { return NumberDefinition.Minimum; } set { NumberDefinition.Minimum = value; if (NumberDefinition.MinimumChanged) SetDirty(); } }
-        public T Maximum { get { return NumberDefinition.Maximum; } set { NumberDefinition.Maximum = value; if (NumberDefinition.MaximumChanged) SetDirty(); } }
-        public T MultipleOf { get { return NumberDefinition.MultipleOf; } set { NumberDefinition.MultipleOf = value; if (NumberDefinition.MultipleOfChanged) SetDirty(); } }
-        public RcpTypes.NumberScale Scale { get { return NumberDefinition.Scale; } set { NumberDefinition.Scale = value; if (NumberDefinition.ScaleChanged) SetDirty(); } }
-        public string Unit { get { return NumberDefinition.Unit; } set { NumberDefinition.Unit = value; if (NumberDefinition.UnitChanged) SetDirty(); } }
+        public new NumberDefinition<T> TypeDefinition => base.TypeDefinition as NumberDefinition<T>;
 
-        public NumberParameter(Int16 id, IParameterManager manager) : 
-            base (id, manager)
+        public NumberParameter(Int16 id, IParameterManager manager, NumberDefinition<T> typeDefinition) 
+            : base(id, manager, typeDefinition)
         {
-            if (typeof(T) == typeof(float))
-                TypeDefinition = new Float32Definition() as NumberDefinition<T>;
-            else if (typeof(T) == typeof(int))
-                TypeDefinition = new Integer32Definition() as NumberDefinition<T>;
-            else if (typeof(T) == typeof(Vector2))
-                TypeDefinition = new Vector2f32Definition() as NumberDefinition<T>;
-            else if (typeof(T) == typeof(Vector3))
-                TypeDefinition = new Vector3f32Definition() as NumberDefinition<T>;
-            else if (typeof(T) == typeof(Vector4))
-                TypeDefinition = new Vector4f32Definition() as NumberDefinition<T>;
         }
 
-        public override void ResetForInitialize()
+        public T Minimum
         {
-            base.ResetForInitialize();
-
-            ValueChanged = !FValue.Equals(default(T));
+            get => TypeDefinition.Minimum;
+            set => TypeDefinition.Minimum = value;
         }
 
-        protected override void WriteValue(BinaryWriter writer)
+        public T Maximum
         {
-            if (ValueChanged)
-            {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
-                NumberDefinition.WriteValue(writer, Value);
-                ValueChanged = false;
-            }
+            get => TypeDefinition.Maximum;
+            set => TypeDefinition.Maximum = value;
         }
 
-        protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)
+        public T MultipleOf
         {
-            switch (option)
-            {
-                case RcpTypes.ParameterOptions.Value:
-                    Value = NumberDefinition.ReadValue(input);
-                    return true;
-            }
+            get => TypeDefinition.MultipleOf;
+            set => TypeDefinition.MultipleOf = value;
+        }
 
-            return false;
+        public RcpTypes.NumberScale Scale
+        {
+            get => TypeDefinition.Scale;
+            set => TypeDefinition.Scale = value;
+        }
+
+        public string Unit
+        {
+            get => TypeDefinition.Unit;
+            set => TypeDefinition.Unit = value;
         }
     }
 }

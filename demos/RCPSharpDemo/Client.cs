@@ -2,7 +2,7 @@
 
 using RCP;
 using RCP.Transporter;
-using RCP.Parameter;
+using RCP.Parameters;
 using System;
 using System.Collections.Generic;
 
@@ -15,6 +15,8 @@ namespace RCPSharpDemo
         RCPClient Carrot;
         Dictionary<Int16, IParameter> UIParams = new Dictionary<Int16, IParameter>();
 
+        BangParameter FTheBang;
+
         public Client()
         {
             InitializeComponent();
@@ -23,16 +25,27 @@ namespace RCPSharpDemo
             Carrot = new RCPClient();
             Carrot.SetTransporter(transporter);
 
-            Carrot.ParameterAdded = (p) =>
+            Carrot.ParameterAdded += (s, p) =>
             {
                 UIParams.Add(p.Id, p);
                 label1.Text = UIParams.Count.ToString() + ": " + p.Label;
 
                 p.Updated += P_Updated;
+
+                if (p is BangParameter)
+                {
+                    FTheBang = p as BangParameter;
+                    FTheBang.OnBang += Client_OnBang;
+                }
             };
 
-            Carrot.ParameterRemoved = (p) =>
+            Carrot.ParameterRemoved += (s, p) =>
             {
+                if (p is BangParameter)
+                {
+                    FTheBang.OnBang -= Client_OnBang;
+                    FTheBang = null;
+                }
                 //remove UI matching p
                 UIParams.Remove(p.Id);
             };
@@ -52,10 +65,15 @@ namespace RCPSharpDemo
             transporter.Connect("127.0.0.1", 10000);
         }
 
+        private void Client_OnBang(object sender, EventArgs e)
+        {
+            label1.Text = "bang: " + DateTime.Now.ToString();
+        }
+
         private void P_Updated(object sender, EventArgs e)
         {
-            if (sender is INumberParameter<int>)
-            label1.Text = UIParams.Count.ToString() + ": " + (sender as INumberParameter<int>).Value.ToString();
+            if (sender is NumberParameter<int>)
+                label1.Text = UIParams.Count.ToString() + ": " + (sender as NumberParameter<int>).Value.ToString();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -69,6 +87,15 @@ namespace RCPSharpDemo
             UIParams.Clear();
             label1.Text = "";
             Carrot.Initialize();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (FTheBang != null)
+            {
+                FTheBang.Bang();
+                Carrot.Update();
+            }
         }
     }
 }

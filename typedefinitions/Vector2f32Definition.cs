@@ -1,31 +1,14 @@
 using Kaitai;
 using System.IO;
-
-using RCP.Protocol;
 using System.Numerics;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
     public class Vector2f32Definition : NumberDefinition<Vector2>
     {
-        public Vector2f32Definition()
-        : base(RcpTypes.Datatype.Vector2f32)
-        {
-            FMinimum = new Vector2(float.MinValue, float.MinValue);
-            FMaximum = new Vector2(float.MaxValue, float.MaxValue);
-            FMultipleOf = new Vector2(0.01f, 0.01f);
-        }
-
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != new Vector2(0, 0);
-
-            MinimumChanged = Minimum != new Vector2(float.MinValue, float.MinValue);
-            MaximumChanged = Maximum != new Vector2(float.MaxValue, float.MaxValue);
-            MultipleOfChanged = MultipleOf != new Vector2(0.01f, 0.01f);
-        }
+        protected override Vector2 DefaultMinimum => new Vector2(float.MinValue);
+        protected override Vector2 DefaultMaximum => new Vector2(float.MaxValue);
+        protected override Vector2 DefaultMulitpleOf => new Vector2(0.01f);
 
         public override Vector2 ReadValue(KaitaiStream input)
         {

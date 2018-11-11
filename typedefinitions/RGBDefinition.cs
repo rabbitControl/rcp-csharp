@@ -8,10 +8,10 @@ using RCP.Parameters;
 
 namespace RCP.Types
 {                           
-    public class RGBADefinition : DefaultDefinition<Color>, IRGBADefinition
+    public class RGBDefinition : DefaultDefinition<Color>
     {
-        public RGBADefinition()
-        : base(RcpTypes.Datatype.Rgba, Color.Black)
+        public RGBDefinition()
+            : base(RcpTypes.Datatype.Rgb, Color.Black)
         {
         }
 
@@ -19,19 +19,19 @@ namespace RCP.Types
 
         public override Color ReadValue(KaitaiStream input)
         {
-            var a = input.ReadU1();
             var b = input.ReadU1();
             var g = input.ReadU1();
             var r = input.ReadU1();
-            return Color.FromArgb(a, r, g, b);
+            var a = input.ReadU1(); // Server send alpha?
+            return Color.FromArgb(255, r, g, b);
         }
 
         public override void WriteValue(BinaryWriter writer, Color value)
         {
-            writer.Write((byte)value.A);
             writer.Write((byte)value.B);
             writer.Write((byte)value.G);
             writer.Write((byte)value.R);
+            writer.Write((byte)255);
         }
     }
 }

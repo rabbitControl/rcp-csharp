@@ -4,84 +4,130 @@ using Kaitai;
 
 using RCP.Protocol;
 using RCP.Exceptions;
+using RCP.Parameters;
+using System.Collections.Generic;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
-    public abstract class NumberDefinition<T> : DefaultDefinition<T>, INumberDefinition<T> where T: struct
+    public abstract class NumberDefinition<T> : DefaultDefinition<T>, INumberDefinition<T> /*where T: struct*/
     {
-        public bool MinimumChanged { get; protected set; }
-        protected T FMinimum;
-        public T Minimum { get { return FMinimum; } set { if (!FMinimum.Equals(value)) { MinimumChanged = true; FMinimum = value; } } }
+        T FMinimum, FMaximum, FMultipleOf;
+        RcpTypes.NumberScale FScale;
+        string FUnit = "";
 
-        public bool MaximumChanged { get; protected set; }
-        protected T FMaximum;
-        public T Maximum { get { return FMaximum; } set { if (!FMaximum.Equals(value)) { MaximumChanged = true; FMaximum = value; } } }
-
-        public bool MultipleOfChanged { get; protected set; }
-        protected T FMultipleOf;
-        public T MultipleOf { get { return FMultipleOf; } set { if (!FMultipleOf.Equals(value)) { MultipleOfChanged = true; FMultipleOf = value; } } }
-
-        public bool ScaleChanged { get; protected set; }
-        private RcpTypes.NumberScale FScale;
-        public RcpTypes.NumberScale Scale { get { return FScale; } set { if (!FScale.Equals(value)) { ScaleChanged = true; FScale = value; } } }
-
-        public bool UnitChanged { get; protected set; }
-        private string FUnit = "";
-        public string Unit { get { return FUnit; } set { if (!FUnit.Equals(value)) { UnitChanged = true; FUnit = value; } } }
-
-        public NumberDefinition(RcpTypes.Datatype datatype)
-        : base(datatype)
-        { }
-
-        public override bool AnyChanged()
+        public T Minimum
         {
-            return base.AnyChanged() || MinimumChanged || MaximumChanged || MultipleOfChanged || ScaleChanged || UnitChanged;
+            get => FMinimum;
+            set
+            {
+                if (SetProperty(ref FMinimum, value))
+                    SetChanged(TypeChangedFlags.ValueMinimum);
+            }
         }
+
+        public T Maximum
+        {
+            get => FMaximum;
+            set
+            {
+                if (SetProperty(ref FMaximum, value))
+                    SetChanged(TypeChangedFlags.ValueMaximum);
+            }
+        }
+
+        public T MultipleOf
+        {
+            get => FMultipleOf;
+            set
+            {
+                if (SetProperty(ref FMultipleOf, value))
+                    SetChanged(TypeChangedFlags.ValueMultipleOf);
+            }
+        }
+
+        public RcpTypes.NumberScale Scale
+        {
+            get => FScale;
+            set
+            {
+                if (SetProperty(ref FScale, value))
+                    SetChanged(TypeChangedFlags.ValueScale);
+            }
+        }
+
+        public string Unit
+        {
+            get => FUnit;
+            set
+            {
+                if (SetProperty(ref FUnit, value))
+                    SetChanged(TypeChangedFlags.ValueUnit);
+            }
+        }
+
+        public NumberDefinition()
+            : base(GetDatatype(typeof(T)), default(T))
+        {
+            FMinimum = DefaultMinimum;
+            FMaximum = DefaultMaximum;
+            FMultipleOf = DefaultMulitpleOf;
+        }
+
+        protected abstract T DefaultMinimum { get; }
+        protected abstract T DefaultMaximum { get; }
+        protected abstract T DefaultMulitpleOf { get; }
+
+        public override sealed Parameter CreateParameter(short id, IParameterManager manager) => new NumberParameter<T>(id, manager, this);
+        public override sealed TypeDefinition CreateRange() => new RangeDefinition<T>(this);
 
         public override void ResetForInitialize()
         {
-            ScaleChanged = FScale != RcpTypes.NumberScale.Linear;
-            UnitChanged = FUnit != "";
+            if (!Equals(Minimum, DefaultMinimum))
+                SetChanged(TypeChangedFlags.ValueMinimum);
+            if (!Equals(Maximum, DefaultMaximum))
+                SetChanged(TypeChangedFlags.ValueMaximum);
+            if (!Equals(MultipleOf, DefaultMulitpleOf))
+                SetChanged(TypeChangedFlags.ValueMultipleOf);
+            if (FScale != RcpTypes.NumberScale.Linear)
+                SetChanged(TypeChangedFlags.ValueScale);
+            if (FUnit != "")
+                SetChanged(TypeChangedFlags.ValueUnit);
+            base.ResetForInitialize();
         }
 
         protected override void WriteOptions(BinaryWriter writer)
         {
-            base.WriteOptions(writer);
-
-            if (MinimumChanged)
+            if (IsChanged(TypeChangedFlags.ValueMinimum))
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Minimum);
                 WriteValue(writer, Minimum);
-                MinimumChanged = false;
             }
 
-            if (MaximumChanged)
+            if (IsChanged(TypeChangedFlags.ValueMaximum))
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Maximum);
                 WriteValue(writer, Maximum);
-                MaximumChanged = false;
             }
 
-            if (MultipleOfChanged)
+            if (IsChanged(TypeChangedFlags.ValueMultipleOf))
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Multipleof);
                 WriteValue(writer, MultipleOf);
-                MultipleOfChanged = false;
             }
 
-            if (ScaleChanged)
+            if (IsChanged(TypeChangedFlags.ValueScale))
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Scale);
                 writer.Write((byte)Scale);
-                ScaleChanged = false;
             }
 
-            if (UnitChanged)
+            if (IsChanged(TypeChangedFlags.ValueUnit))
             {
                 writer.Write((byte)RcpTypes.NumberOptions.Unit);
                 writer.Write(Unit);
-                UnitChanged = false;
             }
+
+            base.WriteOptions(writer);
         }
 
         protected override bool HandleOption(KaitaiStream input, byte code)
@@ -124,26 +170,8 @@ namespace RCP.Parameter
             return false;
         }
 
-        public override void CopyFrom(ITypeDefinition other)
-        {
-            base.CopyFrom(other);
-
-            var otherNumber = other as INumberDefinition<T>;
-
-            if (otherNumber.MinimumChanged)
-                FMinimum = otherNumber.Minimum;
-
-            if (otherNumber.MaximumChanged)
-                FMaximum = otherNumber.Maximum;
-
-            if (otherNumber.MultipleOfChanged)
-                FMultipleOf = otherNumber.MultipleOf;
-
-            if (otherNumber.ScaleChanged)
-                FScale = otherNumber.Scale;
-
-            if (otherNumber.UnitChanged)
-                FUnit = otherNumber.Unit;
-        }
+        object INumberDefinition.Minimum => Minimum;
+        object INumberDefinition.Maximum => Maximum;
+        object INumberDefinition.MultipleOf => MultipleOf;
     }
 }

@@ -1,25 +1,19 @@
 using System;
 using System.IO;
 using Kaitai;
-
+using RCP.Parameters;
 using RCP.Protocol;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {                           
     public class BooleanDefinition : DefaultDefinition<bool>, IBoolDefinition
     {
         public BooleanDefinition()
-        : base(RcpTypes.Datatype.Boolean)
+            : base(RcpTypes.Datatype.Boolean, false)
         {
-            FDefault = false;
         }
 
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
-
-            DefaultChanged = Default != false;
-        }
+        public override Parameter CreateParameter(short id, IParameterManager manager) => new ValueParameter<bool>(id, manager, this);
 
         public override bool ReadValue(KaitaiStream input)
         {

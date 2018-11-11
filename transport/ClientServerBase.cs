@@ -2,31 +2,37 @@ using System;
 
 using RCP.Protocol;
 using System.Collections.Generic;
-using System.Collections;
-using RCP.Parameter;
+using RCP.Parameters;
+using RCP.Types;
+using System.Threading;
+using System.ComponentModel;
 
 namespace RCP
 {
     public interface IParameterManager
     {
-        void SetParameterDirty(IParameter param);
+        Parameter GetParameter(Int16 id);
     }
 
-    public abstract class ClientServerBase: IDisposable, IParameterManager
+    public abstract class ClientServerBase : IDisposable, IParameterManager
 	{
-        //public ILogger Logger { get; set; }
-        protected Dictionary<Int16, IParameter> FParams = new Dictionary<Int16, IParameter>();
-        protected HashSet<Int16> FDirtyParamIds = new HashSet<Int16>();
+        private readonly SynchronizationContext FContext;
+        protected Dictionary<Int16, Parameter> FParams = new Dictionary<Int16, Parameter>();
+        bool FIsDirty;
 
-        protected IGroupParameter FRoot;
-        public IGroupParameter Root => FRoot;
+        public GroupParameter Root { get; }
+        public bool AutoUpdate { get; set; } = true;
 
         public ClientServerBase()
         {
-            FRoot = new GroupParameter(0, this);
+            FContext = SynchronizationContext.Current;
+            Root = new GroupParameter(0, this, new GroupDefinition());
         }
 
-        protected Packet Pack(RcpTypes.Command command, IParameter parameter)
+        public event EventHandler<IParameter> ParameterAdded;
+        public event EventHandler<IParameter> ParameterRemoved;
+
+        protected Packet Pack(RcpTypes.Command command, Parameter parameter)
 		{
 			var packet = new Packet(command);
 			packet.Data = parameter;
@@ -48,29 +54,65 @@ namespace RCP
 			
 			return packet;
 		}
-		
-		public virtual void Dispose()
-		{
-			//Logger = null;
-		}
 
-        public void SetParameterDirty(IParameter param)
-        {
-            if (!FDirtyParamIds.Contains(param.Id) && param.Id != 0)
-                FDirtyParamIds.Add(param.Id);
-        }
+        public abstract void Dispose();
+        public abstract void Update();
 
-        public virtual void Update()
+        public Parameter GetParameter(Int16 id)
         {
-            FDirtyParamIds.Clear();
-        }
-
-        public IParameter GetParameter(Int16 id)
-        {
-            if (FParams.ContainsKey(id))
-                return FParams[id];
+            if (FParams.TryGetValue(id, out Parameter parameter))
+                return parameter;
             else
                 return null;
+        }
+
+        public virtual void AddParameter(Parameter parameter)
+        {
+            var id = parameter.Id;
+            if (!FParams.ContainsKey(id))
+            {
+                FParams.Add(id, parameter);
+                OnParameterAdded(parameter);
+            }
+        }
+
+        public virtual void RemoveParameter(Parameter parameter)
+        {
+            var id = parameter.Id;
+            if (FParams.Remove(id))
+                OnParameterRemoved(parameter);
+        }
+
+        protected virtual void OnParameterAdded(Parameter parameter)
+        {
+            parameter.PropertyChanged += HandleParameterUpdated;
+            ParameterAdded?.Invoke(this, parameter);
+        }
+
+        protected virtual void OnParameterRemoved(Parameter parameter)
+        {
+            parameter.PropertyChanged -= HandleParameterUpdated;
+            ParameterRemoved?.Invoke(this, parameter);
+        }
+
+        void HandleParameterUpdated(object sender, PropertyChangedEventArgs args)
+        {
+            if (!AutoUpdate)
+                return;
+            if (FIsDirty)
+                return;
+            FIsDirty = true;
+            FContext.Post(_ =>
+            {
+                try
+                {
+                    Update();
+                }
+                finally
+                {
+                    FIsDirty = false;
+                }
+            }, null);
         }
     }
 }

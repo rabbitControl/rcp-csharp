@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 
@@ -12,45 +13,48 @@ namespace RCP
         void Write(BinaryWriter writer);
     }
 
-    public interface ITypeDefinition : IWriteable
+    public interface ITypeDefinition : IWriteable, INotifyPropertyChanged
     {
         RcpTypes.Datatype Datatype { get; }
+        Type ClrType { get; }
         void ParseOptions(Kaitai.KaitaiStream input);
         void ResetForInitialize();
-        bool AnyChanged();
-        void CopyFrom(ITypeDefinition other);
+    }
+
+    public interface INumberDefinition : ITypeDefinition
+    {
+        object Minimum { get; }
+        object Maximum { get; }
+        object MultipleOf { get; }
     }
 
     public interface IDefaultDefinition<T> : ITypeDefinition
     {
         T Default { get; set; }
-        bool DefaultChanged { get; }
         T ReadValue(Kaitai.KaitaiStream input);
         void WriteValue(BinaryWriter writer, T value);
     }
 
-    public interface IBoolDefinition : IDefaultDefinition<bool>
+    public interface IBangDefinition : ITypeDefinition
     {
     }
 
-    public interface INumberDefinition<T> : IDefaultDefinition<T> where T : struct
+    public interface IBoolDefinition : ITypeDefinition
     {
-        T Minimum { get; set; }
-        bool MinimumChanged { get; }
-        T Maximum { get; set; }
-        bool MaximumChanged { get; }
-        T MultipleOf { get; set; }
-        bool MultipleOfChanged { get; }
+    }
+
+    public interface INumberDefinition<T> : IDefaultDefinition<T>, INumberDefinition /*where T : struct*/
+    {
+        new T Minimum { get; set; }
+        new T Maximum { get; set; }
+        new T MultipleOf { get; set; }
         RcpTypes.NumberScale Scale { get; set; }
-        bool ScaleChanged { get; }
         string Unit { get; set; }
-        bool UnitChanged { get; }
     }
 
     public interface IStringDefinition : IDefaultDefinition<string>
     {
         string RegularExpression { get; set; }
-        bool RegularExpressionChanged { get; }
     }
 
     public interface IRGBADefinition : IDefaultDefinition<Color>
@@ -60,17 +64,13 @@ namespace RCP
     public interface IUriDefinition : IDefaultDefinition<string>
     {
         string Schema { get; set; }
-        bool SchemaChanged { get; }
         string Filter { get; set; }
-        bool FilterChanged { get; }
     }
 
     public interface IEnumDefinition : IDefaultDefinition<string>
     {
         string[] Entries { get; set; }
-        bool EntriesChanged { get; }
         bool MultiSelect { get; set; }
-        bool MultiSelectChanged { get; }
     }
 
     public interface IArrayDefinition : ITypeDefinition
@@ -80,101 +80,53 @@ namespace RCP
         int[] Structure { get; set; }
     }
 
-    public interface IParameter : IWriteable
+    public interface IRangeDefinition : ITypeDefinition
+    {
+        INumberDefinition ElementDefinition { get; }
+    }
+
+    public interface IParameter : IWriteable, INotifyPropertyChanged
     {
         Int16 Id { get; }
         ITypeDefinition TypeDefinition { get; }
         string Label { get; set; }
-        bool LabelChanged { get; }
         string Description { get; set; }
-        bool DescriptionChanged { get; }
         string Tags { get; set; }
-        bool TagsChanged { get; }
         int Order { get; set; }
-        bool OrderChanged { get; }
         Int16 ParentId { get; }
-        bool ParentIdChanged { get; }
         Widget Widget { get; set; }
-        bool WidgetChanged { get; }
         byte[] Userdata { get; set; }
-        bool UserdataChanged { get; }
         string UserId { get; set; }
-        bool UserIdChanged { get; }
 
-        bool AnyChanged { get; }
         event EventHandler Updated;
     }
 
-    public interface IValueParameter<T>: IParameter
+    public interface IValueParameter : IParameter
     {
-        T Value { get; set; }
-        bool ValueChanged { get; }
-        T Default { get; set; }
-        event EventHandler<T> ValueUpdated;
+        object Value { get; set; }
+        object Default { get; set; }
+        event EventHandler ValueUpdated;
     }
 
-    public interface IBooleanParameter : IValueParameter<bool>
+    public interface IValueParameter<T>: IValueParameter
     {
-    }
-
-    public interface INumberParameter<T> : IValueParameter<T> where T : struct
-    {
-        T Minimum { get; set; }
-        T Maximum { get; set; }
-        T MultipleOf { get; set; }
-        RcpTypes.NumberScale Scale { get; set; }
-        string Unit { get; set; }
-    }
-
-    public interface IEnumParameter : IValueParameter<string>
-    {
-    	string[] Entries { get; set; }
-    }
-
-    public interface IStringParameter : IValueParameter<string>
-    {
-        string RegularExpression { get; set; }
-    }
-
-    public interface IUriParameter : IValueParameter<string>
-    {
-        string Schema { get; set; }
-        string Filter { get; set; }
-    }
-
-    public interface IRGBAParameter : IValueParameter<Color>
-    {
-    }
-
-    public interface IArrayParameter<T> : IValueParameter<T>
-    {
-    }
-
-    public interface IBooleanArrayParameter : IArrayParameter<bool[]>
-    {
-    }
-
-    public interface INumberArrayParameter<T, E> : IArrayParameter<T>
-    {
-    }
-
-    public interface IStringArrayParameter : IArrayParameter<string[]> 
-    {
-    }
-
-    public interface IEnumArrayParameter : IArrayParameter<string[]>
-    {
-    }
-
-    public interface IRGBAArrayParameter : IArrayParameter<Color[]>
-    {
-    }
-
-    public interface IUriArrayParameter : IArrayParameter<string[]>
-    {
+        new T Value { get; set; }
+        new T Default { get; set; }
     }
 
     public interface IGroupParameter: IParameter
     {
+    }
+
+    public interface INumberParameter : IValueParameter
+    {
+        new INumberDefinition TypeDefinition { get; }
+    }
+
+    public interface IRangeParameter : IValueParameter
+    {
+        new IRangeDefinition TypeDefinition { get; }
+        object Lower { get; set; }
+        object Upper { get; set; }
     }
 }

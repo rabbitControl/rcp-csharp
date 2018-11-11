@@ -1,46 +1,49 @@
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Numerics;
 using Kaitai;
 
 using RCP.Protocol;
 using RCP.Exceptions;
+using RCP.Parameters;
+using System.Linq;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {
-    public class ArrayDefinition<T, E> : DefaultDefinition<T>, IArrayDefinition
+    public sealed class ArrayDefinition<T> : DefaultDefinition<T[]>, IArrayDefinition
     {
-        protected bool FStructureChanged;
-        private int[] FStructure;
-        public int[] Structure { get { return FStructure; } set { FStructure = value; FStructureChanged = true; } }
+        readonly DefaultDefinition<T> FElementType;
+        int[] FStructure = Array.Empty<int>();
 
-        public RcpTypes.Datatype ElementType => FElementDefinition.Datatype;
-
-        private IDefaultDefinition<E> FElementDefinition;
-        public ITypeDefinition ElementDefinition => FElementDefinition; 
-
-        public ArrayDefinition(DefaultDefinition<E> elementDefinition, int[] structure) : base(RcpTypes.Datatype.Array)
+        public ArrayDefinition(DefaultDefinition<T> elementType, int[] structure) 
+            : base(RcpTypes.Datatype.Array, Array.Empty<T>())
         {
-            FElementDefinition = elementDefinition;
+            FElementType = elementType;
             Structure = structure;
         }
 
-        public override void ResetForInitialize()
-        {
-            base.ResetForInitialize();
+        public ITypeDefinition ElementDefinition => FElementType;
 
-            DefaultChanged = Default != null;
+        public RcpTypes.Datatype ElementType => ElementDefinition.Datatype;
+
+        public int[] Structure
+        {
+            get => FStructure;
+            set
+            {
+                if (SetProperty(ref FStructure, value))
+                    SetChanged(TypeChangedFlags.ArrayStructure);
+            }
         }
+
+        public override Parameter CreateParameter(short id, IParameterManager manager) => new ArrayParameter<T>(id, manager, this);
 
         protected override void WriteOptions(BinaryWriter writer)
         {
-            FElementDefinition.Write(writer);
+            FElementType.Write(writer);
 
             base.WriteOptions(writer);
 
-            if (FStructureChanged)
+            if (IsChanged(TypeChangedFlags.ArrayStructure))
             {
                 writer.Write((byte)RcpTypes.ArrayOptions.Structure);
                 WriteStructure(writer);
@@ -60,34 +63,21 @@ namespace RCP.Parameter
 
         public override void ParseOptions(KaitaiStream input)
         {
-            FElementDefinition.ParseOptions(input);
-
-            while (true)
-            {
-                var code = input.ReadU1();
-                if (code == 0) // terminator
-                    break;
-
-                // handle option in specific implementation
-                if (!HandleOption(input, code))
-                {
-                    throw new RCPUnsupportedFeatureException();
-                }
-            }
+            FElementType.ParseOptions(input);
+            base.ParseOptions(input);
         }
 
         protected override bool HandleOption(KaitaiStream input, byte code)
         {
+            if (base.HandleOption(input, code))
+                return true;
+
             var option = (RcpTypes.ArrayOptions)code;
             if (!Enum.IsDefined(typeof(RcpTypes.ArrayOptions), option))
                 throw new RCPDataErrorException("Arraydefinition parsing: Unknown option: " + option.ToString());
 
             switch (option)
             {
-                case RcpTypes.ArrayOptions.Default:
-                    FDefault = ReadValue(input);
-                    return true;
-
                 case RcpTypes.ArrayOptions.Structure:
                     Structure = ReadStructure(input);
                     return true;
@@ -107,22 +97,22 @@ namespace RCP.Parameter
             return dimensions;
         }
 
-        public override T ReadValue(KaitaiStream input)
+        public override T[] ReadValue(KaitaiStream input)
         {
             FStructure = ReadStructure(input);
 
-            var a = Array.CreateInstance(typeof(E), FStructure[0]);
+            var a = new T[FStructure[0]];;
 
             //TODO: support multiple dimensions
-            for (int i = 0; i < FStructure[0]; i++)
+            for (int i = 0; i < a.Length; i++)
             {
-                a.SetValue((E)FElementDefinition.ReadValue(input), i);
+                a[i] = FElementType.ReadValue(input);
             }
 
-            return (T)(object)a;
+            return a;
         }
 
-        public override void WriteValue(BinaryWriter writer, T value)
+        public override void WriteValue(BinaryWriter writer, T[] value)
         {
             WriteStructure(writer);
 
@@ -130,12 +120,8 @@ namespace RCP.Parameter
             var rank = 1;//a.Rank;
 
             //TODO: support multiple dimensions
-            for (int i = 0; i < rank; i++)
-            {
-                var l = a.GetLength(i);
-                for (int j = 0; j < l; j++)
-                    FElementDefinition.WriteValue(writer, (E)a.GetValue(j));
-            }
+            foreach (var e in value)
+                FElementType.WriteValue(writer, e);
         }
     }
 }

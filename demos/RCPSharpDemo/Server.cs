@@ -1,7 +1,8 @@
 ﻿using RCP;
-using RCP.Parameter;
+using RCP.Parameters;
 using RCP.Protocol;
 using RCP.Transporter;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -31,6 +32,8 @@ namespace RCPSharpDemo
             FClient.Dispose();
             FRabbit.Dispose();
         }
+
+        private BangParameter FMyBang;
         
         private void button1_Click(object sender, System.EventArgs e)
         {
@@ -43,7 +46,7 @@ namespace RCPSharpDemo
             param.Value = 2.0f;
             param.Minimum = -10.0f;
             param.Maximum = 10.0f;
-            param.ValueUpdated += Param_ValueUpdated;
+            param.ValueUpdated += (s, a) => label1.Text = param.Value.ToString();
 
             var nt = FRabbit.CreateNumberParameter<int>("my int", group);
             nt.Value = 3;
@@ -59,18 +62,19 @@ namespace RCPSharpDemo
             var str = FRabbit.CreateStringParameter("my string", group);
             str.Value = "foobar";
 
-            var clr = FRabbit.CreateRGBAParameter("ma color", group);
+            var clr = FRabbit.CreateValueParameter<Color>("ma color", group);
             clr.Value = Color.Red;
 
-            var strarr = FRabbit.CreateStringArrayParameter("my string array", 3);
+            var strarr = FRabbit.CreateArrayParameter<string>("my string array", null, new int[] { 3 });
             strarr.Default = new string[3] { "a", "b", "c" };
             strarr.Value = new string[3] { "aa", "bv", "cc" };
 
-            var intarr = FRabbit.CreateNumberArrayParameter<int[], int>("my int array", 3);
+            var intarr = FRabbit.CreateArrayParameter<int>("my int array", null, new int[] { 3 });
             intarr.Default = new int[3] { 1, 2, 4 };
             intarr.Value = new int[3] { 4, 5, 6 };
 
-            FRabbit.Update();
+            FMyBang = (BangParameter)FRabbit.CreateBangParameter("my bang");
+            FMyBang.OnBang += FMyBang_OnBang;
 
             //enm.Value = "biber";
             //FRabbit.Update();
@@ -79,14 +83,20 @@ namespace RCPSharpDemo
             //FRabbit.Update();
         }
 
+        private void FMyBang_OnBang(object sender, EventArgs e)
+        {
+            label1.Text = "bang: " + DateTime.Now.ToString();
+        }
+
         private void Enm_ValueUpdated(object sender, string e)
         {
             label1.Text = e.ToString();
         }
 
-        private void Param_ValueUpdated(object sender, float e)
+        private void button2_Click(object sender, System.EventArgs e)
         {
-            label1.Text = e.ToString();
+            FMyBang.Bang();
+            FRabbit.Update();
         }
     }
 }

@@ -4,32 +4,37 @@ using Kaitai;
 
 using RCP.Protocol;
 using RCP.Exceptions;
+using RCP.Parameters;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {                           
     public class StringDefinition : DefaultDefinition<string>, IStringDefinition
     {
-        public bool RegularExpressionChanged { get; private set; }
-        private string FRegEx = "";
-        public string RegularExpression { get { return FRegEx; } set { if (FRegEx != value) { RegularExpressionChanged = true; FRegEx = value; } } }
+        string FRegEx = "";
 
         public StringDefinition()
-        : base(RcpTypes.Datatype.String)
+            : base(RcpTypes.Datatype.String, string.Empty)
         {
-            FDefault = "";
         }
+
+        public string RegularExpression
+        {
+            get => FRegEx;
+            set
+            {
+                if (SetProperty(ref FRegEx, value))
+                    SetChanged(TypeChangedFlags.StringRegexp);
+            }
+        }
+
+        public override Parameter CreateParameter(short id, IParameterManager manager) => new StringParameter(id, manager, this);
 
         public override void ResetForInitialize()
         {
             base.ResetForInitialize();
 
-            DefaultChanged = Default != "";
-            RegularExpressionChanged = RegularExpression != "";
-        }
-
-        public override bool AnyChanged()
-        {
-            return base.AnyChanged() || RegularExpressionChanged;
+            if (RegularExpression != "")
+                SetChanged(TypeChangedFlags.StringRegexp);
         }
 
         public override string ReadValue(KaitaiStream input)
@@ -46,44 +51,31 @@ namespace RCP.Parameter
         {
             base.WriteOptions(writer);
 
-            if (RegularExpressionChanged)
+            if (IsChanged(TypeChangedFlags.StringRegexp))
             {
                 writer.Write((byte)RcpTypes.StringOptions.RegularExpression);
                 RcpTypes.TinyString.Write(FRegEx, writer);
                 writer.Write((byte)0);
-
-                RegularExpressionChanged = false;
             }
         }
 
         protected override bool HandleOption(KaitaiStream input, byte code)
         {
+            if (base.HandleOption(input, code))
+                return true;
+
             var option = (RcpTypes.StringOptions)code;
             if (!Enum.IsDefined(typeof(RcpTypes.StringOptions), option))
                 throw new RCPDataErrorException("StringDefinition parsing: Unknown option: " + option.ToString());
 
             switch (option)
             {
-                case RcpTypes.StringOptions.Default:
-                    Default = ReadValue(input);
-                    return true;
-
                 case RcpTypes.StringOptions.RegularExpression:
                     RegularExpression = new RcpTypes.TinyString(input).Data;
                     return true;
             }
 
             return false;
-        }
-
-        public override void CopyFrom(ITypeDefinition other)
-        {
-            base.CopyFrom(other);
-
-            var otherString = other as IStringDefinition;
-
-            if (otherString.RegularExpressionChanged)
-                FRegEx = otherString.RegularExpression;
         }
     }
 }

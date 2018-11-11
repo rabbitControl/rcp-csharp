@@ -1,10 +1,10 @@
 using System;
 using System.IO;
 using Kaitai;
-
+using RCP.Parameters;
 using RCP.Protocol;
 
-namespace RCP.Parameter
+namespace RCP.Types
 {                           
     public class GroupDefinition : TypeDefinition
     {
@@ -14,9 +14,18 @@ namespace RCP.Parameter
             
         }
 
-        public override void CopyFrom(ITypeDefinition other)
+        public override Type ClrType => null;
+
+        public override Parameter CreateParameter(short id, IParameterManager manager) => new GroupParameter(id, manager, this);
+
+        public override TypeDefinition CreateArray(int[] structure)
         {
-            //throw new NotImplementedException();
+            throw new NotSupportedException();
+        }
+
+        public override TypeDefinition CreateRange()
+        {
+            throw new NotSupportedException();
         }
     }
 }

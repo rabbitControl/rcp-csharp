@@ -1,20 +1,19 @@
-using System;
-using System.IO;
-using System.Collections.Generic;
-
-using RCP.Protocol;
 using Kaitai;
-using System.Windows.Forms;
-using System.Collections;
+using RCP.Parameters;
+using RCP.Protocol;
+using RCP.Types;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
-using RCP.Parameter;
-using System.Numerics;
 
 namespace RCP
 {
     public class RCPServer: ClientServerBase
     {
-        List<IParameter> FParamsToRemove = new List<IParameter>();
+        List<Parameter> FParamsToRemove = new List<Parameter>();
 		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
         Int16 FIdCounter = 1;
 
@@ -37,128 +36,107 @@ namespace RCP
             }
 			
 			FTransporters.Clear();
-
-            base.Dispose();
 		}
 
-        public IBooleanParameter CreateBooleanParameter(string label = "", IGroupParameter group = null)
+        public Parameter CreateParameter(RcpTypes.Datatype type, string label = "", GroupParameter group = null)
         {
-            var param = new BooleanParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-
-            return param;
+            var param = Parameter.Create(this, FIdCounter++, type);
+            return AddAndReturn(param, label, group);
         }
 
-        public IBooleanArrayParameter CreateBooleanArrayParameter(string label, params int[] structure)
+        public ArrayParameter<T> CreateArrayParameter<T>(string label = "", params int[] structure) => CreateArrayParameter<T>(label, null, structure);
+
+        public ArrayParameter<T> CreateArrayParameter<T>(string label = "", GroupParameter group = null, int[] structure = null)
         {
-            var param = new BooleanArrayParameter(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
+            var elementType = TypeDefinition.GetDatatype(typeof(T));
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Array, elementType, structure) as ArrayParameter<T>;
+            return AddAndReturn(param, label, group);
         }
 
-        public INumberParameter<T> CreateNumberParameter<T>(string label = "", IGroupParameter group = null) where T: struct
+        public Parameter CreateBangParameter(string label = "", GroupParameter group = null)
         {
-            var param = new NumberParameter<T>(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-
-            return param as NumberParameter<T>;
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Bang);
+            return AddAndReturn(param, label, group);
         }
 
-        public INumberArrayParameter<T, E> CreateNumberArrayParameter<T, E>(string label, params int[] structure) where E : struct
+        public Parameter CreateRangeParameter(RcpTypes.Datatype elementType, string label = "", GroupParameter group = null)
         {
-            var param = new NumberArrayParameter<T, E>(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Range, elementType);
+            return AddAndReturn(param, label, group);
         }
 
-        public IStringParameter CreateStringParameter(string label = "", IGroupParameter group = null)
+        public NumberParameter<T> CreateNumberParameter<T>(string label = "", GroupParameter group = null) /*where T : struct*/
         {
-            var param = new StringParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
+            var datatype = TypeDefinition.GetDatatype(typeof(T));
+            var param = (NumberParameter<T>)CreateParameter(datatype, label, group);
+            return AddAndReturn(param, label, group);
         }
 
-        public IStringArrayParameter CreateStringArrayParameter(string label, params int[] structure)
+        public ValueParameter<T> CreateValueParameter<T>(string label = "", GroupParameter group = null)
         {
-            var param = new StringArrayParameter(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
+            var datatype = TypeDefinition.GetDatatype(typeof(T));
+            var param = CreateParameter(datatype, label, group) as ValueParameter<T>;
+            return AddAndReturn(param, label, group);
         }
 
-        public IUriParameter CreateUriParameter(string label = "", IGroupParameter group = null)
+        public StringParameter CreateStringParameter(string label = "", GroupParameter group = null)
         {
-            var param = new UriParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
+            var param = CreateParameter(RcpTypes.Datatype.String, label, group) as StringParameter;
+            return AddAndReturn(param, label, group);
         }
 
-        public IUriArrayParameter CreateUriArrayParameter(string label, params int[] structure)
+        public UriParameter CreateUriParameter(string label = "", GroupParameter group = null)
         {
-            var param = new UriArrayParameter(FIdCounter++, this, structure);
+            var param = CreateParameter(RcpTypes.Datatype.Uri, label, group) as UriParameter;
+            return AddAndReturn(param, label, group);
+        }
+
+        public ArrayParameter<string> CreateUriArrayParameter(string label, params int[] structure)
+        {
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Array, RcpTypes.Datatype.Uri, structure) as ArrayParameter<string>;
             param.Label = label;
             AddParameter(param);
             return param;
         }
 
-        public IEnumParameter CreateEnumParameter(string label = "", IGroupParameter group = null)
+        public EnumParameter CreateEnumParameter(string label = "", GroupParameter group = null)
         {
-            var param = new EnumParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
+            var param = CreateParameter(RcpTypes.Datatype.Enum, label, group) as EnumParameter;
+            return AddAndReturn(param, label, group);
         }
 
-        public IEnumArrayParameter CreateEnumArrayParameter(string label, params int[] structure)
+        public ArrayParameter<string> CreateEnumArrayParameter(string label, params int[] structure)
         {
-            var param = new EnumArrayParameter(FIdCounter++, this, structure);
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Array, RcpTypes.Datatype.Enum, structure) as ArrayParameter<string>;
             param.Label = label;
             AddParameter(param);
             return param;
         }
 
-        public IRGBAParameter CreateRGBAParameter(string label = "", IGroupParameter group = null)
+        public GroupParameter CreateGroup(string label = "", GroupParameter group = null)
         {
-            var param = new RGBAParameter(FIdCounter++, this);
+            var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Group) as GroupParameter;
+            return AddAndReturn(param, label, group);
+        }
+
+        TParameter AddAndReturn<TParameter>(TParameter param, string label, GroupParameter group) where TParameter : Parameter
+        {
             param.Label = label;
             AddParameter(param, group);
             return param;
         }
 
-        public IRGBAArrayParameter CreateRGBAArrayParameter(string label, params int[] structure)
+        public void AddParameter(Parameter param, GroupParameter group)
         {
-            var param = new RGBAArrayParameter(FIdCounter++, this, structure);
-            param.Label = label;
-            AddParameter(param);
-            return param;
-        }
-
-        public IGroupParameter CreateGroup(string label = "", IGroupParameter group = null)
-        {
-            var param = new GroupParameter(FIdCounter++, this);
-            param.Label = label;
-            AddParameter(param, group);
-            return param;
-        }
-
-        public void AddParameter(IParameter param, IGroupParameter group = null)
-        {
-            if (!FParams.ContainsKey(param.Id))
-                FParams.Add(param.Id, param);
+            base.AddParameter(param);
 
             if (group == null)
                 group = Root;
 
-            (group as GroupParameter).AddParameter(param);
+            group.AddParameter(param);
         }
 
-        public void RemoveParameter(IParameter param)
+        public override void RemoveParameter(Parameter param)
         {
             FParams.Remove(param.Id);
             FParamsToRemove.Add(param);
@@ -170,10 +148,9 @@ namespace RCP
                 SendToMultiple(Pack(RcpTypes.Command.Remove, param));
             FParamsToRemove.Clear();
 
-            foreach (var id in FDirtyParamIds)
-                SendToMultiple(Pack(RcpTypes.Command.Update, FParams[id]));
-
-            base.Update();
+            foreach (var parameter in FParams.Values)
+                if (parameter.IsDirty)
+                    SendToMultiple(Pack(RcpTypes.Command.Update, parameter));
         }
 		
         public Action<Exception> OnError;
@@ -217,25 +194,21 @@ namespace RCP
 		{
 			try
             {
-			    var packet = Packet.Parse(new KaitaiStream(bytes), null);
+			    var packet = Packet.Parse(new KaitaiStream(bytes), this);
 				//MessageBox.Show(packet.Command.ToString());
 		        switch (packet.Command)
 		        {
 			        case RcpTypes.Command.Update:
                         Log?.Invoke("received update");
                         if (FParams.ContainsKey(packet.Data.Id))
-                        {
-                            (FParams[packet.Data.Id] as Parameter.Parameter).CopyFrom(packet.Data);
                             SendToMultiple(packet, senderId);
-                        }
 				        break;
 
                     case RcpTypes.Command.Updatevalue:
                         //TODO: actually only set the parameters value
+                        Log?.Invoke("received update value");
                         if (FParams.ContainsKey(packet.Data.Id))
-                            FParams.Remove(packet.Data.Id);
-                        FParams.Add(packet.Data.Id, packet.Data);
-                        SendToMultiple(packet, senderId);
+                            SendToMultiple(packet, senderId);
                         break;
 
                     case RcpTypes.Command.Initialize:
@@ -243,7 +216,7 @@ namespace RCP
 				        //client requests all parameters
 				        foreach (var param in FParams.Values)
                         {
-                            (param as Parameter.Parameter).ResetForInitialize();
+                            param.ResetForInitialize();
 					        SendToOne(Pack(RcpTypes.Command.Update, param), senderId);
                         }
 				        break;
@@ -251,7 +224,7 @@ namespace RCP
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message);
+                Trace.TraceError(e.Message);
             }
         }
 		
