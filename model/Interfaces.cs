@@ -97,6 +97,7 @@ namespace RCP
         Widget Widget { get; set; }
         byte[] Userdata { get; set; }
         string UserId { get; set; }
+        bool Readonly { get; set; }
 
         event EventHandler Updated;
     }

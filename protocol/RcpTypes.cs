@@ -1,7 +1,5 @@
 // This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
 
-using System;
-using System.Collections.Generic;
 using Kaitai;
 
 namespace RCP.Protocol
@@ -12,6 +10,7 @@ namespace RCP.Protocol
         {
             return new RcpTypes(new KaitaiStream(fileName));
         }
+
 
         public enum EnumOptions
         {
@@ -37,12 +36,9 @@ namespace RCP.Protocol
 
         public enum WidgetOptions
         {
-            Type = 80,
-            Enabled = 81,
-            Visible = 82,
-            LabelVisible = 83,
-            ValueVisible = 84,
-            LabelPosition = 85,
+            Enabled = 80,
+            LabelVisible = 81,
+            ValueVisible = 82,
         }
 
         public enum ColorOptions
@@ -61,6 +57,7 @@ namespace RCP.Protocol
             Widget = 38,
             Userdata = 39,
             Userid = 40,
+            Readonly = 41,
         }
 
         public enum Ipv4Options
@@ -265,15 +262,13 @@ namespace RCP.Protocol
             Uuid = 86,
             Config = 87,
         }
-
-        public RcpTypes(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
+        public RcpTypes(KaitaiStream p__io, KaitaiStruct p__parent = null, RcpTypes p__root = null) : base(p__io)
         {
-            m_parent = parent;
-            m_root = root ?? this;
-            _parse();
+            m_parent = p__parent;
+            m_root = p__root ?? this;
+            _read();
         }
-
-        private void _parse()
+        private void _read()
         {
         }
         public partial class TinyString : KaitaiStruct
@@ -283,14 +278,13 @@ namespace RCP.Protocol
                 return new TinyString(new KaitaiStream(fileName));
             }
 
-            public TinyString(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
+            public TinyString(KaitaiStream p__io, KaitaiStruct p__parent = null, RcpTypes p__root = null) : base(p__io)
             {
-                m_parent = parent;
-                m_root = root;
-                _parse();
+                m_parent = p__parent;
+                m_root = p__root;
+                _read();
             }
-
-            private void _parse()
+            private void _read()
             {
                 _myLen = m_io.ReadU1();
                 _data = System.Text.Encoding.GetEncoding("UTF-8").GetString(m_io.ReadBytes(MyLen));
@@ -311,14 +305,13 @@ namespace RCP.Protocol
                 return new ShortString(new KaitaiStream(fileName));
             }
 
-            public ShortString(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
+            public ShortString(KaitaiStream p__io, KaitaiStruct p__parent = null, RcpTypes p__root = null) : base(p__io)
             {
-                m_parent = parent;
-                m_root = root;
-                _parse();
+                m_parent = p__parent;
+                m_root = p__root;
+                _read();
             }
-
-            private void _parse()
+            private void _read()
             {
                 _myLen = m_io.ReadU2be();
                 _data = System.Text.Encoding.GetEncoding("UTF-8").GetString(m_io.ReadBytes(MyLen));
@@ -339,14 +332,13 @@ namespace RCP.Protocol
                 return new LongString(new KaitaiStream(fileName));
             }
 
-            public LongString(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
+            public LongString(KaitaiStream p__io, KaitaiStruct p__parent = null, RcpTypes p__root = null) : base(p__io)
             {
-                m_parent = parent;
-                m_root = root;
-                _parse();
+                m_parent = p__parent;
+                m_root = p__root;
+                _read();
             }
-
-            private void _parse()
+            private void _read()
             {
                 _myLen = m_io.ReadU4be();
                 _data = System.Text.Encoding.GetEncoding("UTF-8").GetString(m_io.ReadBytes(MyLen));
@@ -367,14 +359,13 @@ namespace RCP.Protocol
                 return new Userdata(new KaitaiStream(fileName));
             }
 
-            public Userdata(KaitaiStream io, KaitaiStruct parent = null, RcpTypes root = null) : base(io)
+            public Userdata(KaitaiStream p__io, KaitaiStruct p__parent = null, RcpTypes p__root = null) : base(p__io)
             {
-                m_parent = parent;
-                m_root = root;
-                _parse();
+                m_parent = p__parent;
+                m_root = p__root;
+                _read();
             }
-
-            private void _parse()
+            private void _read()
             {
                 _myLen = m_io.ReadU4be();
                 _data = m_io.ReadBytes(MyLen);

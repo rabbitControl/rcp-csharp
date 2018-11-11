@@ -30,6 +30,7 @@ namespace RCP.Parameters
         Widget = 1 << 7,
         Value = 1 << 8,
         Type = 1 << 9,
+        Readonly = 1 << 10
     }
 
     public abstract class Parameter : RCPObject, IParameter, IWriteable
@@ -70,6 +71,7 @@ namespace RCP.Parameters
         private byte[] FUserdata = Array.Empty<byte>();
         private string FUserId = "";
         private Widget FWidget;
+        private bool FReadonly;
 
         public event EventHandler Updated;
         public event EventHandler ValueUpdated;
@@ -164,6 +166,16 @@ namespace RCP.Parameters
             {
                 if (SetProperty(ref FUserdata, value))
                     SetChanged(ParameterChangedFlags.Userdata);
+            }
+        }
+
+        public bool Readonly
+        {
+            get => FReadonly;
+            set
+            {
+                if (SetProperty(ref FReadonly, value))
+                    SetChanged(ParameterChangedFlags.Readonly);
             }
         }
 
@@ -271,6 +283,12 @@ namespace RCP.Parameters
                 RcpTypes.TinyString.Write(UserId, writer);
             }
 
+            if (IsChanged(ParameterChangedFlags.Readonly))
+            {
+                writer.Write((byte)RcpTypes.ParameterOptions.Readonly);
+                writer.Write(Readonly);
+            }
+
             //terminate
             writer.Write((byte)0);
 
@@ -371,6 +389,10 @@ namespace RCP.Parameters
                         UserId = new RcpTypes.TinyString(input).Data;
                         break;
 
+                    case RcpTypes.ParameterOptions.Readonly:
+                        Readonly = input.ReadBoolean();
+                        break;
+
                     default:
                         if (!HandleOption(input, option))
                         {
@@ -401,6 +423,8 @@ namespace RCP.Parameters
                 SetChanged(ParameterChangedFlags.Userdata);
             if (FUserId != "")
                 SetChanged(ParameterChangedFlags.UserId);
+            if (FReadonly)
+                SetChanged(ParameterChangedFlags.Readonly);
 
             TypeDefinition.ResetForInitialize();
         }
