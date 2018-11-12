@@ -39,6 +39,7 @@ namespace RCP.Protocol
             Enabled = 80,
             LabelVisible = 81,
             ValueVisible = 82,
+            NeedsConfirmation = 83,
         }
 
         public enum ColorOptions
@@ -82,7 +83,8 @@ namespace RCP.Protocol
 
         public enum Widgettype
         {
-            Customwidget = 1,
+            Default = 1,
+            Custom = 2,
             Info = 16,
             Textbox = 17,
             Bang = 18,

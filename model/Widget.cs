@@ -7,13 +7,70 @@ using RCP.Exceptions;
 
 namespace RCP.Protocol
 {
-    public class Widget
+    [Flags]
+    public enum WidgetChangedFlags : int
     {
+        Enabled = 1 << 0,
+        LabelVisible = 1 << 1,
+        ValueVisible = 1 << 2,
+        NeedsConfirmation = 1 << 3,
+    }
+
+    public class Widget: RCPObject
+    {
+        int FChangedFlags;
         public RcpTypes.Widgettype Type { get; set; }
 
         public Widget(RcpTypes.Widgettype type)
         {
             Type = type;
+        }
+
+        protected void SetChanged(WidgetChangedFlags flags) => FChangedFlags |= (int)flags;
+        protected bool IsChanged(WidgetChangedFlags flags) => ((WidgetChangedFlags)FChangedFlags).HasFlag(flags);
+
+        private bool FEnabled;
+        public bool Enabled
+        {
+            get => FEnabled;
+            set
+            {
+                if (SetProperty(ref FEnabled, value))
+                    SetChanged(WidgetChangedFlags.Enabled);
+            }
+        }
+
+        private bool FLabelVisible;
+        public bool LabelVisible
+        {
+            get => FLabelVisible;
+            set
+            {
+                if (SetProperty(ref FLabelVisible, value))
+                    SetChanged(WidgetChangedFlags.LabelVisible);
+            }
+        }
+
+        private bool FValueVisible;
+        public bool ValueVisible
+        {
+            get => FValueVisible;
+            set
+            {
+                if (SetProperty(ref FValueVisible, value))
+                    SetChanged(WidgetChangedFlags.ValueVisible);
+            }
+        }
+
+        private bool FNeedsConfirmation;
+        public bool NeedsConfirmation
+        {
+            get => FNeedsConfirmation;
+            set
+            {
+                if (SetProperty(ref FNeedsConfirmation, value))
+                    SetChanged(WidgetChangedFlags.NeedsConfirmation);
+            }
         }
 
         public virtual void Write(BinaryWriter writer)
@@ -28,7 +85,31 @@ namespace RCP.Protocol
         }
 
         protected virtual void WriteOptions(BinaryWriter writer)
-        { }
+        {
+            if (IsChanged(WidgetChangedFlags.Enabled))
+            {
+                writer.Write((byte)RcpTypes.WidgetOptions.Enabled);
+                writer.Write(Enabled);
+            }
+
+            if (IsChanged(WidgetChangedFlags.LabelVisible))
+            {
+                writer.Write((byte)RcpTypes.WidgetOptions.LabelVisible);
+                writer.Write(LabelVisible);
+            }
+
+            if (IsChanged(WidgetChangedFlags.ValueVisible))
+            {
+                writer.Write((byte)RcpTypes.WidgetOptions.ValueVisible);
+                writer.Write(ValueVisible);
+            }
+
+            if (IsChanged(WidgetChangedFlags.NeedsConfirmation))
+            {
+                writer.Write((byte)RcpTypes.WidgetOptions.NeedsConfirmation);
+                writer.Write(NeedsConfirmation);
+            }
+        }
 
         protected virtual void ParseOptions(KaitaiStream input)
         {
@@ -37,6 +118,36 @@ namespace RCP.Protocol
                 var code = input.ReadU1();
                 if (code == 0)
                     break;
+
+                var option = (RcpTypes.WidgetOptions)input.ReadU1();
+                if (!Enum.IsDefined(typeof(RcpTypes.WidgetOptions), option))
+                    throw new RCPDataErrorException("Widget parsing: Unknown widget option: " + option.ToString());
+
+                switch (option)
+                {
+                    case RcpTypes.WidgetOptions.Enabled:
+                        Enabled = input.ReadBoolean();
+                        break;
+
+                    case RcpTypes.WidgetOptions.LabelVisible:
+                        Enabled = input.ReadBoolean();
+                        break;
+
+                    case RcpTypes.WidgetOptions.ValueVisible:
+                        Enabled = input.ReadBoolean();
+                        break;
+
+                    case RcpTypes.WidgetOptions.NeedsConfirmation:
+                        Enabled = input.ReadBoolean();
+                        break;
+
+                    default:
+                        if (!HandleOption(input, option))
+                        {
+                            throw new RCPUnsupportedFeatureException();
+                        }
+                        break;
+                }
             }
         }
 
@@ -83,6 +194,11 @@ namespace RCP.Protocol
 
             widget.ParseOptions(input);
             return widget;
+        }
+
+        protected virtual bool HandleOption(KaitaiStream input, RcpTypes.WidgetOptions code)
+        {
+            return false;
         }
     }
 
