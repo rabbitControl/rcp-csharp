@@ -154,8 +154,17 @@ namespace RCP.Parameters
             get => FWidget;
             set
             {
+                if (FWidget != null)
+                    FWidget.PropertyChanged -= (s, p) => OnPropertyChanged(p.PropertyName);
+
                 if (SetProperty(ref FWidget, value))
+                {
                     SetChanged(ParameterChangedFlags.Widget);
+
+                    if (FWidget != null)
+                        //Redirect notifications from widget
+                        FWidget.PropertyChanged += (s, p) => OnPropertyChanged(p.PropertyName);
+                }
             }
         }
 
@@ -289,6 +298,9 @@ namespace RCP.Parameters
                 writer.Write(Readonly);
             }
 
+            if (FWidget != null)
+                FWidget.Write(writer);
+
             //terminate
             writer.Write((byte)0);
 
@@ -403,7 +415,7 @@ namespace RCP.Parameters
             }
         }
 
-        internal bool IsDirty => FChangedFlags != 0 || TypeDefinition.IsDirty;
+        internal bool IsDirty => FChangedFlags != 0 || TypeDefinition.IsDirty || (Widget?.IsDirty ?? false);
         protected bool IsChanged(ParameterChangedFlags flags) => ((ParameterChangedFlags)FChangedFlags).HasFlag(flags);
         protected void SetChanged(ParameterChangedFlags flags) => FChangedFlags |= (int)flags;
 

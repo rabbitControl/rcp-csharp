@@ -26,6 +26,7 @@ namespace RCP.Protocol
             Type = type;
         }
 
+        internal bool IsDirty => FChangedFlags != 0;
         protected void SetChanged(WidgetChangedFlags flags) => FChangedFlags |= (int)flags;
         protected bool IsChanged(WidgetChangedFlags flags) => ((WidgetChangedFlags)FChangedFlags).HasFlag(flags);
 
@@ -75,7 +76,8 @@ namespace RCP.Protocol
 
         public virtual void Write(BinaryWriter writer)
         {
-            writer.Write((byte)Type);
+            writer.Write((byte)RcpTypes.ParameterOptions.Widget);
+            writer.Write((ushort)Type, ByteOrder.BigEndian);
 
             //write type specific stuff
             WriteOptions(writer);
