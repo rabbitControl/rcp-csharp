@@ -30,7 +30,7 @@ namespace RCP.Protocol
         protected void SetChanged(WidgetChangedFlags flags) => FChangedFlags |= (int)flags;
         protected bool IsChanged(WidgetChangedFlags flags) => ((WidgetChangedFlags)FChangedFlags).HasFlag(flags);
 
-        private bool FEnabled;
+        private bool FEnabled = true;
         public bool Enabled
         {
             get => FEnabled;
@@ -41,7 +41,7 @@ namespace RCP.Protocol
             }
         }
 
-        private bool FLabelVisible;
+        private bool FLabelVisible = true;
         public bool LabelVisible
         {
             get => FLabelVisible;
@@ -52,7 +52,7 @@ namespace RCP.Protocol
             }
         }
 
-        private bool FValueVisible;
+        private bool FValueVisible = true;
         public bool ValueVisible
         {
             get => FValueVisible;
@@ -74,9 +74,23 @@ namespace RCP.Protocol
             }
         }
 
+        public virtual void ResetForInitialize()
+        {
+            if (!FEnabled)
+                SetChanged(WidgetChangedFlags.Enabled);
+
+            if (!FValueVisible)
+                SetChanged(WidgetChangedFlags.ValueVisible);
+
+            if (!FLabelVisible)
+                SetChanged(WidgetChangedFlags.LabelVisible);
+
+            if (FNeedsConfirmation)
+                SetChanged(WidgetChangedFlags.NeedsConfirmation);
+        }
+
         public virtual void Write(BinaryWriter writer)
         {
-            writer.Write((byte)RcpTypes.ParameterOptions.Widget);
             writer.Write((ushort)Type, ByteOrder.BigEndian);
 
             //write type specific stuff

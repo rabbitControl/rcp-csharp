@@ -298,9 +298,6 @@ namespace RCP.Parameters
                 writer.Write(Readonly);
             }
 
-            if (FWidget != null)
-                FWidget.Write(writer);
-
             //terminate
             writer.Write((byte)0);
 
@@ -421,8 +418,6 @@ namespace RCP.Parameters
 
         public virtual void ResetForInitialize()
         {
-            if (FParentId != 0)
-                SetChanged(ParameterChangedFlags.ParentId);
             if (FLabels.Count > 0)
                 SetChanged(ParameterChangedFlags.Label);
             if (FDescriptions.Count > 0)
@@ -431,6 +426,10 @@ namespace RCP.Parameters
                 SetChanged(ParameterChangedFlags.Tags);
             if (FOrder != 0)
                 SetChanged(ParameterChangedFlags.Order);
+            if (FParentId != 0)
+                SetChanged(ParameterChangedFlags.ParentId);
+            if (FWidget != null)
+                SetChanged(ParameterChangedFlags.Widget);
             if (FUserdata.Length != 0)
                 SetChanged(ParameterChangedFlags.Userdata);
             if (FUserId != "")
@@ -439,6 +438,7 @@ namespace RCP.Parameters
                 SetChanged(ParameterChangedFlags.Readonly);
 
             TypeDefinition.ResetForInitialize();
+            Widget?.ResetForInitialize();
         }
 
         internal void RaiseEvents()
