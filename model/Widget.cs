@@ -135,7 +135,7 @@ namespace RCP.Protocol
                 if (code == 0)
                     break;
 
-                var option = (RcpTypes.WidgetOptions)input.ReadU1();
+                var option = (RcpTypes.WidgetOptions)code;
                 if (!Enum.IsDefined(typeof(RcpTypes.WidgetOptions), option))
                     throw new RCPDataErrorException("Widget parsing: Unknown widget option: " + option.ToString());
 
@@ -169,7 +169,7 @@ namespace RCP.Protocol
 
         public static Widget Parse(KaitaiStream input)
         {
-            var widgettype = (RcpTypes.Widgettype)input.ReadU1();
+            var widgettype = (RcpTypes.Widgettype)input.ReadS2be();
             if (!Enum.IsDefined(typeof(RcpTypes.Widgettype), widgettype))
                 throw new RCPDataErrorException("Widget parsing: Unknown widget!");
 
@@ -204,6 +204,11 @@ namespace RCP.Protocol
                 case RcpTypes.Widgettype.Numberbox:
                     {
                         widget = new NumberboxWidget();
+                        break;
+                    }
+                default:
+                    {
+                        widget = new Widget(widgettype);
                         break;
                     }
             }
