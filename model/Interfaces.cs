@@ -73,6 +73,10 @@ namespace RCP
         bool MultiSelect { get; set; }
     }
 
+    public interface IImageDefinition : IDefaultDefinition<byte[]>
+    {
+    }
+
     public interface IArrayDefinition : ITypeDefinition
     {
         ITypeDefinition ElementDefinition { get; }

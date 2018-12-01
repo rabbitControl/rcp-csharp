@@ -215,6 +215,7 @@ namespace RCP.Protocol
             Ipv4 = 43,
             Ipv6 = 44,
             Range = 45,
+            Image = 46,
         }
 
         public enum NumberOptions
