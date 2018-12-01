@@ -91,6 +91,12 @@ namespace RCP
             return AddAndReturn(param, label, group);
         }
 
+        public ImageParameter CreateImageParameter(string label = "", GroupParameter group = null)
+        {
+            var param = CreateParameter(RcpTypes.Datatype.Image, label, group) as ImageParameter;
+            return AddAndReturn(param, label, group);
+        }
+
         public ArrayParameter<string> CreateUriArrayParameter(string label, params int[] structure)
         {
             var param = Parameter.Create(this, FIdCounter++, RcpTypes.Datatype.Array, RcpTypes.Datatype.Uri, structure) as ArrayParameter<string>;
@@ -198,28 +204,43 @@ namespace RCP
 				//MessageBox.Show(packet.Command.ToString());
 		        switch (packet.Command)
 		        {
-			        case RcpTypes.Command.Update:
-                        Log?.Invoke("received update");
-                        if (FParams.ContainsKey(packet.Data.Id))
-                            SendToMultiple(packet, senderId);
-				        break;
+                    case RcpTypes.Command.Version:
+                        {
+                            Log?.Invoke("received: version");
+                            SendToOne(Pack(RcpTypes.Command.Version, RCP_PROTOCOL_VERSION), senderId);
+                            break;
+                        }
+
+                    case RcpTypes.Command.Update:
+                        {
+                            Log?.Invoke("received: update");
+                            var param = packet.Data as Parameter;
+                            if (FParams.ContainsKey(param.Id))
+                                SendToMultiple(packet, senderId);
+				            break;
+                        }
 
                     case RcpTypes.Command.Updatevalue:
-                        //TODO: actually only set the parameters value
-                        Log?.Invoke("received update value");
-                        if (FParams.ContainsKey(packet.Data.Id))
-                            SendToMultiple(packet, senderId);
-                        break;
+                        {
+                            //TODO: actually only set the parameters value
+                            Log?.Invoke("received: update value");
+                            var param = packet.Data as Parameter;
+                            if (FParams.ContainsKey(param.Id))
+                                SendToMultiple(packet, senderId);
+                            break;
+                        }
 
                     case RcpTypes.Command.Initialize:
-                        Log?.Invoke("received init");
-				        //client requests all parameters
-				        foreach (var param in FParams.Values)
                         {
-                            param.ResetForInitialize();
-					        SendToOne(Pack(RcpTypes.Command.Update, param), senderId);
+                            Log?.Invoke("received: init");
+				            //client requests all parameters
+				            foreach (var param in FParams.Values)
+                            {
+                                param.ResetForInitialize();
+					            SendToOne(Pack(RcpTypes.Command.Update, param), senderId);
+                            }
+				            break;
                         }
-				        break;
 		        }
             }
             catch (Exception e)

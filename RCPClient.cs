@@ -74,7 +74,7 @@ namespace RCP
 		{
 			//Logger.Log(LogType.Debug, "Client received: " + bytes.Length + "bytes");
 			var packet = Packet.Parse(new KaitaiStream(bytes), this);
-            var parameter = packet.Data;
+            var parameter = packet.Data as Parameter;
             var id = parameter.Id;
 
 			//Logger.Log(LogType.Debug, packet.Command.ToString());

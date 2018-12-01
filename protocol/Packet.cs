@@ -10,9 +10,8 @@ namespace RCP.Protocol
     public class Packet : IWriteable
     {
         public RcpTypes.Command Command { get; set; }
-        public uint Id { get; set; }
         public ulong Timestamp { get; set; }
-        public Parameter Data { get; set; }
+        public object Data { get; set; }
 
         public Packet(RcpTypes.Command command)
         {
@@ -55,7 +54,8 @@ namespace RCP.Protocol
                                 break;
 
                             case RcpTypes.Command.Version:
-                                throw new RCPUnsupportedFeatureException();
+                                packet.Data = new RcpTypes.TinyString(input);
+                                break;
                         }
 
                         break;
@@ -77,14 +77,16 @@ namespace RCP.Protocol
             //command
             writer.Write((byte)Command);
 
-        	//id
         	//timestamp
         	
             //data
         	if (Data != null)
         	{
-            	writer.Write((byte)RcpTypes.PacketOptions.Data);
-            	Data.Write(writer);
+                writer.Write((byte)RcpTypes.PacketOptions.Data);
+                if (Data is Parameter)
+                    (Data as Parameter).Write(writer);
+                else if (Data is string)
+                    RcpTypes.TinyString.Write(Data as string, writer);
         	}
 
             //terminate

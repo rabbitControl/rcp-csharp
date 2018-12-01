@@ -16,6 +16,7 @@ namespace RCP
 
     public abstract class ClientServerBase : IDisposable, IParameterManager
 	{
+        protected const string RCP_PROTOCOL_VERSION = "0.0.0";
         private readonly SynchronizationContext FContext;
         protected Dictionary<Int16, Parameter> FParams = new Dictionary<Int16, Parameter>();
         bool FIsDirty;
@@ -47,8 +48,16 @@ namespace RCP
 			
 			return packet;
 		}
-		
-		protected Packet Pack(RcpTypes.Command command)
+
+        protected Packet Pack(RcpTypes.Command command, string value)
+        {
+            var packet = new Packet(command);
+            packet.Data = value;
+
+            return packet;
+        }
+
+        protected Packet Pack(RcpTypes.Command command)
 		{
 			var packet = new Packet(command);
 			
