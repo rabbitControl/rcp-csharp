@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 
 using RCP.Protocol;
+using System.Drawing;
+using System.IO;
 
 namespace RCPSharpDemo
 {
@@ -36,6 +38,15 @@ namespace RCPSharpDemo
                 {
                     FTheBang = p as BangParameter;
                     FTheBang.OnBang += Client_OnBang;
+                } else if (p is ImageParameter)
+                {
+                    var imageParam = p as ImageParameter;
+                    using (var stream = new MemoryStream(imageParam.Value))
+                    {
+                        stream.Seek(0, SeekOrigin.Begin);
+                        var img = Image.FromStream(stream);
+                        pictureBox1.Image = img;
+                    }
                 }
             };
 
