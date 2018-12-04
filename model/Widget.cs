@@ -96,6 +96,8 @@ namespace RCP.Protocol
             //write type specific stuff
             WriteOptions(writer);
 
+            FChangedFlags = 0;
+
             //terminate
             writer.Write((byte)0);
         }

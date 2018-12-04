@@ -273,7 +273,7 @@ namespace RCP.Parameters
                 writer.Write(ParentId, ByteOrder.BigEndian);
             }
 
-            if (IsChanged(ParameterChangedFlags.Widget) && Widget != null)
+            if (IsChanged(ParameterChangedFlags.Widget) || (Widget?.IsDirty ?? false))
             {
                 writer.Write((byte)RcpTypes.ParameterOptions.Widget);
                 Widget.Write(writer);
