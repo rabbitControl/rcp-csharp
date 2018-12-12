@@ -39,7 +39,7 @@ namespace RCP
     {
     }
 
-    public interface IBoolDefinition : ITypeDefinition
+    public interface IBoolDefinition : IDefaultDefinition<bool>
     {
     }
 
