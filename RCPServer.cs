@@ -216,8 +216,9 @@ namespace RCP
                             Log?.Invoke("received: update");
                             var param = packet.Data as Parameter;
                             if (FParams.ContainsKey(param.Id))
-                                SendToMultiple(packet, senderId);
-				            break;
+                                SendToMultiple(bytes, senderId);
+                            param.RaiseEvents();
+                            break;
                         }
 
                     case RcpTypes.Command.Updatevalue:
@@ -226,7 +227,8 @@ namespace RCP
                             Log?.Invoke("received: update value");
                             var param = packet.Data as Parameter;
                             if (FParams.ContainsKey(param.Id))
-                                SendToMultiple(packet, senderId);
+                                SendToMultiple(bytes, senderId);
+                            param.RaiseEvents();
                             break;
                         }
 
@@ -261,8 +263,19 @@ namespace RCP
 					transporter.SendToAll(bytes, exceptClientId);
             }
 		}
-		
-		void SendToOne(Packet packet, object clientId)
+
+        void SendToMultiple(byte[] bytes, object exceptClientId = null)
+        {
+            using (var stream = new MemoryStream())
+            using (var writer = new BinaryWriter(stream))
+            {
+                Log?.Invoke("sending to multiple");
+                foreach (var transporter in FTransporters)
+                    transporter.SendToAll(bytes, exceptClientId);
+            }
+        }
+
+        void SendToOne(Packet packet, object clientId)
 		{
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
