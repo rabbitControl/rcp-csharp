@@ -1,7 +1,6 @@
 using System;
-using System.Linq;
-using RCP.Protocol;
 using System.IO;
+using RCP.IO;
 using Kaitai;
 using RCP.Exceptions;
 

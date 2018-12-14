@@ -1,7 +1,7 @@
-using Kaitai;
 using System.IO;
 
-using RCP.Protocol;
+using Kaitai;
+using RCP.IO;
 
 namespace RCP.Types
 {

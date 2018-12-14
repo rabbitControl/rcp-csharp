@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Text;
 
+using RCP.IO;
+
 namespace RCP.Protocol
 {
     public partial class RcpTypes

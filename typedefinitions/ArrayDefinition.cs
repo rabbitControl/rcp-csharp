@@ -1,11 +1,11 @@
 using System;
 using System.IO;
-using Kaitai;
 
+using Kaitai;
+using RCP.IO;
 using RCP.Protocol;
 using RCP.Exceptions;
 using RCP.Parameters;
-using System.Linq;
 
 namespace RCP.Types
 {

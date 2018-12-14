@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+
 using Kaitai;
+using RCP.IO;
 using RCP.Parameters;
 using RCP.Protocol;
 
