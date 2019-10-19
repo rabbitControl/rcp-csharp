@@ -53,7 +53,7 @@ namespace RCP.Protocol
                                 packet.Data = Parameter.Parse(input, manager);
                                 break;
 
-                            case RcpTypes.Command.Version:
+                            case RcpTypes.Command.Info:
                                 packet.Data = new RcpTypes.TinyString(input);
                                 break;
                         }

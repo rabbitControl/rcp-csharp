@@ -110,7 +110,7 @@ namespace RCP.Protocol
         public enum Command
         {
             Invalid = 0,
-            Version = 1,
+            Info = 1,
             Initialize = 2,
             Discover = 3,
             Update = 4,
@@ -168,6 +168,11 @@ namespace RCP.Protocol
         {
             Default = 48,
             RegularExpression = 49,
+        }
+
+        public enum InfodataOptions
+        {
+            Applicationid = 26,
         }
 
         public enum ArrayOptions
@@ -231,13 +236,6 @@ namespace RCP.Protocol
         public enum Ipv6Options
         {
             Default = 48,
-        }
-
-        public enum MetadataOptions
-        {
-            Version = 26,
-            Capabilities = 27,
-            Commands = 28,
         }
 
         public enum PacketOptions

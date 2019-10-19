@@ -204,10 +204,10 @@ namespace RCP
 				//MessageBox.Show(packet.Command.ToString());
 		        switch (packet.Command)
 		        {
-                    case RcpTypes.Command.Version:
+                    case RcpTypes.Command.Info:
                         {
                             Log?.Invoke("received: version");
-                            SendToOne(Pack(RcpTypes.Command.Version, RCP_PROTOCOL_VERSION), senderId);
+                            SendToOne(Pack(RcpTypes.Command.Info, RCP_PROTOCOL_VERSION), senderId);
                             break;
                         }
 
