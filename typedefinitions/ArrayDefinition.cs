@@ -40,14 +40,9 @@ namespace RCP.Types
         protected override void WriteOptions(BinaryWriter writer)
         {
             FElementType.Write(writer);
+            WriteStructure(writer);
 
             base.WriteOptions(writer);
-
-            if (IsChanged(TypeChangedFlags.ArrayStructure))
-            {
-                writer.Write((byte)RcpTypes.ArrayOptions.Structure);
-                WriteStructure(writer);
-            }
         }
 
         public void WriteStructure(BinaryWriter writer)
@@ -64,26 +59,8 @@ namespace RCP.Types
         public override void ParseOptions(KaitaiStream input)
         {
             FElementType.ParseOptions(input);
+            Structure = ReadStructure(input);
             base.ParseOptions(input);
-        }
-
-        protected override bool HandleOption(KaitaiStream input, byte code)
-        {
-            if (base.HandleOption(input, code))
-                return true;
-
-            var option = (RcpTypes.ArrayOptions)code;
-            if (!Enum.IsDefined(typeof(RcpTypes.ArrayOptions), option))
-                throw new RCPDataErrorException("Arraydefinition parsing: Unknown option: " + option.ToString());
-
-            switch (option)
-            {
-                case RcpTypes.ArrayOptions.Structure:
-                    Structure = ReadStructure(input);
-                    return true;
-            }
-
-            return false;
         }
 
         private int[] ReadStructure(KaitaiStream input)

@@ -178,7 +178,6 @@ namespace RCP.Protocol
         public enum ArrayOptions
         {
             Default = 48,
-            Structure = 49,
         }
 
         public enum NumberboxFormat
