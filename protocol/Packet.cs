@@ -23,7 +23,7 @@ namespace RCP.Protocol
             // get command
             var command = (RcpTypes.Command)input.ReadU1();
             if (!Enum.IsDefined(typeof(RcpTypes.Command), command)) 
-                throw new RCPDataErrorException("Packed parsing: Unknown command: " + command.ToString());
+                throw new RCPDataErrorException("Packet parsing: Unknown command: " + command.ToString());
 
             var packet = new Packet(command);
 
@@ -54,7 +54,10 @@ namespace RCP.Protocol
                                 break;
 
                             case RcpTypes.Command.Info:
-                                packet.Data = new RcpTypes.TinyString(input);
+                                if (input.PeekChar() > 0)
+                                    packet.Data = InfoData.Parse(input);
+                                else
+                                    packet.Data = null;
                                 break;
                         }
 
@@ -85,8 +88,8 @@ namespace RCP.Protocol
                 writer.Write((byte)RcpTypes.PacketOptions.Data);
                 if (Data is Parameter)
                     (Data as Parameter).Write(writer);
-                else if (Data is string)
-                    RcpTypes.TinyString.Write(Data as string, writer);
+                else if (Data is InfoData)
+                    (Data as InfoData).Write(writer);
         	}
 
             //terminate

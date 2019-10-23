@@ -40,19 +40,11 @@ namespace RCP
 			
 			return packet;
 		}
-		
-		protected Packet Pack(RcpTypes.Command command, uint id)
-		{
-			var packet = new Packet(command);
-			//packet.Data = new Parameter<T>(id, null);
-			
-			return packet;
-		}
 
-        protected Packet Pack(RcpTypes.Command command, string value)
+        protected Packet Pack(RcpTypes.Command command, InfoData infoData)
         {
             var packet = new Packet(command);
-            packet.Data = value;
+            packet.Data = infoData;
 
             return packet;
         }

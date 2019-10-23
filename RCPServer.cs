@@ -17,14 +17,20 @@ namespace RCP
 		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
         Int16 FIdCounter = 1;
 
-        public RCPServer()
+        public string ApplicationId { get; }
+
+        public RCPServer(string applicationId = "")
             : base()
-        { }
+        {
+            ApplicationId = applicationId;
+        }
  
-        public RCPServer(IServerTransporter transporter)
+        public RCPServer(IServerTransporter transporter, string applicationId = "")
             : this()
         {
             AddTransporter(transporter);
+
+            ApplicationId = applicationId;
         }
 
 		public override void Dispose()
@@ -206,8 +212,17 @@ namespace RCP
 		        {
                     case RcpTypes.Command.Info:
                         {
-                            Log?.Invoke("received: version");
-                            SendToOne(Pack(RcpTypes.Command.Info, RCP_PROTOCOL_VERSION), senderId);
+                            if (packet.Data == null)
+                            {
+                                Log?.Invoke("received: version request");
+                                //answer with a version
+                                SendToOne(Pack(RcpTypes.Command.Info, new InfoData(RCP_PROTOCOL_VERSION, ApplicationId)), senderId);
+                            }
+                            else
+                            {
+                                var info = (packet.Data as InfoData);
+                                //set version status
+                            }
                             break;
                         }
 
