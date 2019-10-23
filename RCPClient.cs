@@ -57,6 +57,11 @@ namespace RCP
             SendPacket(Pack(RcpTypes.Command.Initialize));
 		}
 
+        public void RequestInfo()
+        {
+            SendPacket(Pack(RcpTypes.Command.Info));
+        }
+
         public override void Update()
         {
             foreach (var parameter in FParams.Values)
