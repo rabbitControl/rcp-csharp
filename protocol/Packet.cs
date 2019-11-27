@@ -3,6 +3,7 @@ using System.IO;
 using Kaitai;
 
 using RCP.Exceptions;
+using RCP.IO;
 using RCP.Parameters;
 
 namespace RCP.Protocol
@@ -90,7 +91,9 @@ namespace RCP.Protocol
                     (Data as Parameter).Write(writer);
                 else if (Data is InfoData)
                     (Data as InfoData).Write(writer);
-        	}
+                else if (Data is short)
+                    writer.Write((short)Data, ByteOrder.BigEndian);
+            }
 
             //terminate
             writer.Write((byte)0);
