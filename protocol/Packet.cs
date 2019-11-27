@@ -49,6 +49,9 @@ namespace RCP.Protocol
 //	                            throw new RCPDataErrorException();
 
                             case RcpTypes.Command.Remove:
+                                // expect int16
+                                packet.Data = input.ReadS2be();
+                                break;
                             case RcpTypes.Command.Update:
                                 // expect parameter
                                 packet.Data = Parameter.Parse(input, manager);
