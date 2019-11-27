@@ -13,7 +13,7 @@ namespace RCP
 {
     public class RCPServer: ClientServerBase
     {
-        List<Parameter> FParamsToRemove = new List<Parameter>();
+        List<short> FParamsToRemove = new List<short>();
 		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
         Int16 FIdCounter = 1;
 
@@ -151,13 +151,13 @@ namespace RCP
         public override void RemoveParameter(Parameter param)
         {
             FParams.Remove(param.Id);
-            FParamsToRemove.Add(param);
+            FParamsToRemove.Add(param.Id);
         }
 
         public override void Update()
         {
-            foreach (var param in FParamsToRemove)
-                SendToMultiple(Pack(RcpTypes.Command.Remove, param));
+            foreach (var id in FParamsToRemove)
+                SendToMultiple(Pack(RcpTypes.Command.Remove, id));
             FParamsToRemove.Clear();
 
             foreach (var parameter in FParams.Values)
@@ -169,8 +169,6 @@ namespace RCP
 
         public Action<string> Log;
 
-        
-		
 		//public IEnumerable<IParameter> GetParametersByParent(Int16 id)
 		//{
 		//	return FParams.Values.Where(p => p.Parent.HasValue ? p.Parent.Value == id : false);

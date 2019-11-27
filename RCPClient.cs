@@ -131,11 +131,10 @@ namespace RCP
 
                 case RcpTypes.Command.Remove:
                         {
-                            var parameter = packet.Data as Parameter;
-                            var id = parameter.Id;
+                            var id = (short)packet.Data;
 
                             if (FParams.ContainsKey(id))
-                                RemoveParameter(parameter);
+                                RemoveParameter(FParams[id]);
                             break;
                         }
 			}

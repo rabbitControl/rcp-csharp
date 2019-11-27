@@ -16,7 +16,7 @@ namespace RCP
 
     public abstract class ClientServerBase : IDisposable, IParameterManager
 	{
-        protected const string RCP_PROTOCOL_VERSION = "0.0.0";
+        protected const string RCP_PROTOCOL_VERSION = "0.0.1";
         private readonly SynchronizationContext FContext;
         protected Dictionary<Int16, Parameter> FParams = new Dictionary<Int16, Parameter>();
         bool FIsDirty;
@@ -40,6 +40,14 @@ namespace RCP
 			
 			return packet;
 		}
+
+        protected Packet Pack(RcpTypes.Command command, short id)
+        {
+            var packet = new Packet(command);
+            packet.Data = id;
+
+            return packet;
+        }
 
         protected Packet Pack(RcpTypes.Command command, InfoData infoData)
         {
@@ -79,8 +87,7 @@ namespace RCP
 
         public virtual void RemoveParameter(Parameter parameter)
         {
-            var id = parameter.Id;
-            if (FParams.Remove(id))
+            if (FParams.Remove(parameter.Id))
                 OnParameterRemoved(parameter);
         }
 
