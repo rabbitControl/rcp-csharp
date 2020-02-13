@@ -303,7 +303,9 @@ namespace RCP.Parameters
             FChangedFlags = 0;
         }
 
-        protected virtual void WriteValue(BinaryWriter writer) { }
+        public virtual void WriteValue(BinaryWriter writer, bool includeOption = true) { } 
+
+        public virtual object ReadValue(KaitaiStream input) { return null; }
 
         public static Parameter Parse(KaitaiStream input, IParameterManager manager)
         {
@@ -411,6 +413,8 @@ namespace RCP.Parameters
         }
 
         internal bool IsDirty => FChangedFlags != 0 || TypeDefinition.IsDirty || (Widget?.IsDirty ?? false);
+
+        internal bool OnlyValueChanged => (ParameterChangedFlags)FChangedFlags == ParameterChangedFlags.Value;
         protected bool IsChanged(ParameterChangedFlags flags) => ((ParameterChangedFlags)FChangedFlags).HasFlag(flags);
         protected void SetChanged(ParameterChangedFlags flags) => FChangedFlags |= (int)flags;
 
@@ -492,14 +496,21 @@ namespace RCP.Parameters
                 SetChanged(ParameterChangedFlags.Value);
         }
 
-        protected override void WriteValue(BinaryWriter writer)
+        public override void WriteValue(BinaryWriter writer, bool includeOption = true)
         {
             if (IsChanged(ParameterChangedFlags.Value))
             {
-                writer.Write((byte)RcpTypes.ParameterOptions.Value);
+                if (includeOption)
+                    writer.Write((byte)RcpTypes.ParameterOptions.Value);
                 TypeDefinition.WriteValue(writer, Value);
             }
             base.WriteValue(writer);
+        }
+
+        public override object ReadValue(KaitaiStream input)
+        {
+            HandleOption(input, RcpTypes.ParameterOptions.Value);
+            return Value;
         }
 
         protected override bool HandleOption(KaitaiStream input, RcpTypes.ParameterOptions option)

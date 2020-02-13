@@ -16,7 +16,7 @@ namespace RCP
 
     public abstract class ClientServerBase : IDisposable, IParameterManager
 	{
-        protected const string RCP_PROTOCOL_VERSION = "0.0.1";
+        protected const string RCP_PROTOCOL_VERSION = "0.1.0";
         private readonly SynchronizationContext FContext;
         protected Dictionary<Int16, Parameter> FParams = new Dictionary<Int16, Parameter>();
         bool FIsDirty;

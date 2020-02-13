@@ -28,6 +28,20 @@ namespace RCP.Protocol
 
             var packet = new Packet(command);
 
+            if (command == RcpTypes.Command.Updatevalue)
+            {
+                // read id
+                var id = input.ReadS2be();
+                // read datatype
+                var datatype = (RcpTypes.Datatype)input.ReadU1();
+                //get parameter
+                var parameter = manager.GetParameter(id);
+                //read value
+                parameter.ReadValue(input);
+                packet.Data = parameter;
+                return packet;
+            }
+
             // read packet options
             while (!input.IsEof)
             {
@@ -56,6 +70,7 @@ namespace RCP.Protocol
                                 // expect parameter
                                 packet.Data = Parameter.Parse(input, manager);
                                 break;
+                            
 
                             case RcpTypes.Command.Info:
                                 if (input.PeekChar() > 0)
@@ -84,22 +99,38 @@ namespace RCP.Protocol
             //command
             writer.Write((byte)Command);
 
-        	//timestamp
-        	
+            //timestamp
+
+            var needsTerminator = true;
             //data
         	if (Data != null)
         	{
-                writer.Write((byte)RcpTypes.PacketOptions.Data);
-                if (Data is Parameter)
-                    (Data as Parameter).Write(writer);
-                else if (Data is InfoData)
-                    (Data as InfoData).Write(writer);
-                else if (Data is short)
-                    writer.Write((short)Data, ByteOrder.BigEndian);
+                if (Command == RcpTypes.Command.Updatevalue)
+                {
+                    var param = (Data as Parameter);
+                    //id
+                    writer.Write(param.Id, ByteOrder.BigEndian);
+                    //datatype
+                    writer.Write((byte)param.TypeDefinition.Datatype);
+                    //value
+                    param.WriteValue(writer, false);
+                    needsTerminator = false;
+                }
+                else
+                {
+                    writer.Write((byte)RcpTypes.PacketOptions.Data);
+                    if (Data is Parameter)
+                        (Data as Parameter).Write(writer);
+                    else if (Data is InfoData)
+                        (Data as InfoData).Write(writer);
+                    else if (Data is short)
+                        writer.Write((short)Data, ByteOrder.BigEndian);
+                }
             }
 
             //terminate
-            writer.Write((byte)0);
+            if (needsTerminator)
+                writer.Write((byte)0);
         }
     }
 }

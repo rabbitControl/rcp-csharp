@@ -161,7 +161,9 @@ namespace RCP
             FParamsToRemove.Clear();
 
             foreach (var parameter in FParams.Values)
-                if (parameter.IsDirty)
+                if (parameter.OnlyValueChanged)
+                    SendToMultiple(Pack(RcpTypes.Command.Updatevalue, parameter));
+                else
                     SendToMultiple(Pack(RcpTypes.Command.Update, parameter));
         }
 		

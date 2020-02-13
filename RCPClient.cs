@@ -65,7 +65,9 @@ namespace RCP
         public override void Update()
         {
             foreach (var parameter in FParams.Values)
-                if (parameter.IsDirty)
+                if (parameter.OnlyValueChanged)
+                    SendPacket(Pack(RcpTypes.Command.Updatevalue, parameter));
+                else
                     SendPacket(Pack(RcpTypes.Command.Update, parameter));
         }
 
