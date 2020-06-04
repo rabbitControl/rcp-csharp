@@ -1,33 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
-    <RootNamespace>RCP</RootNamespace>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>RabbitControl</Authors>
-    <Product>Remote Control Protocol</Product>
-    <Description>An RCP implementation for C#</Description>
-    <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-2.1.html</PackageLicenseUrl>
-    <PackageProjectUrl>https://rabbitcontrol.github.io/</PackageProjectUrl>
-    <PackageIconUrl>https://avatars2.githubusercontent.com/u/32101237?s=200&amp;v=4</PackageIconUrl>
-    <RepositoryUrl>https://github.com/rabbitControl/rcp-csharp</RepositoryUrl>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>lib\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>lib\</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Remove="demos\**" />
-    <EmbeddedResource Remove="demos\**" />
-    <None Remove="demos\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Fleck" Version="1.0.3" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="2.3.138">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0-preview.4.20251.6" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-    <PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1" />
+    <PackageReference Include="WatsonWebsocket" Version="2.1.7.2" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+
 </Project>

@@ -1,19 +1,19 @@
 using System;
 using System.Threading;
-using WebSocketSharp;
+using WatsonWebsocket;
 
 namespace RCP.Transporter
 {
     public class WebsocketClientTransporter: IClientTransporter
     {
-        private WebSocket FClient;
+        private WatsonWsClient FClient;
         private SynchronizationContext FContext;
 
         public Action<byte[]> Received { get; set; }
         public Action Connected { get; set; }
         public Action Disconnected { get; set; }
 
-        public bool IsConnected => FClient?.IsAlive ?? false;
+        public bool IsConnected => FClient?.Connected ?? false;
 
         public WebsocketClientTransporter()
         {
@@ -29,21 +29,38 @@ namespace RCP.Transporter
         {
             if (FClient != null)
             {
-                FClient.Close();
-                FClient.OnOpen -= FClient_Opened;
-                FClient.OnClose -= FClient_Closed;
-                FClient.OnMessage -= FClient_MessageReceived;
-                FClient.Close();
+                FClient.ServerConnected -= FClient_ServerConnected;
+                FClient.ServerDisconnected -= FClient_ServerDisconnected;
+                FClient.MessageReceived -= FClient_MessageReceived;
+                FClient.Dispose();
             }
         }
 
         private void CreateClient(string remoteHost, int port)
         {
-            FClient = new WebSocket("ws://" + remoteHost + ":" + port.ToString());
-            FClient.OnMessage += FClient_MessageReceived;
-            FClient.OnOpen += FClient_Opened;
-            FClient.OnClose += FClient_Closed;
-            FClient.Connect();
+            FClient = new WatsonWsClient(remoteHost, port, false);
+            FClient.MessageReceived += FClient_MessageReceived;
+            FClient.ServerConnected += FClient_ServerConnected;
+            FClient.ServerDisconnected += FClient_ServerDisconnected;
+            FClient.Start();
+        }
+
+        private void FClient_ServerDisconnected(object sender, EventArgs e)
+        {
+            FContext.Post((b) => Connected?.Invoke(), null);
+        }
+
+        private void FClient_ServerConnected(object sender, EventArgs e)
+        {
+            FContext.Post((b) => Disconnected?.Invoke(), null);
+        }
+
+        private void FClient_MessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            if (e.Data.Length > 0)
+            {
+                FContext.Post((b) => Received?.Invoke(e.Data), e.Data);
+            }
         }
 
         public void Connect(string remoteHost, int port)
@@ -57,28 +74,10 @@ namespace RCP.Transporter
             DestroyClient();
         }
 
-        private void FClient_Opened(object sender, EventArgs e)
-        {
-            FContext.Post((b) => Connected?.Invoke(), null);
-        }
-
-        private void FClient_Closed(object sender, EventArgs e)
-        {
-            FContext.Post((b) => Disconnected?.Invoke(), null);
-        }
-
-        private void FClient_MessageReceived(object sender, MessageEventArgs e)
-        {
-            if (e.IsBinary && e.RawData.Length > 0)
-            {
-                FContext.Post((b) => Received?.Invoke(e.RawData), e.RawData);
-            }
-        }
-
         public void Send(byte[] bytes)
         {
             if (FClient != null)
-                FClient.Send(bytes);
+                FClient.SendAsync(bytes);
         }
     }
 }

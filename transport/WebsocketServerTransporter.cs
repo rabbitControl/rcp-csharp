@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Fleck;
+using WatsonWebsocket;
 using System.Threading;
 //using VVVV.Core.Logging;
 
@@ -12,11 +12,10 @@ namespace RCP.Transporter
     public class WebsocketServerTransporter: IServerTransporter
     {
         private SynchronizationContext FContext;
-        private WebSocketServer FServer;
-        private Dictionary<Guid, IWebSocketConnection> FSockets = new Dictionary<Guid, IWebSocketConnection>();
+        private WatsonWsServer FServer;
 
     	public Action<byte[], object> Received {get; set;}
-    	public int ConnectionCount => FSockets.Count;
+    	public int ConnectionCount => FServer.ListClients().Count();
     	
         public WebsocketServerTransporter(string remoteHost, int port)
         {
@@ -32,33 +31,16 @@ namespace RCP.Transporter
 
         private void CreateServer(string remoteHost, int port)
         {
-            FServer = new WebSocketServer("ws://" + remoteHost + ":" + port.ToString());
-            FServer.Start(socket => {
-                socket.OnOpen = () =>
-                {
-                    Console.WriteLine("Open!");
-                    FSockets.Add(socket.ConnectionInfo.Id, socket);
-                };
+            FServer = new WatsonWsServer(remoteHost, port, false);
+            FServer.MessageReceived += FServer_MessageReceived;
 
-                socket.OnClose = () =>
-                {
-                    Console.WriteLine("Close!");
-                    FSockets.Remove(socket.ConnectionInfo.Id);
-                };
+            FServer.Start();
+        }
 
-                socket.OnMessage = message =>
-                {
-                    //this shouldn't be necessary
-                    //if (message.Length > 0)
-                    //    FContext.Post((m) => Received?.Invoke(Encoding.Default.GetBytes(m as string), socket.ConnectionInfo.Id), message);
-                };
-
-                socket.OnBinary = bytes =>
-                {
-                    if (bytes.Length > 0)
-                        FContext.Post((b) => Received?.Invoke(b as byte[], socket.ConnectionInfo.Id), bytes);
-                };
-            });
+        private void FServer_MessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            if (e.Data.Length > 0)
+                FContext.Post((b) => Received?.Invoke(b as byte[], e.IpPort), e.Data);
         }
 
         public void Bind(string remoteHost, int port)
@@ -71,27 +53,23 @@ namespace RCP.Transporter
         {
             if (FServer != null)
             {
-                FSockets.Keys.ToList().ForEach(k => {
-                    FSockets[k].Close();
-                });
-                FSockets.Clear();
+                foreach (var client in FServer.ListClients())
+                    FServer.DisconnectClient(client);
                 FServer.Dispose();
             }
         }
 
         public void SendToAll(byte[] bytes, object exceptId)
         {
-            FSockets.Keys.ToList().ForEach(k => {
-            	if (exceptId == null || k != (Guid)exceptId)
-                    FSockets[k].Send(bytes);
-            });
+            foreach (var client in FServer.ListClients())
+                if (exceptId == null || client != (string)exceptId)
+                    FServer.SendAsync(client, bytes);
         }
 
         public void SendToOne(byte[] bytes, object id)
         {
-            IWebSocketConnection socket;
-            if (id != null && FSockets.TryGetValue((Guid)id, out socket))
-                socket.Send(bytes);
+            if (id != null && FServer.ListClients().Contains((string)id))
+                FServer.SendAsync((string)id, bytes);
         }
     }
 }
