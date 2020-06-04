@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>RCPSharp</id>
+    <version>0.0.0</version>
+    <title>RCPSharp</title>
+    <authors>RabbitControl</authors>
+    <owners>RabbitControl</owners>
+    <projectUrl>https://github.com/rabbitControl/rcp-csharp</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>A c# implementation of the remote control protocol: RCP</summary>
+    <description>RCP for .NET</description>
+    <copyright>Copyright © 2019 by RabbitControl. All rights reserved.</copyright>
+    <tags>rcp, remotecontrol, ui</tags>
+	<license type="expression">LGPL-3.0-only</license>
+    <dependencies>
+      <dependency id="WatsonWebsocket" version="2.1.7.2" />
+	  <dependency id="System.Numerics.Vectors" version="4.5.0" />
+	  <dependency id="System.Collections.Immutable" version="5.0.0-preview.4.20251.6" />
+    </dependencies>
+	<icon>icon\nugeticon.png</icon>
+  </metadata>
+  <files>
+    <file src="..\lib\**" target="lib\" exclude="" />
+	<file src="nugeticon.png" target="icon\" />
+  </files>
+</package>
