@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0-preview.4.20251.6" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="WatsonWebsocket" Version="2.1.7.2" />
   </ItemGroup>
 
