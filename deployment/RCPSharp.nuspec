@@ -15,8 +15,9 @@
 	<license type="expression">LGPL-3.0-only</license>
 	<dependencies>
 		<group targetFramework=".NETStandard2.0">
+		  <dependency id="System.Collections.Immutable" version="1.6.0" />
+		  <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
 		  <dependency id="WatsonWebsocket" version="2.1.7.2" />
-		  <dependency id="System.Collections.Immutable" version="5.0.0-preview.4.20251.6" />
 		</group>
     </dependencies>
 	<icon>icon\nugeticon.png</icon>
