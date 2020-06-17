@@ -16,7 +16,7 @@
 	<dependencies>
 		<group targetFramework=".NETStandard2.0">
 		  <dependency id="System.Collections.Immutable" version="1.6.0" />
-		  <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+		  <dependency id="System.Numerics.Vectors" Version="4.5.0" />
 		  <dependency id="WatsonWebsocket" version="2.1.7.2" />
 		</group>
     </dependencies>
