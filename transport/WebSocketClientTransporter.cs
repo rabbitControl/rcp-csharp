@@ -47,12 +47,12 @@ namespace RCP.Transporter
 
         private void FClient_ServerDisconnected(object sender, EventArgs e)
         {
-            FContext.Post((b) => Connected?.Invoke(), null);
+            FContext.Post((b) => Disconnected?.Invoke(), null);
         }
 
         private void FClient_ServerConnected(object sender, EventArgs e)
         {
-            FContext.Post((b) => Disconnected?.Invoke(), null);
+            FContext.Post((b) => Connected?.Invoke(), null);
         }
 
         private void FClient_MessageReceived(object sender, MessageReceivedEventArgs e)
