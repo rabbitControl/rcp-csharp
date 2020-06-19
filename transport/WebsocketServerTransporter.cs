@@ -55,7 +55,13 @@ namespace RCP.Transporter
             {
                 foreach (var client in FServer.ListClients())
                     FServer.DisconnectClient(client);
-                FServer.Dispose();
+                try
+                {
+                    FServer.Dispose();
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
