@@ -18,6 +18,7 @@
 		  <dependency id="System.Collections.Immutable" version="1.6.0" />
 		  <dependency id="System.Numerics.Vectors" version="4.5.0" />
 		  <dependency id="WatsonWebsocket" version="2.1.7.2" />
+		  <dependency id="Fleck" version="1.1.0" />
 		</group>
     </dependencies>
 	<icon>icon\nugeticon.png</icon>
