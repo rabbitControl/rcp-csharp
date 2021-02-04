@@ -91,13 +91,13 @@ namespace RCP.Transporter
 
         public void SendToAll(byte[] bytes, object exceptId)
         {
-            if (FClient.Connected)
+            if (FClient?.Connected ?? false)
                 FClient.SendAsync(bytes);
         }
 
         public void SendToOne(byte[] bytes, object id)
         {
-            if (FClient.Connected)
+            if (FClient?.Connected ?? false)
                 FClient.SendAsync(bytes);
         }
     }
