@@ -13,7 +13,7 @@ namespace RCP.Transporter
         private System.Timers.Timer FTimer = new System.Timers.Timer(2000);
 
     	public Action<byte[], object> Received {get; set;}
-    	public int ConnectionCount => FClient.Connected ? 1 : 0;
+    	public int ConnectionCount => (FClient?.Connected ?? false) ? 1 : 0;
 
         public RabbitholeServerTransporter(string remoteHost)
         {
