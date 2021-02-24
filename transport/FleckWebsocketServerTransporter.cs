@@ -11,7 +11,7 @@ namespace RCP.Transporter
     {
         private SynchronizationContext FContext;
         private WebSocketServer FServer;
-        private Dictionary<Guid, IWebSocketConnection> FSockets = new Dictionary<Guid, IWebSocketConnection>();
+        private Dictionary<string, IWebSocketConnection> FSockets = new Dictionary<string, IWebSocketConnection>();
 
     	public Action<byte[], object> Received {get; set;}
     	public int ConnectionCount => FSockets.Count;
@@ -35,13 +35,13 @@ namespace RCP.Transporter
                 socket.OnOpen = () =>
                 {
                     Console.WriteLine("Open!");
-                    FSockets.Add(socket.ConnectionInfo.Id, socket);
+                    FSockets.Add(socket.ConnectionInfo.Id.ToString(), socket);
                 };
 
                 socket.OnClose = () =>
                 {
                     Console.WriteLine("Close!");
-                    FSockets.Remove(socket.ConnectionInfo.Id);
+                    FSockets.Remove(socket.ConnectionInfo.Id.ToString());
                 };
 
                 socket.OnMessage = message =>
@@ -54,7 +54,7 @@ namespace RCP.Transporter
                 socket.OnBinary = bytes =>
                 {
                     if (bytes.Length > 0)
-                        FContext.Post((b) => Received?.Invoke(b as byte[], socket.ConnectionInfo.Id), bytes);
+                        FContext.Post((b) => Received?.Invoke(b as byte[], socket.ConnectionInfo.Id.ToString()), bytes);
                 };
             });
         }
@@ -80,7 +80,7 @@ namespace RCP.Transporter
         public void SendToAll(byte[] bytes, object exceptId)
         {
             FSockets.Keys.ToList().ForEach(k => {
-            	if (exceptId == null || k != (Guid)exceptId)
+            	if (exceptId == null || k != (string)exceptId)
                     FSockets[k].Send(bytes);
             });
         }
@@ -88,7 +88,7 @@ namespace RCP.Transporter
         public void SendToOne(byte[] bytes, object id)
         {
             IWebSocketConnection socket;
-            if (id != null && FSockets.TryGetValue((Guid)id, out socket))
+            if (id != null && FSockets.TryGetValue((string)id, out socket))
                 socket.Send(bytes);
         }
     }

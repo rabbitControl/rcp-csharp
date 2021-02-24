@@ -10,6 +10,7 @@ namespace RCP.Transporter
     {
         private SynchronizationContext FContext;
         private WatsonWsClient FClient;
+        private string FRemoteHost;
         private System.Timers.Timer FTimer = new System.Timers.Timer(2000);
 
     	public Action<byte[], object> Received {get; set;}
@@ -19,7 +20,8 @@ namespace RCP.Transporter
         {
             FContext = SynchronizationContext.Current;
 
-            CreateClient(remoteHost);
+            FRemoteHost = remoteHost;
+            Bind(remoteHost, 0);
             
             FTimer.Elapsed += FTimer_Elapsed;
             FTimer.Start();
@@ -28,7 +30,9 @@ namespace RCP.Transporter
         private void FTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             if (FClient != null && !FClient.Connected)
-                FClient.Start();
+            {
+                Bind(FRemoteHost, 0);
+            }
         }
 
         public void Dispose()
@@ -47,6 +51,8 @@ namespace RCP.Transporter
                 FClient.MessageReceived += FClient_MessageReceived;
                 FClient.ServerConnected += FClient_ServerConnected;
                 FClient.ServerDisconnected += FClient_ServerDisconnected;
+
+                FClient.Start();
             }
         }
 
