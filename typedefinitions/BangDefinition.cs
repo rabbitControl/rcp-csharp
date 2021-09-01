@@ -28,13 +28,5 @@ namespace RCP.Types
         {
             throw new NotImplementedException();
         }
-
-        public override void ParseOptions(KaitaiStream input)
-        {
-            //read terminator
-            input.ReadU1();
-            //execute bang
-            OnBang?.Invoke();
-        }
     }
  }
