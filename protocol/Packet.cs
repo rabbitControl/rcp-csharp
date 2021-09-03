@@ -36,10 +36,16 @@ namespace RCP.Protocol
                 var datatype = (RcpTypes.Datatype)input.ReadU1();
                 //get parameter
                 var parameter = manager.GetParameter(id);
-                //read value
-                parameter.ReadValue(input);
-                packet.Data = parameter;
-                return packet;
+                //make sure the parameter already exists (apparently there are cases where the server sends an update before the addparameter?!
+                if (parameter != null)
+                {
+                    //read value
+                    parameter.ReadValue(input);
+                    packet.Data = parameter;
+                    return packet;
+                }
+                else
+                    return null;
             }
 
             // read packet options

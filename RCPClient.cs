@@ -88,6 +88,8 @@ namespace RCP
 		{
 			//Logger.Log(LogType.Debug, "Client received: " + bytes.Length + "bytes");
 			var packet = Packet.Parse(new KaitaiStream(bytes), this);
+            if (packet == null)
+                return;
 
 			//Logger.Log(LogType.Debug, packet.Command.ToString());
 			switch (packet.Command)
