@@ -4,6 +4,7 @@ using RCP.Protocol;
 using RCP.Types;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -16,6 +17,8 @@ namespace RCP
         List<short> FParamsToRemove = new List<short>();
 		List<IServerTransporter> FTransporters = new List<IServerTransporter>();
         Int16 FIdCounter = 1;
+
+        public IReadOnlyDictionary<Int16, Parameter> Parameters => FParams;
 
         public string ApplicationId { get; }
 
