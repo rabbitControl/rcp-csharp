@@ -17,7 +17,7 @@
 		<group targetFramework=".NETStandard2.0">
 		  <dependency id="System.Collections.Immutable" version="1.6.0" />
 		  <dependency id="System.Numerics.Vectors" version="4.5.0" />
-		  <dependency id="WatsonWebsocket" version="2.3.2.1" />
+		  <dependency id="WatsonWebsocket" version="3.0.1" />
 		  <dependency id="Fleck" version="1.2.0" />
 		</group>
     </dependencies>

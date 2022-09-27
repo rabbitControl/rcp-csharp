@@ -57,9 +57,9 @@ namespace RCP.Transporter
 
         private void FClient_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            if (e.Data.Length > 0)
+            if (e.Data.Count > 0)
             {
-                FContext.Post((b) => Received?.Invoke(e.Data), e.Data);
+                FContext.Post((b) => Received?.Invoke(b as byte[]), e.Data.Array);
             }
         }
 

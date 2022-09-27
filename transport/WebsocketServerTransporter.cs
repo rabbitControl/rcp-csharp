@@ -39,8 +39,8 @@ namespace RCP.Transporter
 
         private void FServer_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            if (e.Data.Length > 0)
-                FContext.Post((b) => Received?.Invoke(b as byte[], e.IpPort), e.Data);
+            if (e.Data.Count > 0)
+                FContext.Post((b) => Received?.Invoke(b as byte[], e.IpPort), e.Data.Array);
         }
 
         public void Bind(string remoteHost, int port)
