@@ -67,7 +67,7 @@ namespace RCP
             foreach (var parameter in FParams.Values)
                 if (parameter.OnlyValueChanged)
                     SendPacket(Pack(RcpTypes.Command.Updatevalue, parameter));
-                else
+                else if (parameter.IsDirty)
                     SendPacket(Pack(RcpTypes.Command.Update, parameter));
         }
 

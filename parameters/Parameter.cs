@@ -303,7 +303,10 @@ namespace RCP.Parameters
             FChangedFlags = 0;
         }
 
-        public virtual void WriteValue(BinaryWriter writer, bool includeOption = true) { } 
+        public virtual void WriteValue(BinaryWriter writer, bool includeOption = true) 
+        {
+            Invalidate(ParameterChangedFlags.Value);
+        } 
 
         public virtual object ReadValue(KaitaiStream input) { return null; }
 
@@ -417,6 +420,7 @@ namespace RCP.Parameters
         internal bool OnlyValueChanged => (ParameterChangedFlags)FChangedFlags == ParameterChangedFlags.Value;
         protected bool IsChanged(ParameterChangedFlags flags) => ((ParameterChangedFlags)FChangedFlags).HasFlag(flags);
         protected void SetChanged(ParameterChangedFlags flags) => FChangedFlags |= (int)flags;
+        protected void Invalidate(ParameterChangedFlags flags) => FChangedFlags &= ~(int)flags;
 
         public virtual void ResetForInitialize()
         {
