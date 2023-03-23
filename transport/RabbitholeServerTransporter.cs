@@ -2,6 +2,7 @@ using System;
 
 using WatsonWebsocket;
 using System.Threading;
+using System.Linq;
 //using VVVV.Core.Logging;
 
 namespace RCP.Transporter
@@ -10,16 +11,18 @@ namespace RCP.Transporter
     {
         private SynchronizationContext FContext;
         private WatsonWsClient FClient;
+        private string FClientId;
         private string FRemoteHost;
         private System.Timers.Timer FTimer = new System.Timers.Timer(2000);
 
-    	public Action<byte[], object> Received {get; set;}
+    	public Action<byte[], string> Received {get; set;}
     	public int ConnectionCount => (FClient?.Connected ?? false) ? 1 : 0;
 
         public RabbitholeServerTransporter(string remoteHost)
         {
             FContext = SynchronizationContext.Current;
 
+            FClientId = Guid.NewGuid().ToString();
             FRemoteHost = remoteHost;
             Bind(remoteHost, 0);
             
@@ -69,7 +72,7 @@ namespace RCP.Transporter
         private void FClient_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
             if (e.Data.Count > 0)
-                FContext.Post((b) => Received?.Invoke(b as byte[], e.IpPort), e.Data.Array);
+                FContext.Post((b) => Received?.Invoke(b as byte[], FClientId), e.Data.ToArray());
         }
 
         public void Bind(string remoteHost, int port)
@@ -95,16 +98,18 @@ namespace RCP.Transporter
             }
         }
 
-        public void SendToAll(byte[] bytes, object exceptId)
+        public void SendToAll(byte[] bytes, string exceptId)
         {
             if (FClient?.Connected ?? false)
-                FClient.SendAsync(bytes);
+                if (string.IsNullOrEmpty(exceptId) || FClientId != exceptId) 
+                    FClient.SendAsync(bytes);
         }
 
-        public void SendToOne(byte[] bytes, object id)
+        public void SendToOne(byte[] bytes, string id)
         {
             if (FClient?.Connected ?? false)
-                FClient.SendAsync(bytes);
+                if (id == FClientId)
+                    FClient.SendAsync(bytes);
         }
     }
 }

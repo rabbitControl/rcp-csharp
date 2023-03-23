@@ -14,7 +14,7 @@ namespace RCP.Transporter
         private SynchronizationContext FContext;
         private WatsonWsServer FServer;
 
-    	public Action<byte[], object> Received {get; set;}
+    	public Action<byte[], string> Received {get; set;}
     	public int ConnectionCount => FServer.ListClients().Count();
     	
         public WebsocketServerTransporter(string remoteHost, int port)
@@ -40,7 +40,7 @@ namespace RCP.Transporter
         private void FServer_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
             if (e.Data.Count > 0)
-                FContext.Post((b) => Received?.Invoke(b as byte[], e.IpPort), e.Data.Array);
+                FContext.Post((b) => Received?.Invoke(b as byte[], e.Client.Guid.ToString()), e.Data.ToArray());
         }
 
         public void Bind(string remoteHost, int port)
@@ -54,7 +54,7 @@ namespace RCP.Transporter
             if (FServer != null)
             {
                 foreach (var client in FServer.ListClients())
-                    FServer.DisconnectClient(client);
+                    FServer.DisconnectClient(client.Guid);
                 try
                 {
                     FServer.Dispose();
@@ -65,17 +65,18 @@ namespace RCP.Transporter
             }
         }
 
-        public void SendToAll(byte[] bytes, object exceptId)
+        public void SendToAll(byte[] bytes, string exceptId)
         {
             foreach (var client in FServer.ListClients())
-                if (exceptId == null || client != (string)exceptId)
-                    FServer.SendAsync(client, bytes);
+                if (string.IsNullOrEmpty(exceptId) || client.Guid.ToString() != exceptId)
+                    FServer.SendAsync(client.Guid, bytes);
         }
 
-        public void SendToOne(byte[] bytes, object id)
+        public void SendToOne(byte[] bytes, string id)
         {
-            if (id != null && FServer.ListClients().Contains((string)id))
-                FServer.SendAsync((string)id, bytes);
+            var targetClient = FServer.ListClients().FirstOrDefault(c => c.Guid.ToString() == id);
+            if (targetClient != null)
+                FServer.SendAsync(targetClient.Guid, bytes);
         }
     }
 }

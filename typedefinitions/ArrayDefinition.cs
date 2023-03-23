@@ -94,7 +94,6 @@ namespace RCP.Types
             WriteStructure(writer);
 
             var a = value as Array;
-            var rank = 1;//a.Rank;
 
             //TODO: support multiple dimensions
             foreach (var e in value)

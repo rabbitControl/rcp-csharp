@@ -7,9 +7,9 @@ namespace RCP
         void Bind(string host, int port);
         void Unbind();
         int ConnectionCount { get; }
-		void SendToAll(byte[] bytes, object exceptId);
-        void SendToOne(byte[] bytes, object id);
-        Action<byte[], object> Received {get; set;}
+		void SendToAll(byte[] bytes, string exceptId);
+        void SendToOne(byte[] bytes, string id);
+        Action<byte[], string> Received {get; set;}
 	}
 	
 	public interface IClientTransporter: IDisposable

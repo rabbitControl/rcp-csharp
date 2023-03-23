@@ -59,7 +59,7 @@ namespace RCP.Transporter
         {
             if (e.Data.Count > 0)
             {
-                FContext.Post((b) => Received?.Invoke(b as byte[]), e.Data.Array);
+                FContext.Post((b) => Received?.Invoke(b as byte[]), e.Data.ToArray());
             }
         }
 

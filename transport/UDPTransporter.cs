@@ -80,7 +80,8 @@ namespace RCP.Transporter
 
     public class UDPServerTransporter: UDPTransporter, IServerTransporter
 	{
-        public Action<byte[], Object> Received { get; set; }
+        private string FServerId;
+        public Action<byte[], string> Received { get; set; }
 
         public int ConnectionCount
         {
@@ -92,21 +93,23 @@ namespace RCP.Transporter
 
         public UDPServerTransporter(string remoteHost, int remotePort, int listeningPort):
             base(remoteHost, remotePort, listeningPort)
-		{ }
+		{ 
+            FServerId = Guid.NewGuid().ToString();
+        }
 
         protected override void OnReceived(byte[] bytes)
         {
-            Received?.Invoke(bytes, this);
+            Received?.Invoke(bytes, FServerId);
         }
 		
-		public void SendToAll(byte[] bytes, object exceptId)
+		public void SendToAll(byte[] bytes, string exceptId)
 		{
             FUDPSender.Send(bytes, bytes.Length);
 		}
 
-        public void SendToOne(byte[] bytes, object id)
+        public void SendToOne(byte[] bytes, string id)
         {
-            if (id == this)
+            if (id == FServerId)
                 FUDPSender.Send(bytes, bytes.Length);
         }
 

@@ -13,7 +13,7 @@ namespace RCP.Transporter
         private WebSocketServer FServer;
         private Dictionary<string, IWebSocketConnection> FSockets = new Dictionary<string, IWebSocketConnection>();
 
-    	public Action<byte[], object> Received {get; set;}
+    	public Action<byte[], string> Received {get; set;}
     	public int ConnectionCount => FSockets.Count;
     	
         public FleckWebsocketServerTransporter(string remoteHost, int port)
@@ -77,18 +77,18 @@ namespace RCP.Transporter
             }
         }
 
-        public void SendToAll(byte[] bytes, object exceptId)
+        public void SendToAll(byte[] bytes, string exceptId)
         {
             FSockets.Keys.ToList().ForEach(k => {
-            	if (exceptId == null || k != (string)exceptId)
+            	if (string.IsNullOrEmpty(exceptId) || k != exceptId)
                     FSockets[k].Send(bytes);
             });
         }
 
-        public void SendToOne(byte[] bytes, object id)
+        public void SendToOne(byte[] bytes, string id)
         {
             IWebSocketConnection socket;
-            if (id != null && FSockets.TryGetValue((string)id, out socket))
+            if (FSockets.TryGetValue(id, out socket))
                 socket.Send(bytes);
         }
     }

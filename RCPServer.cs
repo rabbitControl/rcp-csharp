@@ -205,7 +205,7 @@ namespace RCP
             return false;
 		}
 		
-		void ReceiveFromClientCB(byte[] bytes, object senderId)
+		void ReceiveFromClientCB(byte[] bytes, string senderId)
 		{
 			try
             {
@@ -269,7 +269,7 @@ namespace RCP
             }
         }
 		
-		void SendToMultiple(Packet packet, object exceptClientId = null)
+		void SendToMultiple(Packet packet, string exceptClientId = "")
 		{
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
@@ -282,7 +282,7 @@ namespace RCP
             }
 		}
 
-        void SendToMultiple(byte[] bytes, object exceptClientId = null)
+        void SendToMultiple(byte[] bytes, string exceptClientId = "")
         {
             using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
@@ -293,7 +293,7 @@ namespace RCP
             }
         }
 
-        void SendToOne(Packet packet, object clientId)
+        void SendToOne(Packet packet, string clientId)
 		{
 			using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
