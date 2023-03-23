@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>RCPSharp</id>
-    <version>0.4.0-alpha</version>
+    <version>0.4.1-alpha</version>
     <title>RCPSharp</title>
     <authors>RabbitControl</authors>
     <owners>RabbitControl</owners>
@@ -14,7 +14,7 @@
     <tags>rcp, remotecontrol, ui</tags>
 	<license type="expression">LGPL-3.0-only</license>
 	<dependencies>
-	  <dependency id="System.Collections.Immutable" version="7.0.0" />
+	  <dependency id="System.Collections.Immutable" version="6.0.0" />
 	  <dependency id="System.Numerics.Vectors" version="4.5.0" />
 	  <dependency id="WatsonWebsocket" version="4.0.8" />
 	  <dependency id="Fleck" version="1.2.0" />
