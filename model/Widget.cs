@@ -207,6 +207,16 @@ namespace RCP.Protocol
                         widget = new NumberboxWidget();
                         break;
                     }
+                case RcpTypes.Widgettype.List:
+                    {
+                        widget = new ListWidget();
+                        break;
+                    }
+                case RcpTypes.Widgettype.Tabs:
+                    {
+                        widget = new TabsWidget();
+                        break;
+                    }
                 default:
                     {
                         widget = new Widget(widgettype);
@@ -256,6 +266,20 @@ namespace RCP.Protocol
     {
         public NumberboxWidget()
         : base(RcpTypes.Widgettype.Numberbox)
+        { }
+    }
+
+    public class ListWidget : Widget
+    {
+        public ListWidget()
+        : base(RcpTypes.Widgettype.List)
+        { }
+    }
+
+    public class TabsWidget : Widget
+    {
+        public TabsWidget()
+        : base(RcpTypes.Widgettype.Tabs)
         { }
     }
 }
