@@ -170,9 +170,9 @@ namespace RCP.Protocol
 
         public static Widget Parse(KaitaiStream input)
         {
-            var widgettype = (RcpTypes.Widgettype)input.ReadS2be();
+            var widgettype = (RcpTypes.Widgettype)input.ReadU2be();
             if (!Enum.IsDefined(typeof(RcpTypes.Widgettype), widgettype))
-                throw new RCPDataErrorException("Widget parsing: Unknown widget!");
+                throw new RCPDataErrorException("Widget parsing: Unknown widget: " + widgettype.ToString());
 
             Widget widget = null;
 
