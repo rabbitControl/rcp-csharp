@@ -68,7 +68,7 @@ namespace RCP.Parameters
         private int FOrder;
         private byte[] FUserdata = Array.Empty<byte>();
         private string FUserId = "";
-        private Widget FWidget;
+        private Widget FWidget = new Widget(RcpTypes.Widgettype.Default);
         private bool FReadonly;
 
         public event EventHandler Updated;
@@ -79,6 +79,8 @@ namespace RCP.Parameters
             Id = id;
             FManager = manager;
             TypeDefinition = type;
+            if (TypeDefinition is GroupDefinition)
+                FWidget = new ListWidget();
             // Redirect notifications from type
             type.PropertyChanged += (s, p) => OnPropertyChanged(p.PropertyName);
         }
