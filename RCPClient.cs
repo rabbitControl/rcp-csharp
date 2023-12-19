@@ -39,11 +39,18 @@ namespace RCP
         public Action<Exception> OnError;
         public Action<RcpTypes.ClientStatus, string> StatusChanged;
 
-        public void Connect(string host, int port)
+        public void Connect(string host, int port, bool ssl)
         {
             if (FTransporter.IsConnected)
                 FTransporter.Disconnect();
-            FTransporter.Connect(host, port);
+            FTransporter.Connect(host, port, ssl);
+        }
+
+        public void Connect(Uri url)
+        {
+            if (FTransporter.IsConnected)
+                FTransporter.Disconnect();
+            FTransporter.Connect(url);
         }
 
         public void Disonnect()

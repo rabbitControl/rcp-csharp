@@ -14,7 +14,8 @@ namespace RCP
 	
 	public interface IClientTransporter: IDisposable
 	{
-        void Connect(string host, int port);
+        void Connect(string ip, int port, bool ssl);
+        void Connect(Uri uri);
         void Disconnect();
         bool IsConnected { get; }
 		void Send(byte[] bytes);

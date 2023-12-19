@@ -38,11 +38,7 @@ namespace RCP.Transporter
 
         private void CreateClient(string remoteHost, int port)
         {
-            FClient = new WatsonWsClient(remoteHost, port, false);
-            FClient.MessageReceived += FClient_MessageReceived;
-            FClient.ServerConnected += FClient_ServerConnected;
-            FClient.ServerDisconnected += FClient_ServerDisconnected;
-            FClient.Start();
+            
         }
 
         private void FClient_ServerDisconnected(object sender, EventArgs e)
@@ -63,10 +59,24 @@ namespace RCP.Transporter
             }
         }
 
-        public void Connect(string remoteHost, int port)
+        public void Connect(string remoteIP, int port, bool ssl)
         {
             DestroyClient();
-            CreateClient(remoteHost, port);
+            FClient = new WatsonWsClient(remoteIP, port, ssl);
+            FClient.MessageReceived += FClient_MessageReceived;
+            FClient.ServerConnected += FClient_ServerConnected;
+            FClient.ServerDisconnected += FClient_ServerDisconnected;
+            FClient.Start();
+        }
+
+        public void Connect(Uri url)
+        {
+            DestroyClient();
+            FClient = new WatsonWsClient(url);
+            FClient.MessageReceived += FClient_MessageReceived;
+            FClient.ServerConnected += FClient_ServerConnected;
+            FClient.ServerDisconnected += FClient_ServerDisconnected;
+            FClient.Start();
         }
 
         public void Disconnect()

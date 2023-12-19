@@ -181,7 +181,12 @@ namespace RCP.Transporter
 			var r = FUDPSender.Send(bytes, bytes.Length);
 		}
 
-        public void Connect(string host, int port)
+        public void Connect(string host, int port, bool ssl)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Connect(Uri url)
         {
             throw new NotImplementedException();
         }
