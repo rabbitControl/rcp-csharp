@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\kaitai-struct-compiler\bin\kaitai-struct-compiler"  ..\..\..\RCP\kaitai\RCPTypes.ksy --outdir protocol --target=csharp --dotnet-namespace RCP.Protocol
